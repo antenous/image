@@ -1,0 +1,9 @@
+# Eclipse project files
+/.cproject
+/.project
+/.settings/
+
+# Compilation files
+image
+testrunner
+*.[ado]
