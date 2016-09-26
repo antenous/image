@@ -31,8 +31,24 @@ namespace
             writeToFile( fileHeader.offset );
         }
 
+        void writeInfoHeader()
+        {
+            writeToFile( infoHeader.size );
+            writeToFile( infoHeader.width );
+            writeToFile( infoHeader.height );
+            writeToFile( infoHeader.planes );
+            writeToFile( infoHeader.bits );
+            writeToFile( infoHeader.compression );
+            writeToFile( infoHeader.imageSize );
+            writeToFile( infoHeader.horizontalResolution );
+            writeToFile( infoHeader.verticalResolution );
+            writeToFile( infoHeader.colors );
+            writeToFile( infoHeader.importantColors );
+        }
+
         Bitmap bitmap;
         Bitmap::FileHeader fileHeader{{ 'B', 'M' }, 313, 0, 0, 54 };
+        Bitmap::InfoHeader infoHeader{ 40, 4, 4, 1, 24, 0, 16, 2835, 2835, 0, 0 };
         std::stringstream file;
     };
 }
@@ -58,6 +74,18 @@ TEST_F( BitmapTest, CanThrowAndCatchInvalidType )
     catch ( const std::runtime_error & e )
     {
         EXPECT_STREQ( "invalid type", e.what() );
+    }
+}
+
+TEST_F( BitmapTest, CanThrowAndCatchUnknownInfoHeader )
+{
+    try
+    {
+        throw Bitmap::UnknownInfoHeader();
+    }
+    catch( const std::runtime_error & e )
+    {
+        EXPECT_STREQ( "unknown info header", e.what() );
     }
 }
 
@@ -90,9 +118,19 @@ TEST_F( BitmapTest, GivenFileWithInvalidType_WhenRead_ThrowInvalidType )
     EXPECT_THROW( bitmap.read( file ), Bitmap::InvalidType );
 }
 
+TEST_F( BitmapTest, GivenFileWithUnknownInfoHeader_WhenRead_ThrowUnknownInfoHeader )
+{
+    infoHeader.size -= 1;
+    writeFileHeader();
+    writeInfoHeader();
+
+    EXPECT_THROW( bitmap.read( file ), Bitmap::UnknownInfoHeader );
+}
+
 TEST_F( BitmapTest, GivenFileWithValidHeader_WhenRead_ReadFileHeader )
 {
     writeFileHeader();
+    writeInfoHeader();
     bitmap.read( file );
 
     EXPECT_EQ( std::istream::traits_type::eof(), file.peek() );

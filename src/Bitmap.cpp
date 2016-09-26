@@ -39,6 +39,12 @@ namespace
 
 void Bitmap::read( std::istream & file )
 {
+    readFileHeader( file );
+    readInfoHeader( file );
+}
+
+void Bitmap::readFileHeader( std::istream & file )
+{
     if ( !file || isEmpty( file ) || !hasFileHeader( file ))
         throw BadFile();
 
@@ -50,4 +56,23 @@ void Bitmap::read( std::istream & file )
 
     if ( isBitmap( fileHeader.type ))
         throw InvalidType();
+}
+
+void Bitmap::readInfoHeader( std::istream & file )
+{
+    ::read( file, infoHeader.size );
+
+    if ( infoHeader.size != 40 )
+        throw UnknownInfoHeader();
+
+    ::read( file, infoHeader.width );
+    ::read( file, infoHeader.height );
+    ::read( file, infoHeader.planes );
+    ::read( file, infoHeader.bits );
+    ::read( file, infoHeader.compression );
+    ::read( file, infoHeader.imageSize );
+    ::read( file, infoHeader.horizontalResolution );
+    ::read( file, infoHeader.verticalResolution );
+    ::read( file, infoHeader.colors );
+    ::read( file, infoHeader.importantColors );
 }
