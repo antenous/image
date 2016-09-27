@@ -22,6 +22,22 @@ namespace
     {
         return type[0] == 'B' && type[1] == 'M';
     }
+
+    uint32_t readColor( std::istream & file )
+    {
+        uint8_t blue, green, red;
+
+        read( file, blue );
+        read( file, green );
+        read( file, red );
+
+        return blue << 16 | green << 8 | red;
+    }
+
+    void skipPadding( std::istream & file, std::istream::streamoff off )
+    {
+        file.seekg( off, file.cur );
+    }
 }
 
 void Bitmap::loadFrom( std::istream & file )
@@ -35,6 +51,7 @@ void Bitmap::loadFrom( std::istream & file )
     {
         readFileHeader( file );
         readInfoHeader( file );
+        readColorTable( file );
     }
     catch ( const std::istream::failure & )
     {
@@ -68,4 +85,14 @@ void Bitmap::readInfoHeader( std::istream & file )
     read( file, infoHeader.verticalResolution );
     read( file, infoHeader.colors );
     read( file, infoHeader.importantColors );
+}
+
+void Bitmap::readColorTable( std::istream & file )
+{
+    const auto bytesInRow(( infoHeader.bits * infoHeader.width + 31 ) / 32 * 4 );
+    const auto padding( bytesInRow - infoHeader.width*3 );
+
+    for ( int32_t row( 0 ); row < infoHeader.height; ++row, skipPadding( file, padding ))
+        for ( int32_t column( 0 ); column < infoHeader.width; ++column )
+            colors.push_back( readColor( file ));
 }

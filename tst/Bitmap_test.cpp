@@ -39,8 +39,8 @@ namespace
         void createInfoHeader()
         {
             uint32_t size( 40 );
-            int32_t width( 4 );
-            int32_t height( 4 );
+            int32_t width( 2 );
+            int32_t height( 2 );
             uint16_t planes( 1 );
             uint16_t bits( 24 );
             uint32_t compression( 0 );
@@ -63,10 +63,51 @@ namespace
             writeToFile( importantColors );
         }
 
+        void createColorTable()
+        {
+            createRedPixel();
+            createWhitePixel();
+            createPadding();
+            createBluePixel();
+            createGreenPixel();
+            createPadding();
+        }
+
+        void createRedPixel()
+        {
+            writeToFile({ 0, 0, 255 });
+        }
+
+        void createWhitePixel()
+        {
+            writeToFile({ 255, 255, 255 });
+        }
+
+        void createPadding()
+        {
+            writeToFile({ 0, 0 });
+        }
+
+        void createBluePixel()
+        {
+            writeToFile({ 255, 0 , 0 });
+        }
+
+        void createGreenPixel()
+        {
+            writeToFile({ 0, 255, 0 });
+        }
+
         template< typename T >
         void writeToFile( const T & t )
         {
             file.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
+        }
+
+        void writeToFile( const std::vector< uint8_t > & bytes )
+        {
+            for ( auto byte : bytes )
+                writeToFile( byte );
         }
 
         Bitmap bitmap;
@@ -117,10 +158,11 @@ TEST_F( BitmapTest, GivenFileWithInvalidType_WhenLoaded_ThrowsInvalidType )
     EXPECT_THROW( bitmap.loadFrom( file ), Bitmap::InvalidType );
 }
 
-TEST_F( BitmapTest, GivenFileWithValidHeaders_WhenLoaded_ReadsFileHeaders )
+TEST_F( BitmapTest, GivenValidFile_WhenLoaded_ReadsFile )
 {
     createFileHeader();
     createInfoHeader();
+    createColorTable();
     bitmap.loadFrom( file );
 
     EXPECT_EQ( std::istream::traits_type::eof(), file.peek() );

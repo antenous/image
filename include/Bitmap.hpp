@@ -9,6 +9,7 @@
 #define BITMAP_HPP_
 
 #include <stdexcept>
+#include <vector>
 
 namespace image
 {
@@ -26,6 +27,8 @@ namespace image
         void readFileHeader( std::istream & file );
 
         void readInfoHeader( std::istream & file );
+
+        void readColorTable( std::istream & file );
 
         struct
         {
@@ -50,6 +53,8 @@ namespace image
             uint32_t colors;
             uint32_t importantColors;
         } infoHeader;
+
+        std::vector< uint32_t > colors;
     };
 
     class Bitmap::BadFile : public std::runtime_error
