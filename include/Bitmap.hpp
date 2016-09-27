@@ -9,7 +9,6 @@
 #define BITMAP_HPP_
 
 #include <stdexcept>
-#include <istream>
 
 namespace image
 {
@@ -21,18 +20,23 @@ namespace image
 
         class InvalidType;
 
-        class UnknownInfoHeader;
+        void loadFrom( std::istream & file );
 
-        struct FileHeader
+    private:
+        void readFileHeader( std::istream & file );
+
+        void readInfoHeader( std::istream & file );
+
+        struct
         {
             char type[2];
             uint32_t size;
             uint16_t reserved1;
             uint16_t reserved2;
             uint32_t offset;
-        };
+        } fileHeader;
 
-        struct InfoHeader
+        struct
         {
             uint32_t size;
             int32_t width;
@@ -45,17 +49,7 @@ namespace image
             uint32_t verticalResolution;
             uint32_t colors;
             uint32_t importantColors;
-        };
-
-        void read( std::istream & file );
-
-    private:
-        void readFileHeader( std::istream & file );
-
-        void readInfoHeader( std::istream & file );
-
-        FileHeader fileHeader;
-        InfoHeader infoHeader;
+        } infoHeader;
     };
 
     class Bitmap::BadFile : public std::runtime_error
@@ -71,14 +65,6 @@ namespace image
     public:
         InvalidType() :
             std::runtime_error( "invalid type" )
-        {}
-    };
-
-    class Bitmap::UnknownInfoHeader : public std::runtime_error
-    {
-    public:
-        UnknownInfoHeader() :
-            std::runtime_error( "unknown info header" )
         {}
     };
 
