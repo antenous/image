@@ -23,12 +23,24 @@ namespace image
 
         void loadFrom( std::istream & file );
 
+        void saveTo( std::ostream & file ) const;
+
     private:
+        typedef std::vector< uint32_t > Colors;
+
         void readFileHeader( std::istream & file );
 
         void readInfoHeader( std::istream & file );
 
         void readColorTable( std::istream & file );
+
+        void writeFileHeader( std::ostream & file ) const;
+
+        void writeInfoHeader( std::ostream & file ) const;
+
+        void writeColorTable( std::ostream & file ) const;
+
+        void writeColorRow( std::ostream & file, typename Colors::size_type row ) const;
 
         struct
         {
@@ -54,7 +66,9 @@ namespace image
             uint32_t importantColors;
         } infoHeader;
 
-        std::vector< uint32_t > colors;
+        uint8_t padding;
+
+        Colors colors;
     };
 
     class Bitmap::BadFile : public std::runtime_error

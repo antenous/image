@@ -18,6 +18,12 @@ namespace
         file.read( reinterpret_cast< char* >( &t ), sizeof( t ));
     }
 
+    template< typename T >
+    void write( std::ostream & file, const T & t )
+    {
+        file.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
+    }
+
     bool isBitmap( char type[2] )
     {
         return type[0] == 'B' && type[1] == 'M';
@@ -34,9 +40,26 @@ namespace
         return blue << 16 | green << 8 | red;
     }
 
+    void writeColor( std::ostream & file, uint32_t color )
+    {
+        const uint8_t blue(( color >> 16 ) & 255 );
+        const uint8_t green(( color >> 8 ) & 255 );
+        const uint8_t red( color & 255 );
+
+        write( file, blue );
+        write( file, green );
+        write( file, red );
+    }
+
     void skipPadding( std::istream & file, std::istream::streamoff off )
     {
         file.seekg( off, file.cur );
+    }
+
+    void addPadding( std::ostream & file, uint8_t bytes )
+    {
+        char padding[] = { 0, 0, 0 };
+        file.write( padding, bytes );
     }
 }
 
@@ -57,6 +80,13 @@ void Bitmap::loadFrom( std::istream & file )
     {
         throw BadFile();
     }
+}
+
+void Bitmap::saveTo( std::ostream & file ) const
+{
+    writeFileHeader( file );
+    writeInfoHeader( file );
+    writeColorTable( file );
 }
 
 void Bitmap::readFileHeader( std::istream & file )
@@ -85,14 +115,52 @@ void Bitmap::readInfoHeader( std::istream & file )
     read( file, infoHeader.verticalResolution );
     read( file, infoHeader.colors );
     read( file, infoHeader.importantColors );
+
+    const auto bytesInRow(( infoHeader.bits * infoHeader.width + 31 ) / 32 * 4 );
+    padding = bytesInRow - infoHeader.width*3;
 }
 
 void Bitmap::readColorTable( std::istream & file )
 {
-    const auto bytesInRow(( infoHeader.bits * infoHeader.width + 31 ) / 32 * 4 );
-    const auto padding( bytesInRow - infoHeader.width*3 );
-
     for ( int32_t row( 0 ); row < infoHeader.height; ++row, skipPadding( file, padding ))
         for ( int32_t column( 0 ); column < infoHeader.width; ++column )
             colors.push_back( readColor( file ));
+}
+
+void Bitmap::writeFileHeader( std::ostream & file ) const
+{
+    write( file, fileHeader.type );
+    write( file, fileHeader.size );
+    write( file, fileHeader.reserved1 );
+    write( file, fileHeader.reserved2 );
+    write( file, fileHeader.offset );
+}
+
+void Bitmap::writeInfoHeader( std::ostream & file ) const
+{
+    write( file, infoHeader.size );
+    write( file, infoHeader.width );
+    write( file, infoHeader.height );
+    write( file, infoHeader.planes );
+    write( file, infoHeader.bits );
+    write( file, infoHeader.compression );
+    write( file, infoHeader.imageSize );
+    write( file, infoHeader.horizontalResolution );
+    write( file, infoHeader.verticalResolution );
+    write( file, infoHeader.colors );
+    write( file, infoHeader.importantColors );
+}
+
+void Bitmap::writeColorTable( std::ostream & file ) const
+{
+    for ( Colors::size_type row( 0 ), end( infoHeader.height ); row < end; ++row )
+        writeColorRow( file, row );
+}
+
+void Bitmap::writeColorRow( std::ostream & file, typename Colors::size_type row ) const
+{
+    for ( auto i( row * infoHeader.width ), end( i + infoHeader.width ); i < end; ++i )
+        writeColor( file, colors[i] );
+
+    addPadding( file, padding );
 }

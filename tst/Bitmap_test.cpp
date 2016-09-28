@@ -110,6 +110,24 @@ namespace
                 writeToFile( byte );
         }
 
+        bool hasUnreadData( std::stringstream & file )
+        {
+            return file.peek() != std::istream::traits_type::eof();
+        }
+
+        void loadBitmapFromFile()
+        {
+            createFileHeader();
+            createInfoHeader();
+            createColorTable();
+            bitmap.loadFrom( file );
+        }
+
+        void rewindFile()
+        {
+            file.seekg( 0, file.beg );
+        }
+
         Bitmap bitmap;
         std::stringstream file;
     };
@@ -160,10 +178,21 @@ TEST_F( BitmapTest, GivenFileWithInvalidType_WhenLoaded_ThrowsInvalidType )
 
 TEST_F( BitmapTest, GivenValidFile_WhenLoaded_ReadsFile )
 {
-    createFileHeader();
-    createInfoHeader();
-    createColorTable();
-    bitmap.loadFrom( file );
+    loadBitmapFromFile();
 
-    EXPECT_EQ( std::istream::traits_type::eof(), file.peek() );
+    EXPECT_FALSE( hasUnreadData( file ));
+}
+
+TEST_F( BitmapTest, Given_WhenSaved_WritesFileHeader )
+{
+    loadBitmapFromFile();
+    rewindFile();
+
+    std::stringstream out;
+    bitmap.saveTo( out );
+
+    ASSERT_TRUE( hasUnreadData( out ));
+    EXPECT_TRUE( std::equal(
+        std::istreambuf_iterator< char >( out ), std::istreambuf_iterator< char >(),
+        std::istreambuf_iterator< char >( file )));
 }
