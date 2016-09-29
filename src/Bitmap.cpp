@@ -24,7 +24,7 @@ namespace
         file.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
     }
 
-    bool isBitmap( char type[2] )
+    bool isBitmap( const char type[2] )
     {
         return type[0] == 'B' && type[1] == 'M';
     }
@@ -84,6 +84,9 @@ void Bitmap::loadFrom( std::istream & file )
 
 void Bitmap::saveTo( std::ostream & file ) const
 {
+    if ( !file )
+        throw BadFile();
+
     writeFileHeader( file );
     writeInfoHeader( file );
     writeColorTable( file );
@@ -129,6 +132,9 @@ void Bitmap::readColorTable( std::istream & file )
 
 void Bitmap::writeFileHeader( std::ostream & file ) const
 {
+    if ( !isBitmap( fileHeader.type ))
+        throw InvalidType();
+
     write( file, fileHeader.type );
     write( file, fileHeader.size );
     write( file, fileHeader.reserved1 );

@@ -23,6 +23,11 @@ namespace
             writeToFile( type );
         }
 
+        void makeBadFile( std::stringstream & file ) const
+        {
+            file.setstate( std::ios::badbit );
+        }
+
         void createFileHeader()
         {
             char type[]{ 'B', 'M' };
@@ -101,7 +106,7 @@ namespace
         template< typename T >
         void writeToFile( const T & t )
         {
-            file.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
+            fileIn.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
         }
 
         void writeToFile( const std::vector< uint8_t > & bytes )
@@ -110,7 +115,7 @@ namespace
                 writeToFile( byte );
         }
 
-        bool hasUnreadData( std::stringstream & file )
+        bool hasUnreadData( std::stringstream & file ) const
         {
             return file.peek() != std::istream::traits_type::eof();
         }
@@ -120,16 +125,24 @@ namespace
             createFileHeader();
             createInfoHeader();
             createColorTable();
-            bitmap.loadFrom( file );
+            bitmap.loadFrom( fileIn );
         }
 
         void rewindFile()
         {
-            file.seekg( 0, file.beg );
+            fileIn.seekg( 0, fileIn.beg );
+        }
+
+        bool filesAreEqual()
+        {
+            return std::equal(
+                std::istreambuf_iterator< char >( fileOut ), std::istreambuf_iterator< char >(),
+                std::istreambuf_iterator< char >( fileIn ));
         }
 
         Bitmap bitmap;
-        std::stringstream file;
+        std::stringstream fileIn;
+        std::stringstream fileOut;
     };
 
 }
@@ -160,39 +173,49 @@ TEST_F( BitmapTest, CanThrowAndCatchInvalidType )
 
 TEST_F( BitmapTest, GivenBadFile_WhenLoaded_ThrowsBadFile )
 {
-    file.setstate( std::ios::badbit );
-    EXPECT_THROW( bitmap.loadFrom( file ), Bitmap::BadFile );
+    makeBadFile( fileIn );
+
+    EXPECT_THROW( bitmap.loadFrom( fileIn ), Bitmap::BadFile );
 }
 
 TEST_F( BitmapTest, GivenEmptyFile_WhenLoaded_ThrowsBadFile )
 {
-    EXPECT_THROW( bitmap.loadFrom( file ), Bitmap::BadFile );
+    EXPECT_THROW( bitmap.loadFrom( fileIn ), Bitmap::BadFile );
 }
 
 TEST_F( BitmapTest, GivenFileWithInvalidType_WhenLoaded_ThrowsInvalidType )
 {
     createFileHeaderWithInvalidType();
 
-    EXPECT_THROW( bitmap.loadFrom( file ), Bitmap::InvalidType );
+    EXPECT_THROW( bitmap.loadFrom( fileIn ), Bitmap::InvalidType );
 }
 
 TEST_F( BitmapTest, GivenValidFile_WhenLoaded_ReadsFile )
 {
     loadBitmapFromFile();
 
-    EXPECT_FALSE( hasUnreadData( file ));
+    EXPECT_FALSE( hasUnreadData( fileIn ));
 }
 
-TEST_F( BitmapTest, Given_WhenSaved_WritesFileHeader )
+TEST_F( BitmapTest, GivenBadFile_WhenSaved_ThrowsBadFile )
+{
+    makeBadFile( fileOut );
+
+    EXPECT_THROW( bitmap.saveTo( fileOut ), Bitmap::BadFile );
+}
+
+TEST_F( BitmapTest, GivenBitmapIsNotLoaded_WhenSaved_ThrowsInvalidType )
+{
+    EXPECT_THROW( bitmap.saveTo( fileOut ), Bitmap::InvalidType );
+}
+
+TEST_F( BitmapTest, GivenBitmapIsLoaded_WhenSaved_WritesFileHeader )
 {
     loadBitmapFromFile();
     rewindFile();
 
-    std::stringstream out;
-    bitmap.saveTo( out );
+    bitmap.saveTo( fileOut );
 
-    ASSERT_TRUE( hasUnreadData( out ));
-    EXPECT_TRUE( std::equal(
-        std::istreambuf_iterator< char >( out ), std::istreambuf_iterator< char >(),
-        std::istreambuf_iterator< char >( file )));
+    ASSERT_TRUE( hasUnreadData( fileOut ));
+    EXPECT_TRUE( filesAreEqual() );
 }
