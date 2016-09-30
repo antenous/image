@@ -23,11 +23,10 @@ namespace
         file.read( reinterpret_cast< char* >( &t ), sizeof( t ));
     }
 
-    uint32_t readSurfaceBlock( std::istream & file )
+    template< typename T >
+    void write( std::ostream & file, const T & t )
     {
-        uint32_t block;
-        read( file, block );
-        return block;
+        file.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
     }
 }
 
@@ -50,6 +49,14 @@ void DirectDrawSurface::loadFrom( std::istream & file )
     }
 }
 
+void DirectDrawSurface::saveTo( std::ostream & file )
+{
+    if ( !file )
+        throw BadFile();
+
+    writeMagic( file );
+}
+
 void DirectDrawSurface::readMagic( std::istream & file )
 {
     read( file, magic );
@@ -68,10 +75,29 @@ void DirectDrawSurface::readSurfaceData( std::istream & file )
     surfaceBlocks.resize( countSurfaceBlocks() );
 
     for ( auto & surfaceBlock : surfaceBlocks )
-        surfaceBlock = readSurfaceBlock( file );
+        read( file, surfaceBlock );
 }
 
 uint32_t DirectDrawSurface::countSurfaceBlocks() const
 {
     return header.width / 4 * header.height / 4 * 2;
+}
+
+void DirectDrawSurface::writeMagic( std::ostream & file ) const
+{
+    if ( !isDirectDrawSurface( magic ))
+        throw InvalidType();
+
+    write( file, magic );
+}
+
+void DirectDrawSurface::writeHeader( std::ostream & file ) const
+{
+    write( file, header );
+}
+
+void DirectDrawSurface::writeSurfaceData( std::ostream & file ) const
+{
+    for ( auto surfaceBlock : surfaceBlocks )
+        write( file, surfaceBlock );
 }

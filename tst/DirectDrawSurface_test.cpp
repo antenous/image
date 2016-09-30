@@ -140,7 +140,14 @@ namespace
         template< typename T >
         void writeToFile( const T & t )
         {
-            file.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
+            fileIn.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
+        }
+
+        void loadDirectDrawSurfaceFromFile()
+        {
+            createFileHeader();
+            createSurfaceData();
+            dds.loadFrom( fileIn );
         }
 
         bool hasUnreadData( std::stringstream & file ) const
@@ -148,8 +155,21 @@ namespace
             return file.peek() != std::istream::traits_type::eof();
         }
 
+        void rewindFile()
+        {
+            fileIn.seekg( 0, fileIn.beg );
+        }
+
+        bool filesAreEqual()
+        {
+            return std::equal(
+                std::istreambuf_iterator< char >( fileOut ), std::istreambuf_iterator< char >(),
+                std::istreambuf_iterator< char >( fileIn ));
+        }
+
         DirectDrawSurface dds;
-        std::stringstream file;
+        std::stringstream fileIn;
+        std::stringstream fileOut;
         const uint8_t blueBits{ 5 };
         const uint8_t greenBits{ 6 };
         const uint8_t redBits{ 5 };
@@ -182,27 +202,48 @@ TEST_F( DirectDrawSurfaceTest, CanThrowAndCatchInvalidType )
 
 TEST_F( DirectDrawSurfaceTest, GivenBadFile_WhenLoaded_ThrowsBadFile )
 {
-    makeBadFile( file );
+    makeBadFile( fileIn );
 
-    EXPECT_THROW( dds.loadFrom( file ), DirectDrawSurface::BadFile );
+    EXPECT_THROW( dds.loadFrom( fileIn ), DirectDrawSurface::BadFile );
 }
 
 TEST_F( DirectDrawSurfaceTest, GivenEmptyFile_WhenLoaded_ThrowsBadFile )
 {
-    EXPECT_THROW( dds.loadFrom( file ), DirectDrawSurface::BadFile );
+    EXPECT_THROW( dds.loadFrom( fileIn ), DirectDrawSurface::BadFile );
 }
 
 TEST_F( DirectDrawSurfaceTest, GivenFileWithInvalidMagic_WhenLoaded_ThrowsInvalidType )
 {
     createFileHeaderWithBadMagic();
 
-    EXPECT_THROW( dds.loadFrom( file ), DirectDrawSurface::InvalidType );
+    EXPECT_THROW( dds.loadFrom( fileIn ), DirectDrawSurface::InvalidType );
 }
 TEST_F( DirectDrawSurfaceTest, GivenValidFile_WhenLoaded_ReadsFile )
 {
-    createFileHeader();
-    createSurfaceData();
-    dds.loadFrom( file );
+    loadDirectDrawSurfaceFromFile();
 
-    EXPECT_FALSE( hasUnreadData( file ));
+    EXPECT_FALSE( hasUnreadData( fileIn ));
+}
+
+TEST_F( DirectDrawSurfaceTest, GivenBadFile_WhenSaved_ThrowsBadFile )
+{
+    makeBadFile( fileOut );
+
+    EXPECT_THROW( dds.saveTo( fileOut ), DirectDrawSurface::BadFile );
+}
+
+TEST_F( DirectDrawSurfaceTest, GivenDirectDrawSurfaceIsNotLoaded_WhenSaved_ThrowsInvalidType )
+{
+    EXPECT_THROW( dds.saveTo( fileOut ), DirectDrawSurface::InvalidType );
+}
+
+TEST_F( DirectDrawSurfaceTest, GivenDirectDrawSurfaceIsLoaded_WhenSaved_WritesFile )
+{
+    loadDirectDrawSurfaceFromFile();
+    rewindFile();
+
+    dds.saveTo( fileOut );
+
+    ASSERT_TRUE( hasUnreadData( fileOut ));
+    EXPECT_TRUE( filesAreEqual() );
 }

@@ -125,6 +125,8 @@ void Bitmap::readInfoHeader( std::istream & file )
 
 void Bitmap::readColorTable( std::istream & file )
 {
+    colors.clear();
+
     for ( int32_t row( 0 ); row < infoHeader.height; ++row, skipPadding( file, padding ))
         for ( int32_t column( 0 ); column < infoHeader.width; ++column )
             colors.push_back( readColor( file ));

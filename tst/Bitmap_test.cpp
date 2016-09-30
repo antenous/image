@@ -209,7 +209,7 @@ TEST_F( BitmapTest, GivenBitmapIsNotLoaded_WhenSaved_ThrowsInvalidType )
     EXPECT_THROW( bitmap.saveTo( fileOut ), Bitmap::InvalidType );
 }
 
-TEST_F( BitmapTest, GivenBitmapIsLoaded_WhenSaved_WritesFileHeader )
+TEST_F( BitmapTest, GivenBitmapIsLoaded_WhenSaved_WritesFile )
 {
     loadBitmapFromFile();
     rewindFile();

@@ -23,6 +23,8 @@ namespace image
 
         void loadFrom( std::istream & file );
 
+        void saveTo( std::ostream & file );
+
     private:
         void readMagic( std::istream & file );
 
@@ -31,6 +33,12 @@ namespace image
         void readSurfaceData( std::istream & file );
 
         uint32_t countSurfaceBlocks() const;
+
+        void writeMagic( std::ostream & file ) const;
+
+        void writeHeader( std::ostream & file ) const;
+
+        void writeSurfaceData( std::ostream & file ) const;
 
         uint32_t magic;
 
