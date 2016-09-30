@@ -9,6 +9,7 @@
 #define DIRECTDRAWSURFACE_HPP_
 
 #include <stdexcept>
+#include <vector>
 
 namespace image
 {
@@ -26,6 +27,10 @@ namespace image
         void readMagic( std::istream & file );
 
         void readHeader( std::istream & file );
+
+        void readSurfaceData( std::istream & file );
+
+        uint32_t countSurfaceBlocks() const;
 
         uint32_t magic;
 
@@ -58,6 +63,8 @@ namespace image
             uint32_t caps4;
             uint32_t reserved2;
         } header;
+
+        std::vector< uint32_t > surfaceBlocks;
     };
 
     class DirectDrawSurface::BadFile : public std::runtime_error

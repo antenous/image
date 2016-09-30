@@ -80,6 +80,63 @@ namespace
             writeToFile( bitMasks );
         }
 
+        void createSurfaceData()
+        {
+            createBlueReferenceColor();
+            createWhiteReferenceColor();
+
+            createLookUpTableWithBlueTopLeftCorner();
+        }
+
+        void createWhiteReferenceColor()
+        {
+            createColor( 255, 255, 255 );
+        }
+
+        void createBlueReferenceColor()
+        {
+            createColor( 0, 0, 255 );
+        }
+
+        void createColor( uint8_t red, uint8_t green, uint8_t blue )
+        {
+            const uint16_t color( createRedComponent( red ) | createGreenComponent( green ) | createBlueComponent( blue ));
+            writeToFile( color );
+        }
+
+        uint16_t createRedComponent( uint8_t red ) const
+        {
+            const uint16_t color( dropLeastSignificantBits( red, redBits ));
+            return color << ( greenBits + blueBits );
+        }
+
+        uint16_t createGreenComponent( uint8_t green ) const
+        {
+            const uint16_t color( dropLeastSignificantBits( green, greenBits ));
+            return color << blueBits;
+        }
+
+        uint16_t createBlueComponent( uint8_t blue ) const
+        {
+            return dropLeastSignificantBits( blue, blueBits );
+        }
+
+        uint8_t dropLeastSignificantBits( uint8_t color, uint8_t significantBitsToKeep ) const
+        {
+            return color >> ( 8 - significantBitsToKeep );
+        }
+
+        void createLookUpTableWithBlueTopLeftCorner()
+        {
+            uint32_t table( 0 );
+            table |= 0b01010101 << 24;
+            table |= 0b01010101 << 16;
+            table |= 0b01010000 << 8;
+            table |= 0b01010000;
+
+            writeToFile( table );
+        }
+
         template< typename T >
         void writeToFile( const T & t )
         {
@@ -93,6 +150,9 @@ namespace
 
         DirectDrawSurface dds;
         std::stringstream file;
+        const uint8_t blueBits{ 5 };
+        const uint8_t greenBits{ 6 };
+        const uint8_t redBits{ 5 };
     };
 }
 
@@ -138,10 +198,10 @@ TEST_F( DirectDrawSurfaceTest, GivenFileWithInvalidMagic_WhenLoaded_ThrowsInvali
 
     EXPECT_THROW( dds.loadFrom( file ), DirectDrawSurface::InvalidType );
 }
-
-TEST_F( DirectDrawSurfaceTest, GivenValidHeader_WhenLoaded_ReadsHeader )
+TEST_F( DirectDrawSurfaceTest, GivenValidFile_WhenLoaded_ReadsFile )
 {
     createFileHeader();
+    createSurfaceData();
     dds.loadFrom( file );
 
     EXPECT_FALSE( hasUnreadData( file ));

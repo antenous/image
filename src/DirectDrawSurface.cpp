@@ -16,6 +16,19 @@ namespace
     {
         return magic == 0x20534444;
     }
+
+    template< typename T >
+    void read( std::istream & file, T & t )
+    {
+        file.read( reinterpret_cast< char* >( &t ), sizeof( t ));
+    }
+
+    uint32_t readSurfaceBlock( std::istream & file )
+    {
+        uint32_t block;
+        read( file, block );
+        return block;
+    }
 }
 
 void DirectDrawSurface::loadFrom( std::istream & file )
@@ -29,6 +42,7 @@ void DirectDrawSurface::loadFrom( std::istream & file )
     {
         readMagic( file );
         readHeader( file );
+        readSurfaceData( file );
     }
     catch ( const std::istream::failure & )
     {
@@ -38,7 +52,7 @@ void DirectDrawSurface::loadFrom( std::istream & file )
 
 void DirectDrawSurface::readMagic( std::istream & file )
 {
-    file.read( reinterpret_cast< char* >( &magic ), sizeof( magic ));
+    read( file, magic );
 
     if ( !isDirectDrawSurface( magic ))
         throw InvalidType();
@@ -46,5 +60,18 @@ void DirectDrawSurface::readMagic( std::istream & file )
 
 void DirectDrawSurface::readHeader( std::istream & file )
 {
-    file.read( reinterpret_cast< char* >( &header ), sizeof( header ));
+    read( file, header );
+}
+
+void DirectDrawSurface::readSurfaceData( std::istream & file )
+{
+    surfaceBlocks.resize( countSurfaceBlocks() );
+
+    for ( auto & surfaceBlock : surfaceBlocks )
+        surfaceBlock = readSurfaceBlock( file );
+}
+
+uint32_t DirectDrawSurface::countSurfaceBlocks() const
+{
+    return header.width / 4 * header.height / 4 * 2;
 }
