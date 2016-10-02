@@ -74,7 +74,7 @@ void Bitmap::loadFrom( std::istream & file )
     {
         readFileHeader( file );
         readInfoHeader( file );
-        readColorTable( file );
+        readPalette( file );
     }
     catch ( const std::istream::failure & )
     {
@@ -89,7 +89,22 @@ void Bitmap::saveTo( std::ostream & file ) const
 
     writeFileHeader( file );
     writeInfoHeader( file );
-    writeColorTable( file );
+    writePalette( file );
+}
+
+int32_t Bitmap::getHeight() const
+{
+    return infoHeader.height;
+}
+
+int32_t Bitmap::getWidth() const
+{
+    return infoHeader.width;
+}
+
+Bitmap::Palette Bitmap::getPalette() const
+{
+    return palette;
 }
 
 void Bitmap::readFileHeader( std::istream & file )
@@ -123,13 +138,13 @@ void Bitmap::readInfoHeader( std::istream & file )
     padding = bytesInRow - infoHeader.width*3;
 }
 
-void Bitmap::readColorTable( std::istream & file )
+void Bitmap::readPalette( std::istream & file )
 {
-    colors.clear();
+    palette.clear();
 
     for ( int32_t row( 0 ); row < infoHeader.height; ++row, skipPadding( file, padding ))
         for ( int32_t column( 0 ); column < infoHeader.width; ++column )
-            colors.push_back( readColor( file ));
+            palette.push_back( readColor( file ));
 }
 
 void Bitmap::writeFileHeader( std::ostream & file ) const
@@ -159,16 +174,16 @@ void Bitmap::writeInfoHeader( std::ostream & file ) const
     write( file, infoHeader.importantColors );
 }
 
-void Bitmap::writeColorTable( std::ostream & file ) const
+void Bitmap::writePalette( std::ostream & file ) const
 {
-    for ( Colors::size_type row( 0 ), end( infoHeader.height ); row < end; ++row )
-        writeColorRow( file, row );
+    for ( Palette::size_type row( 0 ), end( infoHeader.height ); row < end; ++row )
+        writePaletteRow( file, row );
 }
 
-void Bitmap::writeColorRow( std::ostream & file, typename Colors::size_type row ) const
+void Bitmap::writePaletteRow( std::ostream & file, typename Palette::size_type row ) const
 {
     for ( auto i( row * infoHeader.width ), end( i + infoHeader.width ); i < end; ++i )
-        writeColor( file, colors[i] );
+        writeColor( file, palette[i] );
 
     addPadding( file, padding );
 }

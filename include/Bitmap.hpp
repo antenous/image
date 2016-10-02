@@ -21,26 +21,34 @@ namespace image
 
         class InvalidType;
 
+        typedef std::vector< uint32_t > Palette;
+
+        virtual ~Bitmap() = default;
+
         void loadFrom( std::istream & file );
 
         void saveTo( std::ostream & file ) const;
 
-    private:
-        typedef std::vector< uint32_t > Colors;
+        virtual int32_t getHeight() const;
 
+        virtual int32_t getWidth() const;
+
+        virtual Palette getPalette() const;
+
+    private:
         void readFileHeader( std::istream & file );
 
         void readInfoHeader( std::istream & file );
 
-        void readColorTable( std::istream & file );
+        void readPalette( std::istream & file );
 
         void writeFileHeader( std::ostream & file ) const;
 
         void writeInfoHeader( std::ostream & file ) const;
 
-        void writeColorTable( std::ostream & file ) const;
+        void writePalette( std::ostream & file ) const;
 
-        void writeColorRow( std::ostream & file, typename Colors::size_type row ) const;
+        void writePaletteRow( std::ostream & file, typename Palette::size_type row ) const;
 
         struct
         {
@@ -68,7 +76,7 @@ namespace image
 
         uint8_t padding;
 
-        Colors colors;
+        Palette palette;
     };
 
     class Bitmap::BadFile : public std::runtime_error

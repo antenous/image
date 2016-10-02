@@ -171,6 +171,11 @@ TEST_F( BitmapTest, CanThrowAndCatchInvalidType )
     }
 }
 
+TEST_F( BitmapTest, HasVirtualDestructor )
+{
+    EXPECT_TRUE( std::has_virtual_destructor< Bitmap >::value );
+}
+
 TEST_F( BitmapTest, GivenBadFile_WhenLoaded_ThrowsBadFile )
 {
     makeBadFile( fileIn );
@@ -195,6 +200,27 @@ TEST_F( BitmapTest, GivenValidFile_WhenLoaded_ReadsFile )
     loadBitmapFromFile();
 
     EXPECT_FALSE( hasUnreadData( fileIn ));
+}
+
+TEST_F( BitmapTest, GivenBitmapIsLoaded_HeightIsGettable )
+{
+    loadBitmapFromFile();
+
+    EXPECT_EQ( 2, bitmap.getHeight() );
+}
+
+TEST_F( BitmapTest, GivenBitmapIsLoaded_WidthIsGettable )
+{
+    loadBitmapFromFile();
+
+    EXPECT_EQ( 2, bitmap.getWidth() );
+}
+
+TEST_F( BitmapTest, GivenBitmapIsLoaded_PaletteIsGettable )
+{
+    loadBitmapFromFile();
+
+    EXPECT_EQ( 4, bitmap.getPalette().size() );
 }
 
 TEST_F( BitmapTest, GivenBadFile_WhenSaved_ThrowsBadFile )
