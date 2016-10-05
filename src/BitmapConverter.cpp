@@ -110,7 +110,7 @@ BitmapConverter::Palette BitmapConverter::rearrangePaletteToBlocks(
 
     Palette rearranged;
 
-    for ( int32_t y( 0 ); y < height; y += 4 )
+    for ( int32_t y( height - 4 ); y >= 0; y -= 4 )
         for ( int32_t x( 0 ); x < width; x += 4 )
             for ( auto i( y*width + x ), end( i + width*4 ); i < end; i += width )
                 for ( auto j( i ), end( j + 4 ); j < end; ++j)
