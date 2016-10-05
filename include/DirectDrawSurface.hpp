@@ -46,7 +46,7 @@ namespace image
 
         void writeSurfaceData( std::ostream & file ) const;
 
-        uint32_t magic;
+        uint32_t magic{ 0 };
 
         struct
         {
