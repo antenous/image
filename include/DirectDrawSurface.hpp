@@ -29,7 +29,7 @@ namespace image
 
         void convertFrom( const Bitmap & bitmap );
 
-        void saveTo( std::ostream & file );
+        void saveTo( std::ostream & file ) const;
 
     private:
         void readMagic( std::istream & file );

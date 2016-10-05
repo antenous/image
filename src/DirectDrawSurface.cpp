@@ -78,7 +78,7 @@ void DirectDrawSurface::convertFrom( const Bitmap & bitmap )
     header.pitch = surfaceBlocks.size() * 4;
 }
 
-void DirectDrawSurface::saveTo( std::ostream & file )
+void DirectDrawSurface::saveTo( std::ostream & file ) const
 {
     if ( !file )
         throw BadFile();
