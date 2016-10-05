@@ -25,6 +25,8 @@ namespace image
 
         virtual ~Bitmap() = default;
 
+        virtual explicit operator bool() const;
+
         void loadFrom( std::istream & file );
 
         void saveTo( std::ostream & file ) const;

@@ -14,6 +14,8 @@
 namespace image
 {
 
+    class Bitmap;
+
     class DirectDrawSurface
     {
     public:
@@ -21,7 +23,11 @@ namespace image
 
         class InvalidType;
 
+        class BadBitmap;
+
         void loadFrom( std::istream & file );
+
+        void convertFrom( const Bitmap & bitmap );
 
         void saveTo( std::ostream & file );
 
@@ -88,6 +94,14 @@ namespace image
     public:
         InvalidType() :
             std::runtime_error( "invalid type" )
+        {}
+    };
+
+    class DirectDrawSurface::BadBitmap : public std::runtime_error
+    {
+    public:
+        BadBitmap() :
+            std::runtime_error( "bad bitmap" )
         {}
     };
 

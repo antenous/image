@@ -195,6 +195,11 @@ TEST_F( BitmapTest, GivenFileWithInvalidType_WhenLoaded_ThrowsInvalidType )
     EXPECT_THROW( bitmap.loadFrom( fileIn ), Bitmap::InvalidType );
 }
 
+TEST_F( BitmapTest, WhenNotLoaded_EvaluatesToFalse )
+{
+    EXPECT_FALSE( bitmap );
+}
+
 TEST_F( BitmapTest, GivenValidFile_WhenLoaded_ReadsFile )
 {
     loadBitmapFromFile();

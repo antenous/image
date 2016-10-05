@@ -17,6 +17,11 @@ namespace image
     class MockBitmap : public Bitmap
     {
     public:
+        virtual explicit operator bool() const override
+        {
+            return true;
+        }
+
         MOCK_CONST_METHOD0( getHeight, int32_t() );
 
         MOCK_CONST_METHOD0( getWidth, int32_t() );

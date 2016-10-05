@@ -63,6 +63,11 @@ namespace
     }
 }
 
+Bitmap::operator bool() const
+{
+    return isBitmap( fileHeader.type );
+}
+
 void Bitmap::loadFrom( std::istream & file )
 {
     if ( !file )
