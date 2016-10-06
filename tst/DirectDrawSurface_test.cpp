@@ -94,10 +94,10 @@ namespace
         uint32_t createLookUpTableWithBlueTopLeftCorner() const
         {
             return static_cast< uint32_t >(
-                0b01010101 << 24 |
-                0b01010101 << 16 |
-                0b01010000 << 8  |
-                0b01010000 );
+                0b00000000 << 24 |
+                0b00000000 << 16 |
+                0b00000101 << 8  |
+                0b00000101 );
         }
 
         template< typename T >

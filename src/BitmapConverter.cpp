@@ -39,10 +39,15 @@ namespace
             [&reference]( uint16_t color ){ return std::abs( reference - color ); });
     }
 
+    uint8_t distanceToBitIndex( uint16_t dist )
+    {
+        return dist < 2 ? !dist : dist == 2 ? 3 : 2;
+    }
+
     uint8_t closestMatch( uint16_t reference, BitmapConverter::Color color )
     {
         convertIntoDistanceFromReference( reference, color );
-        return std::distance( color.begin(), std::min_element( color.begin(), color.end() ));
+        return distanceToBitIndex( std::distance( color.begin(), std::min_element( color.begin(), color.end() )));
     }
 
     bool isValidSize( MultipleTester height, MultipleTester width, MultipleTester palette )
