@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <vector>
 #include "Bitmap.hpp"
+#include "DirectDrawSurface.hpp"
 
 namespace image
 {
@@ -31,12 +32,12 @@ namespace image
 
         Converted convert( const Bitmap & bmp ) const;
 
+        Converted convert( const DirectDrawSurface & dds ) const;
+
     protected:
         Palette trueToHigh( const Bitmap::Palette & palette ) const;
 
         uint16_t trueToHigh( uint32_t trueColor ) const;
-
-        uint32_t highToTrue( uint16_t highColor ) const;
 
         Palette rearrangePaletteToBlocks( int32_t height, int32_t width, const Palette & palette ) const;
 
@@ -47,6 +48,18 @@ namespace image
         Color createColorTable( const Block & block ) const;
 
         uint32_t createLookupTable( const Color & color, const Block & block ) const;
+
+        Palette rearrangeBlocksToPalette( int32_t height, int32_t width, const Palette & palette ) const;
+
+        Color createColorTable( uint32_t referenceColors ) const;
+
+        Palette createColorBlocks( const DirectDrawSurface::Surface & surface ) const;
+
+        Block createColorBlock( const Color & color, uint32_t lookupTable ) const;
+
+        Converted highToTrue( const Palette & palette ) const;
+
+        uint32_t highToTrue( uint16_t highColor ) const;
     };
 
     class BitmapConverter::BadSize : public std::runtime_error

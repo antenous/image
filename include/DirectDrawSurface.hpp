@@ -25,11 +25,21 @@ namespace image
 
         class BadBitmap;
 
+        typedef std::vector< uint32_t > Surface;
+
+        virtual ~DirectDrawSurface() = default;
+
         void loadFrom( std::istream & file );
 
         void convertFrom( const Bitmap & bitmap );
 
         void saveTo( std::ostream & file ) const;
+
+        virtual uint32_t getHeight() const;
+
+        virtual uint32_t getWidth() const;
+
+        virtual Surface getSurface() const;
 
     private:
         void readMagic( std::istream & file );
@@ -78,7 +88,7 @@ namespace image
             uint32_t reserved2;
         } header;
 
-        std::vector< uint32_t > surfaceBlocks;
+        Surface surface;
     };
 
     class DirectDrawSurface::BadFile : public std::runtime_error

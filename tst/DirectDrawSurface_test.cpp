@@ -188,6 +188,11 @@ TEST_F( DirectDrawSurfaceTest, CanThrowAndCatchBadBitmap )
     }
 }
 
+TEST_F( DirectDrawSurfaceTest, HasVirtualDestructor )
+{
+    EXPECT_TRUE( std::has_virtual_destructor< DirectDrawSurface >::value );
+}
+
 TEST_F( DirectDrawSurfaceTest, GivenBadFile_WhenLoaded_ThrowsBadFile )
 {
     makeBadFile( fileIn );
@@ -211,6 +216,27 @@ TEST_F( DirectDrawSurfaceTest, GivenValidFile_WhenLoaded_ReadsFile )
     loadDirectDrawSurfaceFromFile();
 
     EXPECT_FALSE( hasUnreadData( fileIn ));
+}
+
+TEST_F( DirectDrawSurfaceTest, GivenFileIsLoaded_HeightIsGettable )
+{
+    loadDirectDrawSurfaceFromFile();
+
+    EXPECT_EQ( 4, dds.getHeight() );
+}
+
+TEST_F( DirectDrawSurfaceTest, GivenFileIsLoaded_WidthIsGettable )
+{
+    loadDirectDrawSurfaceFromFile();
+
+    EXPECT_EQ( 4, dds.getWidth() );
+}
+
+TEST_F( DirectDrawSurfaceTest, GivenFileIsLoaded_SurfaceIsGettable )
+{
+    loadDirectDrawSurfaceFromFile();
+
+    EXPECT_EQ( 2, dds.getSurface().size() );
 }
 
 TEST_F( DirectDrawSurfaceTest, GivenBadFile_WhenSaved_ThrowsBadFile )

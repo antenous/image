@@ -73,9 +73,9 @@ void DirectDrawSurface::convertFrom( const Bitmap & bitmap )
     header.pixelFormat.fourCC[2] = 'T';
     header.pixelFormat.fourCC[3] = '1';
 
-    surfaceBlocks = BitmapConverter().convert( bitmap );
+    surface = BitmapConverter().convert( bitmap );
 
-    header.pitch = surfaceBlocks.size() * 4;
+    header.pitch = surface.size() * 4;
 }
 
 void DirectDrawSurface::saveTo( std::ostream & file ) const
@@ -86,6 +86,21 @@ void DirectDrawSurface::saveTo( std::ostream & file ) const
     writeMagic( file );
     writeHeader( file );
     writeSurfaceData( file );
+}
+
+uint32_t DirectDrawSurface::getHeight() const
+{
+    return header.height;
+}
+
+uint32_t DirectDrawSurface::getWidth() const
+{
+    return header.width;
+}
+
+DirectDrawSurface::Surface DirectDrawSurface::getSurface() const
+{
+    return surface;
 }
 
 void DirectDrawSurface::readMagic( std::istream & file )
@@ -103,10 +118,10 @@ void DirectDrawSurface::readHeader( std::istream & file )
 
 void DirectDrawSurface::readSurfaceData( std::istream & file )
 {
-    surfaceBlocks.resize( countSurfaceBlocks() );
+    surface.resize( countSurfaceBlocks() );
 
-    for ( auto & surfaceBlock : surfaceBlocks )
-        read( file, surfaceBlock );
+    for ( auto & block : surface )
+        read( file, block );
 }
 
 uint32_t DirectDrawSurface::countSurfaceBlocks() const
@@ -129,6 +144,6 @@ void DirectDrawSurface::writeHeader( std::ostream & file ) const
 
 void DirectDrawSurface::writeSurfaceData( std::ostream & file ) const
 {
-    for ( auto surfaceBlock : surfaceBlocks )
-        write( file, surfaceBlock );
+    for ( auto & block : surface )
+        write( file, block );
 }
