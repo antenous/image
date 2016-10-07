@@ -20,25 +20,33 @@ namespace
         return 0;
     }
 
-    Bitmap loadBitmap( const char * file )
+    template< typename T >
+    T load( const char * file )
     {
         std::ifstream in( file, std::ios::binary );
-        Bitmap bmp;
-        bmp.loadFrom( in );
-        return std::move( bmp );
+        T t;
+        t.loadFrom( in );
+        return std::move( t );
     }
 
-    DirectDrawSurface convertToDirectDraw( const Bitmap & bitmap )
+    template< typename T, typename U >
+    T convertTo( const U & u )
     {
-        DirectDrawSurface dds;
-        dds.convertFrom( bitmap );
-        return std::move( dds );
+        T t;
+        t.convertFrom( u );
+        return std::move( t );
     }
 
     void writeToFile( const DirectDrawSurface & dds )
     {
         std::ofstream bkp( "out.dds", std::ios::binary );
         dds.saveTo( bkp );
+    }
+
+    void writeToFile( const Bitmap & bmp )
+    {
+        std::ofstream out( "out.bmp", std::ios::binary );
+        bmp.saveTo( out );
     }
 }
 
@@ -49,9 +57,21 @@ int main( int argc, char * argv[] )
 
     try
     {
-        writeToFile( convertToDirectDraw( loadBitmap( argv[1]) ));
+        writeToFile( convertTo< DirectDrawSurface >( load< Bitmap >( argv[1] )));
     }
-    catch ( const std::runtime_error & e )
+    catch ( const Bitmap::InvalidType & )
+    {
+        try
+        {
+            writeToFile( convertTo< Bitmap >( load< DirectDrawSurface >( argv[1] )));
+        }
+        catch ( const std::runtime_error & e )
+        {
+            std::cerr << e.what() << std::endl;
+            return 1;
+        }
+    }
+    catch( const std::runtime_error & e )
     {
         std::cerr << e.what() << std::endl;
         return 1;

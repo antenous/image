@@ -30,4 +30,6 @@ file will be stored as `out.<filetype>`. E.g.:
     cd image
     ./image foobar.bmp
 
-The resulting file will be `out.dds`.
+The resulting file will be `out.dds`. If the image was
+detected to be a direct draw surface (DDS) the output filetype
+is `out.bmp`.
