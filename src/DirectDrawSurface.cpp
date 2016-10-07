@@ -33,6 +33,11 @@ namespace
     }
 }
 
+DirectDrawSurface::operator bool() const
+{
+    return isDirectDrawSurface( magic );
+}
+
 void DirectDrawSurface::loadFrom( std::istream & file )
 {
     if ( !file )

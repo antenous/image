@@ -6,7 +6,10 @@
  */
 
 #include "Bitmap.hpp"
+#include <cstring>
 #include <istream>
+#include "BitmapConverter.hpp"
+#include "DirectDrawSurface.hpp"
 
 using namespace image;
 
@@ -85,6 +88,42 @@ void Bitmap::loadFrom( std::istream & file )
     {
         throw BadFile();
     }
+}
+
+void Bitmap::convertFrom( const DirectDrawSurface & dds )
+{
+    if ( !dds )
+        throw BadDirectDrawSurface();
+
+    memset( &fileHeader, 0 , sizeof( fileHeader ));
+    memset( & infoHeader, 0, sizeof( infoHeader ));
+
+    palette = BitmapConverter().convert( dds );
+
+    fileHeader.type[0] = 'B';
+    fileHeader.type[1] = 'M';
+    fileHeader.size = 14;
+    fileHeader.reserved1 = 0;
+    fileHeader.reserved2 = 0;
+    fileHeader.offset = 54;
+
+    infoHeader.size = 40;
+    infoHeader.width = dds.getWidth();
+    infoHeader.height = dds.getHeight();
+    infoHeader.planes = 1;
+    infoHeader.bits = 24;
+
+    const auto bytesInRow(( infoHeader.bits * infoHeader.width + 31 ) / 32 * 4 );
+    padding = bytesInRow - infoHeader.width*3;
+
+    infoHeader.compression = 0;
+    infoHeader.imageSize = palette.size() * 3 + padding * infoHeader.width;
+    infoHeader.horizontalResolution = 0;
+    infoHeader.verticalResolution = 0;
+    infoHeader.colors = 0;
+    infoHeader.importantColors = 0;
+
+    fileHeader.size += infoHeader.size + infoHeader.imageSize;
 }
 
 void Bitmap::saveTo( std::ostream & file ) const

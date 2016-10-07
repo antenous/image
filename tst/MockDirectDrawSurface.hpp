@@ -17,6 +17,11 @@ namespace image
     class MockDirectDrawSurface : public DirectDrawSurface
     {
     public:
+        virtual explicit operator bool() const override
+        {
+            return true;
+        }
+
         MOCK_CONST_METHOD0( getHeight, uint32_t() );
 
         MOCK_CONST_METHOD0( getWidth, uint32_t() );

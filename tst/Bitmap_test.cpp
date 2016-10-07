@@ -7,6 +7,7 @@
 
 #include "Bitmap.hpp"
 #include <gtest/gtest.h>
+#include "MockDirectDrawSurface.hpp"
 
 using namespace image;
 using namespace testing;
@@ -28,7 +29,7 @@ namespace
             file.setstate( std::ios::badbit );
         }
 
-        void createFileHeader()
+        void writeFileHeader()
         {
             char type[]{ 'B', 'M' };
             uint32_t size( 102 );
@@ -41,7 +42,20 @@ namespace
             writeToFile( offset );
         }
 
-        void createInfoHeader()
+        void writeConvertedFileHeader()
+        {
+            char type[]{ 'B', 'M' };
+            uint32_t offset( 14 + 40 );
+            uint32_t size( offset + 4 * 3 * 4 );
+            uint32_t reserved( 0 );
+
+            writeToFile( type );
+            writeToFile( size );
+            writeToFile( reserved );
+            writeToFile( offset );
+        }
+
+        void writeInfoHeader()
         {
             uint32_t size( 40 );
             int32_t width( 2 );
@@ -50,8 +64,8 @@ namespace
             uint16_t bits( 24 );
             uint32_t compression( 0 );
             uint32_t imageSize( 16 );
-            uint32_t horizontalResolution( 2835 );
-            uint32_t verticalResolution( 2835 );
+            uint32_t horizontalResolution( 0 );
+            uint32_t verticalResolution( 0 );
             uint32_t colors( 0 );
             uint32_t importantColors( 0 );
 
@@ -68,7 +82,34 @@ namespace
             writeToFile( importantColors );
         }
 
-        void createColorTable()
+        void writeConvertedInfoHeader()
+        {
+            uint32_t size( 40 );
+            int32_t width( 4 );
+            int32_t height( 4 );
+            uint16_t planes( 1 );
+            uint16_t bits( 24 );
+            uint32_t compression( 0 );
+            uint32_t imageSize( 4 * 3 * 4 );
+            uint32_t horizontalResolution( 0 );
+            uint32_t verticalResolution( 0 );
+            uint32_t colors( 0 );
+            uint32_t importantColors( 0 );
+
+            writeToFile( size );
+            writeToFile( width );
+            writeToFile( height );
+            writeToFile( planes );
+            writeToFile( bits );
+            writeToFile( compression );
+            writeToFile( imageSize );
+            writeToFile( horizontalResolution );
+            writeToFile( verticalResolution );
+            writeToFile( colors );
+            writeToFile( importantColors );
+        }
+
+        void writeColorTable()
         {
             createRedPixel();
             createWhitePixel();
@@ -76,6 +117,29 @@ namespace
             createBluePixel();
             createGreenPixel();
             createPadding();
+        }
+
+        void writeConvertedColorTable()
+        {
+            createWhitePixel();
+            createWhitePixel();
+            createWhitePixel();
+            createWhitePixel();
+
+            createWhitePixel();
+            createWhitePixel();
+            createWhitePixel();
+            createWhitePixel();
+
+            createBluePixel();
+            createBluePixel();
+            createWhitePixel();
+            createWhitePixel();
+
+            createBluePixel();
+            createBluePixel();
+            createWhitePixel();
+            createWhitePixel();
         }
 
         void createRedPixel()
@@ -122,9 +186,9 @@ namespace
 
         void loadBitmapFromFile()
         {
-            createFileHeader();
-            createInfoHeader();
-            createColorTable();
+            writeFileHeader();
+            writeInfoHeader();
+            writeColorTable();
             bitmap.loadFrom( fileIn );
         }
 
@@ -141,6 +205,7 @@ namespace
         }
 
         Bitmap bitmap;
+        MockDirectDrawSurface dds;
         std::stringstream fileIn;
         std::stringstream fileOut;
     };
@@ -168,6 +233,18 @@ TEST_F( BitmapTest, CanThrowAndCatchInvalidType )
     catch ( const std::runtime_error & e )
     {
         EXPECT_STREQ( "invalid type", e.what() );
+    }
+}
+
+TEST_F( BitmapTest, CanThrowAndCatchBadDirectDrawSurface )
+{
+    try
+    {
+        throw Bitmap::BadDirectDrawSurface();
+    }
+    catch ( const std::runtime_error & e )
+    {
+        EXPECT_STREQ( "bad direct draw surface", e.what() );
     }
 }
 
@@ -246,6 +323,41 @@ TEST_F( BitmapTest, GivenBitmapIsLoaded_WhenSaved_WritesFile )
     rewindFile();
 
     bitmap.saveTo( fileOut );
+
+    ASSERT_TRUE( hasUnreadData( fileOut ));
+    EXPECT_TRUE( filesAreEqual() );
+}
+
+TEST_F( BitmapTest, GivenDirectDrawSurfaceNotLoaded_WhenConverted_ThrowsBadDirectDrawSurface )
+{
+    EXPECT_THROW( bitmap.convertFrom( DirectDrawSurface() ), Bitmap::BadDirectDrawSurface );
+}
+
+TEST_F( BitmapTest, IsConvertibleFromDirectDrawSurface )
+{
+    const uint16_t blue{ 0x1f };
+    const uint16_t white{ 0xffff };
+    const auto reference( static_cast< uint32_t >( blue ) << 16 | white );
+
+    // Lookup table with blue top left corner
+    const uint32_t lookup(
+        0b00000000 << 24 |
+        0b00000000 << 16 |
+        0b00000101 << 8  |
+        0b00000101 );
+
+    DirectDrawSurface::Surface surface{ reference, lookup };
+
+    EXPECT_CALL( dds, getSurface() ).WillOnce( Return( surface ));
+    EXPECT_CALL( dds, getHeight() ).WillRepeatedly( Return( 4 ));
+    EXPECT_CALL( dds, getWidth() ).WillRepeatedly( Return( 4 ));
+
+    bitmap.convertFrom( dds );
+    bitmap.saveTo( fileOut );
+
+    writeConvertedFileHeader();
+    writeConvertedInfoHeader();
+    writeConvertedColorTable();
 
     ASSERT_TRUE( hasUnreadData( fileOut ));
     EXPECT_TRUE( filesAreEqual() );

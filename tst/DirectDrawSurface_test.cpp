@@ -218,6 +218,11 @@ TEST_F( DirectDrawSurfaceTest, GivenValidFile_WhenLoaded_ReadsFile )
     EXPECT_FALSE( hasUnreadData( fileIn ));
 }
 
+TEST_F( DirectDrawSurfaceTest, WhenNotLoaded_EvaluatesToFalse )
+{
+    EXPECT_FALSE( dds );
+}
+
 TEST_F( DirectDrawSurfaceTest, GivenFileIsLoaded_HeightIsGettable )
 {
     loadDirectDrawSurfaceFromFile();
@@ -262,7 +267,7 @@ TEST_F( DirectDrawSurfaceTest, GivenDirectDrawSurfaceIsLoaded_WhenSaved_WritesFi
     EXPECT_TRUE( filesAreEqual() );
 }
 
-TEST_F( DirectDrawSurfaceTest, GivenNotLoadedBitmap_WhenConverted_ThrowsBadBitmap )
+TEST_F( DirectDrawSurfaceTest, GivenBitmapNotLoaded_WhenConverted_ThrowsBadBitmap )
 {
     EXPECT_THROW( dds.convertFrom( Bitmap() ), DirectDrawSurface::BadBitmap );
 }

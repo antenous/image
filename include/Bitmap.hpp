@@ -14,12 +14,16 @@
 namespace image
 {
 
+    class DirectDrawSurface;
+
     class Bitmap
     {
     public:
         class BadFile;
 
         class InvalidType;
+
+        class BadDirectDrawSurface;
 
         typedef std::vector< uint32_t > Palette;
 
@@ -28,6 +32,8 @@ namespace image
         virtual explicit operator bool() const;
 
         void loadFrom( std::istream & file );
+
+        void convertFrom( const DirectDrawSurface & dds );
 
         void saveTo( std::ostream & file ) const;
 
@@ -94,6 +100,14 @@ namespace image
     public:
         InvalidType() :
             std::runtime_error( "invalid type" )
+        {}
+    };
+
+    class Bitmap::BadDirectDrawSurface : public std::runtime_error
+    {
+    public:
+        BadDirectDrawSurface() :
+            std::runtime_error( "bad direct draw surface" )
         {}
     };
 

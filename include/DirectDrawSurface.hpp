@@ -29,6 +29,8 @@ namespace image
 
         virtual ~DirectDrawSurface() = default;
 
+        virtual explicit operator bool() const;
+
         void loadFrom( std::istream & file );
 
         void convertFrom( const Bitmap & bitmap );
