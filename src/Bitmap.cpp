@@ -45,9 +45,9 @@ namespace
 
     void writeColor( std::ostream & file, uint32_t color )
     {
-        const uint8_t blue(( color >> 16 ) & 255 );
-        const uint8_t green(( color >> 8 ) & 255 );
-        const uint8_t red( color & 255 );
+        const uint8_t blue(( color >> 16 ) & 0xff );
+        const uint8_t green(( color >> 8 ) & 0xff );
+        const uint8_t red( color & 0xff );
 
         write( file, blue );
         write( file, green );
@@ -63,6 +63,12 @@ namespace
     {
         char padding[] = { 0, 0, 0 };
         file.write( padding, bytes );
+    }
+
+    uint8_t countPadding( uint16_t bits, int32_t width )
+    {
+        const auto bytesInRow(( bits * width + 31 ) / 32 * 4 );
+        return bytesInRow - width * 3;
     }
 }
 
@@ -86,6 +92,7 @@ void Bitmap::loadFrom( std::istream & file )
     }
     catch ( const std::istream::failure & )
     {
+        fileHeader.type[0] = 0;
         throw BadFile();
     }
 }
@@ -95,17 +102,15 @@ void Bitmap::convertFrom( const DirectDrawSurface & dds )
     if ( !dds )
         throw BadDirectDrawSurface();
 
-    memset( &fileHeader, 0 , sizeof( fileHeader ));
-    memset( &infoHeader, 0, sizeof( infoHeader ));
-
     palette = BitmapConverter().convert( dds );
 
-    fileHeader.type[0] = 'B';
-    fileHeader.type[1] = 'M';
-    fileHeader.size = 14;
-    fileHeader.reserved1 = 0;
-    fileHeader.reserved2 = 0;
-    fileHeader.offset = 54;
+    createInfoHeader( dds );
+    createFileHeader();
+}
+
+void Bitmap::createInfoHeader( const DirectDrawSurface & dds )
+{
+    memset( &infoHeader, 0, sizeof( infoHeader ));
 
     infoHeader.size = 40;
     infoHeader.width = dds.getWidth();
@@ -113,16 +118,19 @@ void Bitmap::convertFrom( const DirectDrawSurface & dds )
     infoHeader.planes = 1;
     infoHeader.bits = 24;
 
-    const auto bytesInRow(( infoHeader.bits * infoHeader.width + 31 ) / 32 * 4 );
-    padding = bytesInRow - infoHeader.width*3;
+    padding = countPadding( infoHeader.bits, infoHeader.width );
 
-    infoHeader.compression = 0;
     infoHeader.imageSize = palette.size() * 3 + padding * infoHeader.width;
-    infoHeader.horizontalResolution = 0;
-    infoHeader.verticalResolution = 0;
-    infoHeader.colors = 0;
-    infoHeader.importantColors = 0;
+}
 
+void Bitmap::createFileHeader()
+{
+    memset( &fileHeader, 0 , sizeof( fileHeader ));
+
+    fileHeader.type[0] = 'B';
+    fileHeader.type[1] = 'M';
+    fileHeader.size = 14;
+    fileHeader.offset = 54;
     fileHeader.size += infoHeader.size + infoHeader.imageSize;
 }
 
@@ -178,8 +186,7 @@ void Bitmap::readInfoHeader( std::istream & file )
     read( file, infoHeader.colors );
     read( file, infoHeader.importantColors );
 
-    const auto bytesInRow(( infoHeader.bits * infoHeader.width + 31 ) / 32 * 4 );
-    padding = bytesInRow - infoHeader.width*3;
+    padding = countPadding( infoHeader.bits, infoHeader.width );
 }
 
 void Bitmap::readPalette( std::istream & file )

@@ -16,7 +16,7 @@ namespace
 {
     int help( const char * name )
     {
-        std::cout << "usage: " << name << " <bitmap file>" << std::endl;
+        std::cout << "usage: " << name << " <bmp|dds file>" << std::endl;
         return 0;
     }
 

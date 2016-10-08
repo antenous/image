@@ -31,10 +31,10 @@ namespace
 
         void writeFileHeader()
         {
-            char type[]{ 'B', 'M' };
-            uint32_t size( 102 );
-            uint32_t reserved( 0 );
-            uint32_t offset( 54 );
+            const char type[]{ 'B', 'M' };
+            const uint32_t size( 102 );
+            const uint32_t reserved( 0 );
+            const uint32_t offset( 54 );
 
             writeToFile( type );
             writeToFile( size );
@@ -44,10 +44,10 @@ namespace
 
         void writeConvertedFileHeader()
         {
-            char type[]{ 'B', 'M' };
-            uint32_t offset( 14 + 40 );
-            uint32_t size( offset + 4 * 3 * 4 );
-            uint32_t reserved( 0 );
+            const char type[]{ 'B', 'M' };
+            const uint32_t offset( 14 + 40 );
+            const uint32_t size( offset + 4 * 3 * 4 );
+            const uint32_t reserved( 0 );
 
             writeToFile( type );
             writeToFile( size );
@@ -57,17 +57,17 @@ namespace
 
         void writeInfoHeader()
         {
-            uint32_t size( 40 );
-            int32_t width( 2 );
-            int32_t height( 2 );
-            uint16_t planes( 1 );
-            uint16_t bits( 24 );
-            uint32_t compression( 0 );
-            uint32_t imageSize( 16 );
-            uint32_t horizontalResolution( 0 );
-            uint32_t verticalResolution( 0 );
-            uint32_t colors( 0 );
-            uint32_t importantColors( 0 );
+            const uint32_t size( 40 );
+            const int32_t width( 2 );
+            const int32_t height( 2 );
+            const uint16_t planes( 1 );
+            const uint16_t bits( 24 );
+            const uint32_t compression( 0 );
+            const uint32_t imageSize( 16 );
+            const uint32_t horizontalResolution( 0 );
+            const uint32_t verticalResolution( 0 );
+            const uint32_t colors( 0 );
+            const uint32_t importantColors( 0 );
 
             writeToFile( size );
             writeToFile( width );
@@ -84,17 +84,17 @@ namespace
 
         void writeConvertedInfoHeader()
         {
-            uint32_t size( 40 );
-            int32_t width( 4 );
-            int32_t height( 4 );
-            uint16_t planes( 1 );
-            uint16_t bits( 24 );
-            uint32_t compression( 0 );
-            uint32_t imageSize( 4 * 3 * 4 );
-            uint32_t horizontalResolution( 0 );
-            uint32_t verticalResolution( 0 );
-            uint32_t colors( 0 );
-            uint32_t importantColors( 0 );
+            const uint32_t size( 40 );
+            const int32_t width( 4 );
+            const int32_t height( 4 );
+            const uint16_t planes( 1 );
+            const uint16_t bits( 24 );
+            const uint32_t compression( 0 );
+            const uint32_t imageSize( 4 * 3 * 4 );
+            const uint32_t horizontalResolution( 0 );
+            const uint32_t verticalResolution( 0 );
+            const uint32_t colors( 0 );
+            const uint32_t importantColors( 0 );
 
             writeToFile( size );
             writeToFile( width );
@@ -204,6 +204,24 @@ namespace
                 std::istreambuf_iterator< char >( fileIn ));
         }
 
+        uint32_t createLookupTableWithBlueTopLeftCorner() const
+        {
+            return (
+                0b00000000 << 24 |
+                0b00000000 << 16 |
+                0b00000101 << 8  |
+                0b00000101 );
+        }
+
+        DirectDrawSurface::Surface createSurface()
+        {
+            const uint16_t blue{ 0x1f };
+            const uint16_t white{ 0xffff };
+            const uint32_t reference( blue << 16 | white );
+            const auto lookup( createLookupTableWithBlueTopLeftCorner() );
+            return { reference, lookup };
+        };
+
         Bitmap bitmap;
         MockDirectDrawSurface dds;
         std::stringstream fileIn;
@@ -277,6 +295,14 @@ TEST_F( BitmapTest, WhenNotLoaded_EvaluatesToFalse )
     EXPECT_FALSE( bitmap );
 }
 
+TEST_F( BitmapTest, WhenFileFailedToLoad_EvaluatesToFalse )
+{
+    writeFileHeader();
+
+    EXPECT_THROW( bitmap.loadFrom( fileIn ), Bitmap::BadFile );
+    EXPECT_FALSE( bitmap );
+}
+
 TEST_F( BitmapTest, GivenValidFile_WhenLoaded_ReadsFile )
 {
     loadBitmapFromFile();
@@ -284,21 +310,21 @@ TEST_F( BitmapTest, GivenValidFile_WhenLoaded_ReadsFile )
     EXPECT_FALSE( hasUnreadData( fileIn ));
 }
 
-TEST_F( BitmapTest, GivenBitmapIsLoaded_HeightIsGettable )
+TEST_F( BitmapTest, WhenBitmapIsLoaded_HeightIsGettable )
 {
     loadBitmapFromFile();
 
     EXPECT_EQ( 2, bitmap.getHeight() );
 }
 
-TEST_F( BitmapTest, GivenBitmapIsLoaded_WidthIsGettable )
+TEST_F( BitmapTest, WhenBitmapIsLoaded_WidthIsGettable )
 {
     loadBitmapFromFile();
 
     EXPECT_EQ( 2, bitmap.getWidth() );
 }
 
-TEST_F( BitmapTest, GivenBitmapIsLoaded_PaletteIsGettable )
+TEST_F( BitmapTest, WhenBitmapIsLoaded_PaletteIsGettable )
 {
     loadBitmapFromFile();
 
@@ -335,18 +361,7 @@ TEST_F( BitmapTest, GivenDirectDrawSurfaceNotLoaded_WhenConverted_ThrowsBadDirec
 
 TEST_F( BitmapTest, IsConvertibleFromDirectDrawSurface )
 {
-    const uint16_t blue{ 0x1f };
-    const uint16_t white{ 0xffff };
-    const auto reference( static_cast< uint32_t >( blue ) << 16 | white );
-
-    // Lookup table with blue top left corner
-    const uint32_t lookup(
-        0b00000000 << 24 |
-        0b00000000 << 16 |
-        0b00000101 << 8  |
-        0b00000101 );
-
-    DirectDrawSurface::Surface surface{ reference, lookup };
+    const auto surface( createSurface() );
 
     EXPECT_CALL( dds, getSurface() ).WillOnce( Return( surface ));
     EXPECT_CALL( dds, getHeight() ).WillRepeatedly( Return( 4 ));

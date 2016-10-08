@@ -21,7 +21,7 @@ namespace
             value( value )
         {}
 
-        MultiplesTester( const BitmapConverter::Palette & palette ) :
+        MultiplesTester( const BitmapConverter::HighColorPalette & palette ) :
             MultiplesTester( palette.size() )
         {}
 
@@ -67,7 +67,7 @@ namespace
 
     uint32_t referenceColors( const BitmapConverter::Color & color )
     {
-        return static_cast< uint32_t >( color[0] ) << 16 | color[1];
+        return color[0] << 16 | color[1];
     }
 
     uint8_t red( uint16_t color )
@@ -86,23 +86,23 @@ namespace
     }
 
     uint16_t combineSubColors(
-        const std::function< uint8_t( const std::pair< uint8_t, uint8_t > & )> & intermediate,
+        const std::function< uint8_t( uint8_t, uint8_t )> & intermediate,
         const BitmapConverter::Color & color )
     {
         return
-            intermediate({ red(   color[0]), red(   color[1])}) << 11 |
-            intermediate({ green( color[0]), green( color[1])}) <<  5 |
-            intermediate({ blue(  color[0]), blue(  color[1])});
+            intermediate( red(   color[0]), red(   color[1])) << 11 |
+            intermediate( green( color[0]), green( color[1])) <<  5 |
+            intermediate( blue(  color[0]), blue(  color[1]));
     }
 
-    uint8_t lowIntermediate( const std::pair< uint8_t, uint8_t > & color )
+    uint8_t lowIntermediate( uint8_t lhs, uint8_t rhs )
     {
-        return 2 * color.first / 3 + color.second / 3;
+        return 2 * lhs / 3 + rhs / 3;
     }
 
-    uint8_t highIntermediate( const std::pair< uint8_t, uint8_t > & color )
+    uint8_t highIntermediate( uint8_t lhs, uint8_t rhs )
     {
-        return color.first / 3 + 2 * color.second / 3;
+        return lhs / 3 + 2 * rhs / 3;
     }
 
     void countIntermediateColors( BitmapConverter::Color & color )
@@ -129,9 +129,9 @@ BitmapConverter::Converted BitmapConverter::convert( const Bitmap & bitmap ) con
         bitmap.getHeight(), bitmap.getWidth(), trueToHigh( bitmap.getPalette() )));
 }
 
-BitmapConverter::Palette BitmapConverter::trueToHigh( const Bitmap::Palette & truePalette ) const
+BitmapConverter::HighColorPalette BitmapConverter::trueToHigh( const Bitmap::Palette & truePalette ) const
 {
-    Palette highPalette( truePalette.size() );
+    HighColorPalette highPalette( truePalette.size() );
 
     std::transform(
         truePalette.begin(), truePalette.end(), highPalette.begin(),
@@ -154,14 +154,14 @@ uint16_t BitmapConverter::trueToHigh( uint32_t trueColor ) const
     return highColor;
 }
 
-BitmapConverter::Palette BitmapConverter::rearrangePaletteToBlocks(
-    int32_t height, int32_t width, const Palette & palette ) const
+BitmapConverter::HighColorPalette BitmapConverter::rearrangePaletteToBlocks(
+    int32_t height, int32_t width, const HighColorPalette & palette ) const
 
 {
     if ( !isValidSize( height, width, palette ))
         throw BadSize();
 
-    Palette rearranged( palette.size() );
+    HighColorPalette rearranged( palette.size() );
     auto it( rearranged.begin() );
 
     for ( int32_t y( height - 4 ); y >= 0; y -= 4 )
@@ -173,14 +173,14 @@ BitmapConverter::Palette BitmapConverter::rearrangePaletteToBlocks(
     return std::move( rearranged );
 }
 
-BitmapConverter::Palette BitmapConverter::rearrangeBlocksToPalette(
-    int32_t height, int32_t width, const Palette & blocks ) const
+BitmapConverter::HighColorPalette BitmapConverter::rearrangeBlocksToPalette(
+    int32_t height, int32_t width, const HighColorPalette & blocks ) const
 
 {
     if ( !isValidSize( height, width, blocks ))
         throw BadSize();
 
-    Palette rearranged( blocks.size() );
+    HighColorPalette rearranged( blocks.size() );
     auto it( blocks.begin() );
 
     for ( int32_t y( height - 4 ); y >= 0; y -= 4 )
@@ -192,7 +192,7 @@ BitmapConverter::Palette BitmapConverter::rearrangeBlocksToPalette(
     return std::move( rearranged );
 }
 
-BitmapConverter::Converted BitmapConverter::convertBlocks( const Palette & blocks ) const
+BitmapConverter::Converted BitmapConverter::convertBlocks( const HighColorPalette & blocks ) const
 {
     Converted result;
 
@@ -250,12 +250,12 @@ uint32_t BitmapConverter::createLookupTable( const Color & color, const Block & 
     return lookup;
 }
 
-BitmapConverter::Palette BitmapConverter::createColorBlocks( const DirectDrawSurface::Surface & surface ) const
+BitmapConverter::HighColorPalette BitmapConverter::createColorBlocks( const DirectDrawSurface::Surface & surface ) const
 {
     if ( !isValidSize( surface ))
         throw BadSize();
 
-    Palette palette;
+    HighColorPalette palette;
 
     for ( auto first( surface.begin() ), last( surface.end() ); first != last; std::advance( first, 2 ))
     {
@@ -277,13 +277,12 @@ BitmapConverter::Block BitmapConverter::createColorBlock( const Color & color, u
     return block;
 }
 
-BitmapConverter::Converted BitmapConverter::highToTrue( const Palette & palette ) const
+BitmapConverter::Converted BitmapConverter::highToTrue( const HighColorPalette & palette ) const
 {
     Converted converted( palette.size() );
-    auto it( converted.begin() );
-
-    for ( auto p : palette )
-        *it++ = highToTrue( p );
+    std::transform(
+        palette.begin(), palette.end(), converted.begin(),
+        [this]( uint16_t color ){ return highToTrue( color ); });
 
     return converted;
 }

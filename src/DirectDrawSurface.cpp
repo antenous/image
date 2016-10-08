@@ -53,6 +53,7 @@ void DirectDrawSurface::loadFrom( std::istream & file )
     }
     catch ( const std::istream::failure & )
     {
+        magic = 0;
         throw BadFile();
     }
 }
@@ -62,13 +63,15 @@ void DirectDrawSurface::convertFrom( const Bitmap & bitmap )
     if ( !bitmap )
         throw BadBitmap();
 
-    memset( &header, 0, sizeof( header ));
+    surface = BitmapConverter().convert( bitmap );
 
+    memset( &header, 0, sizeof( header ));
     magic = 0x20534444;
     header.size = 124;
     header.flags = 0x1 | 0x2 | 0x4 | 0x1000;
     header.height = bitmap.getHeight();
     header.width = bitmap.getWidth();
+    header.pitch = surface.size() * 4;
     header.caps = 0x1000;
 
     header.pixelFormat.size = 32;
@@ -77,10 +80,6 @@ void DirectDrawSurface::convertFrom( const Bitmap & bitmap )
     header.pixelFormat.fourCC[1] = 'X';
     header.pixelFormat.fourCC[2] = 'T';
     header.pixelFormat.fourCC[3] = '1';
-
-    surface = BitmapConverter().convert( bitmap );
-
-    header.pitch = surface.size() * 4;
 }
 
 void DirectDrawSurface::saveTo( std::ostream & file ) const

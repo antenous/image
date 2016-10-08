@@ -88,12 +88,12 @@ namespace
 
         uint32_t createBlueAndWhiteReferenceColors() const
         {
-            return static_cast< uint32_t >( blue ) << 16 | white;
+            return blue << 16 | white;
         }
 
         uint32_t createLookUpTableWithBlueTopLeftCorner() const
         {
-            return static_cast< uint32_t >(
+            return (
                 0b00000000 << 24 |
                 0b00000000 << 16 |
                 0b00000101 << 8  |
@@ -223,21 +223,29 @@ TEST_F( DirectDrawSurfaceTest, WhenNotLoaded_EvaluatesToFalse )
     EXPECT_FALSE( dds );
 }
 
-TEST_F( DirectDrawSurfaceTest, GivenFileIsLoaded_HeightIsGettable )
+TEST_F( DirectDrawSurfaceTest, WhenFileFailedToLoad_EvaluatesToFalse )
+{
+    writeFileHeader();
+
+    EXPECT_THROW( dds.loadFrom( fileIn ), DirectDrawSurface::BadFile );
+    EXPECT_FALSE( dds );
+}
+
+TEST_F( DirectDrawSurfaceTest, WhenFileIsLoaded_HeightIsGettable )
 {
     loadDirectDrawSurfaceFromFile();
 
     EXPECT_EQ( 4, dds.getHeight() );
 }
 
-TEST_F( DirectDrawSurfaceTest, GivenFileIsLoaded_WidthIsGettable )
+TEST_F( DirectDrawSurfaceTest, WhenFileIsLoaded_WidthIsGettable )
 {
     loadDirectDrawSurfaceFromFile();
 
     EXPECT_EQ( 4, dds.getWidth() );
 }
 
-TEST_F( DirectDrawSurfaceTest, GivenFileIsLoaded_SurfaceIsGettable )
+TEST_F( DirectDrawSurfaceTest, WhenFileIsLoaded_SurfaceIsGettable )
 {
     loadDirectDrawSurfaceFromFile();
 

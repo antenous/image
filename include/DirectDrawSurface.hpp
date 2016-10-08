@@ -1,4 +1,5 @@
 /*
+ * @file include/DirectDrawSurface.hpp
  * DirectDrawSurface.hpp
  *
  *  Created on: Sep 29, 2016
@@ -16,6 +17,13 @@ namespace image
 
     class Bitmap;
 
+    /**
+        @brief  Class representation of a direct draw surface image
+
+        This class is used to load a direct draw surface image from a file or
+        to convert a bitmap image into a direct draw surface. Once the image
+        has been loaded into the class it can be saved to a file.
+    */
     class DirectDrawSurface
     {
     public:
@@ -29,18 +37,61 @@ namespace image
 
         virtual ~DirectDrawSurface() = default;
 
+        /**
+            Check if the image has been loaded or converted successfully
+
+            @return true when direct draw surface has been successfully loaded
+        */
         virtual explicit operator bool() const;
 
+        /**
+            Load a direct draw surface image from a file
+
+            @param file File to load the image from
+
+            @throw BadFile if unable to load from the file
+            @throw InvalidType if file is not a direct draw surface image
+        */
         void loadFrom( std::istream & file );
 
+        /**
+            Convert a direct draw surface image from a bitmap image
+
+            @param bitmap Bitmap image to convert from
+
+            @throw BadBitmap if the bitmap has not been loaded
+        */
         void convertFrom( const Bitmap & bitmap );
 
+        /**
+            Save the loaded image to a file
+
+            @param file File to load to
+
+            @throw BadFile if unable to save to the file
+            @throw InvalidType if the direct draw surface has not been loaded
+        */
         void saveTo( std::ostream & file ) const;
 
+        /**
+            Return height of the image
+
+            @return Height of the image
+        */
         virtual uint32_t getHeight() const;
 
+        /**
+             Return width of the image
+
+             @return Width of the image
+        */
         virtual uint32_t getWidth() const;
 
+        /**
+            Return the image durface data
+
+            @return Surface date
+        */
         virtual Surface getSurface() const;
 
     private:

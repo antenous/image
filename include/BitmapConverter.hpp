@@ -1,4 +1,5 @@
 /*
+ * @file include/BitmapConverter.hpp
  * BitmapConverter.hpp
  *
  *  Created on: Oct 2, 2016
@@ -17,6 +18,13 @@
 namespace image
 {
 
+    /**
+        @brief  Class for running conversions between image types
+
+        This class is used to run conversions between different image types.
+        The current supported conversion is between a bitmap image and a direct
+        draw surface image.
+    */
     class BitmapConverter
     {
     public:
@@ -26,22 +34,38 @@ namespace image
 
         typedef std::array< uint16_t, 16 > Block;
 
-        typedef std::vector< uint16_t > Palette;
+        typedef std::vector< uint16_t > HighColorPalette;
 
         typedef std::vector< uint32_t > Converted;
 
+        /**
+            Convert a bitmap into a direct draw surface
+
+            @param bmp  Bitmap image to be converted
+            @return Surface data for the direct draw surface image
+
+            @throw BadSize if the image has unsupported dimensions
+        */
         Converted convert( const Bitmap & bmp ) const;
 
+        /**
+            Convert a direct draw surface into a bitmap
+
+            @param dds  Direct draw surface to be converted
+            @return Color palette for the bitmap image
+
+            @throw BadSize if the image has unsupported dimensions
+        */
         Converted convert( const DirectDrawSurface & dds ) const;
 
     protected:
-        Palette trueToHigh( const Bitmap::Palette & palette ) const;
+        HighColorPalette trueToHigh( const Bitmap::Palette & palette ) const;
 
         uint16_t trueToHigh( uint32_t trueColor ) const;
 
-        Palette rearrangePaletteToBlocks( int32_t height, int32_t width, const Palette & palette ) const;
+        HighColorPalette rearrangePaletteToBlocks( int32_t height, int32_t width, const HighColorPalette & palette ) const;
 
-        Converted convertBlocks( const Palette & blocks ) const;
+        Converted convertBlocks( const HighColorPalette & blocks ) const;
 
         std::array< uint32_t, 2 > convertBlock( const Block & block ) const;
 
@@ -49,15 +73,15 @@ namespace image
 
         uint32_t createLookupTable( const Color & color, const Block & block ) const;
 
-        Palette rearrangeBlocksToPalette( int32_t height, int32_t width, const Palette & palette ) const;
+        HighColorPalette rearrangeBlocksToPalette( int32_t height, int32_t width, const HighColorPalette & palette ) const;
 
         Color createColorTable( uint32_t referenceColors ) const;
 
-        Palette createColorBlocks( const DirectDrawSurface::Surface & surface ) const;
+        HighColorPalette createColorBlocks( const DirectDrawSurface::Surface & surface ) const;
 
         Block createColorBlock( const Color & color, uint32_t lookupTable ) const;
 
-        Converted highToTrue( const Palette & palette ) const;
+        Converted highToTrue( const HighColorPalette & palette ) const;
 
         uint32_t highToTrue( uint16_t highColor ) const;
     };
