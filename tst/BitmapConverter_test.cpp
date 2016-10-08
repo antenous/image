@@ -72,7 +72,7 @@ namespace
 
         const uint32_t referenceColors{ 131 << 16 | 313 };
 
-        const DirectDrawSurface::Surface surface{ referenceColors, lookup };
+        DirectDrawSurface::Surface surface{ referenceColors, lookup };
     };
 }
 
@@ -95,6 +95,12 @@ TEST_F( BitmapConverterTest, GivenHeightIsNotMultipleOfFour_WhenConverted_Throws
     EXPECT_CALL( bitmap, getWidth() ).WillOnce( Return( 4 ));
 
     EXPECT_THROW( converter.convert( bitmap ), BitmapConverter::BadSize );
+
+    EXPECT_CALL( dds, getSurface() ).WillOnce( Return( surface ));
+    EXPECT_CALL( dds, getHeight() ).WillOnce( Return( 3 ));
+    EXPECT_CALL( dds, getWidth() ).WillOnce( Return( 4 ));
+
+    EXPECT_THROW( converter.convert( dds ), BitmapConverter::BadSize );
 }
 
 TEST_F( BitmapConverterTest, GivenWidthIsNotMultipleOfFour_WhenConverted_ThrowsBadSize )
@@ -104,6 +110,12 @@ TEST_F( BitmapConverterTest, GivenWidthIsNotMultipleOfFour_WhenConverted_ThrowsB
     EXPECT_CALL( bitmap, getWidth() ).WillOnce( Return( 5 ));
 
     EXPECT_THROW( converter.convert( bitmap ), BitmapConverter::BadSize );
+
+    EXPECT_CALL( dds, getSurface() ).WillOnce( Return( surface ));
+    EXPECT_CALL( dds, getHeight() ).WillOnce( Return( 4 ));
+    EXPECT_CALL( dds, getWidth() ).WillOnce( Return( 5 ));
+
+    EXPECT_THROW( converter.convert( dds ), BitmapConverter::BadSize );
 }
 
 TEST_F( BitmapConverterTest, GivenPaletteSizeIsNotMultipleOfSixteen_WhenConverted_ThrowsBadSize )
@@ -133,6 +145,7 @@ TEST_F( BitmapConverterTest, ConvertBitmap )
 
 TEST_F( BitmapConverterTest, GivenDirectDrawSurfaceIsNotMultipleOfTwo_WhenConverted_ThrowsBadSize )
 {
+    surface.clear();
     EXPECT_CALL( dds, getSurface() ).WillOnce( Return( surface ));
 
     EXPECT_THROW( converter.convert( dds ), BitmapConverter::BadSize );
