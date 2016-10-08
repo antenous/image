@@ -7,6 +7,7 @@
 
 #include "BitmapConverter.hpp"
 #include <algorithm>
+#include <functional>
 #include <initializer_list>
 
 using namespace image;
@@ -69,10 +70,45 @@ namespace
         return static_cast< uint32_t >( color[0] ) << 16 | color[1];
     }
 
+    uint8_t red( uint16_t color )
+    {
+        return color >> 11;
+    }
+
+    uint8_t green( uint16_t color )
+    {
+        return ( color >> 5 ) & 0x3f;
+    }
+
+    uint8_t blue( uint16_t color )
+    {
+        return color & 0x1f;
+    }
+
+    uint16_t combineSubColors(
+        const std::function< uint8_t( const std::pair< uint8_t, uint8_t > & )> & intermediate,
+        const BitmapConverter::Color & color )
+    {
+        return
+            intermediate({ red(   color[0]), red(   color[1])}) << 11 |
+            intermediate({ green( color[0]), green( color[1])}) <<  5 |
+            intermediate({ blue(  color[0]), blue(  color[1])});
+    }
+
+    uint8_t lowIntermediate( const std::pair< uint8_t, uint8_t > & color )
+    {
+        return 2 * color.first / 3 + color.second / 3;
+    }
+
+    uint8_t highIntermediate( const std::pair< uint8_t, uint8_t > & color )
+    {
+        return color.first / 3 + 2 * color.second / 3;
+    }
+
     void countIntermediateColors( BitmapConverter::Color & color )
     {
-        color[2] = color[0] * 2 / 3 + color[1] / 3;
-        color[3] = color[0] / 3 + color[1] * 2 / 3;
+        color[2] = combineSubColors( lowIntermediate, color );
+        color[3] = combineSubColors( highIntermediate, color );
     }
 
     uint8_t downscaleSubColor( uint32_t color, uint8_t bits )

@@ -96,7 +96,7 @@ void Bitmap::convertFrom( const DirectDrawSurface & dds )
         throw BadDirectDrawSurface();
 
     memset( &fileHeader, 0 , sizeof( fileHeader ));
-    memset( & infoHeader, 0, sizeof( infoHeader ));
+    memset( &infoHeader, 0, sizeof( infoHeader ));
 
     palette = BitmapConverter().convert( dds );
 
