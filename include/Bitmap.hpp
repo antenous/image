@@ -65,7 +65,7 @@ namespace image
             uint16_t reserved1;
             uint16_t reserved2;
             uint32_t offset;
-        } fileHeader;
+        } fileHeader{{ 0, 0 }, 0, 0, 0, 0 };
 
         struct
         {
