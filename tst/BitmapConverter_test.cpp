@@ -8,6 +8,7 @@
 #include "BitmapConverter.hpp"
 #include <algorithm>
 #include <gtest/gtest.h>
+#include "ColorDepth.hpp"
 #include "MockBitmap.hpp"
 #include "MockDirectDrawSurface.hpp"
 
@@ -19,10 +20,6 @@ namespace
     class DetailsTester : public BitmapConverter
     {
     public:
-        using BitmapConverter::trueToHigh;
-
-        using BitmapConverter::highToTrue;
-
         using BitmapConverter::rearrangePaletteToBlocks;
 
         using BitmapConverter::rearrangeBlocksToPalette;
@@ -41,7 +38,7 @@ namespace
         {
             palette.insert( palette.begin(), block.begin(), block.end() );
             std::transform( palette.begin(), palette.end(), palette.begin(),
-                [&]( int16_t color ){ return details.highToTrue( color ); });
+                [&]( int16_t color ){ return ColorDepth::highToTrue( color ); });
         }
 
         BitmapConverter converter;
@@ -156,35 +153,6 @@ TEST_F( BitmapConverterTest, ConvertDirectDrawSurface )
     EXPECT_CALL( dds, getWidth() ).WillOnce( Return( 4 ));
 
     EXPECT_EQ( palette, converter.convert( dds ));
-}
-
-TEST_F( BitmapConverterTest, Convert24bitTrueColorTo16bitHighColor )
-{
-    const uint8_t blue(  0b00010000 );
-    const uint8_t green( 0b00000100 );
-    const uint8_t red(   0b00001000 );
-
-    const uint32_t trueColor( blue << 16 | green << 8 | red );
-    const uint16_t highColor( red >> 3 << 11 | green >> 2 << 5 | blue >> 3 );
-
-    EXPECT_EQ( highColor, details.trueToHigh( trueColor ));
-}
-
-TEST_F( BitmapConverterTest, Convert16bitHighColorTo24BitTrueColor )
-{
-    const uint8_t blue(  0b11011 );
-    const uint8_t green( 0b111101 );
-    const uint8_t red(   0b11101 );
-
-    const uint16_t highColor( red << 11 | green << 5 | blue );
-
-    const uint8_t trueBlue(( blue << 3 )|( blue >> 2 ));
-    const uint8_t trueGreen(( green << 2 )|( green >> 4 ));
-    const uint8_t trueRed(( red << 3 )|( red >> 2 ));
-
-    const uint32_t trueColor( trueBlue << 16  | trueGreen << 8 | trueRed );
-
-    EXPECT_EQ( trueColor, details.highToTrue( highColor ));
 }
 
 TEST_F( BitmapConverterTest, RearrangePaletteToBlocks )

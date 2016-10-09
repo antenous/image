@@ -59,10 +59,6 @@ namespace image
         Converted convert( const DirectDrawSurface & dds ) const;
 
     protected:
-        HighColorPalette trueToHigh( const Bitmap::Palette & palette ) const;
-
-        uint16_t trueToHigh( uint32_t trueColor ) const;
-
         HighColorPalette rearrangePaletteToBlocks( int32_t height, int32_t width, const HighColorPalette & palette ) const;
 
         Converted convertBlocks( const HighColorPalette & blocks ) const;
@@ -80,10 +76,6 @@ namespace image
         HighColorPalette createColorBlocks( const DirectDrawSurface::Surface & surface ) const;
 
         Block createColorBlock( const Color & color, uint32_t lookupTable ) const;
-
-        Converted highToTrue( const HighColorPalette & palette ) const;
-
-        uint32_t highToTrue( uint16_t highColor ) const;
     };
 
     class BitmapConverter::BadSize : public std::runtime_error

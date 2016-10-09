@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <functional>
 #include <initializer_list>
+#include "ColorDepth.hpp"
 
 using namespace image;
 
@@ -110,48 +111,12 @@ namespace
         color[2] = combineSubColors( lowIntermediate, color );
         color[3] = combineSubColors( highIntermediate, color );
     }
-
-    uint8_t downscaleSubColor( uint32_t color, uint8_t bits )
-    {
-        return ( color & 0xff ) >> ( 8 - bits );
-    }
-
-    uint8_t upscaleSubColor( uint16_t color, uint8_t bits )
-    {
-        uint8_t subColor(( color << ( 8 - bits )) & 0xff );
-        return subColor | ( subColor >> bits );
-    }
 }
 
 BitmapConverter::Converted BitmapConverter::convert( const Bitmap & bitmap ) const
 {
     return convertBlocks( rearrangePaletteToBlocks(
-        bitmap.getHeight(), bitmap.getWidth(), trueToHigh( bitmap.getPalette() )));
-}
-
-BitmapConverter::HighColorPalette BitmapConverter::trueToHigh( const Bitmap::Palette & truePalette ) const
-{
-    HighColorPalette highPalette( truePalette.size() );
-
-    std::transform(
-        truePalette.begin(), truePalette.end(), highPalette.begin(),
-        [this]( uint32_t color ){ return trueToHigh( color ); });
-
-    return std::move( highPalette );
-}
-
-uint16_t BitmapConverter::trueToHigh( uint32_t trueColor ) const
-{
-    uint16_t highColor( 0 );
-
-    for ( auto bitsToKeep : { 5, 6, 5 })
-    {
-        highColor <<= bitsToKeep;
-        highColor |= downscaleSubColor( trueColor, bitsToKeep );
-        trueColor >>= 8;
-    }
-
-    return highColor;
+        bitmap.getHeight(), bitmap.getWidth(), ColorDepth::trueToHigh( bitmap.getPalette() )));
 }
 
 BitmapConverter::HighColorPalette BitmapConverter::rearrangePaletteToBlocks(
@@ -236,7 +201,7 @@ BitmapConverter::Color BitmapConverter::createColorTable( uint32_t referenceColo
 
 BitmapConverter::Converted BitmapConverter::convert( const DirectDrawSurface & dds ) const
 {
-    return highToTrue( rearrangeBlocksToPalette( dds.getHeight(), dds.getWidth(), createColorBlocks( dds.getSurface() )));
+    return ColorDepth::highToTrue( rearrangeBlocksToPalette( dds.getHeight(), dds.getWidth(), createColorBlocks( dds.getSurface() )));
 }
 
 uint32_t BitmapConverter::createLookupTable( const Color & color, const Block & block ) const
@@ -275,28 +240,4 @@ BitmapConverter::Block BitmapConverter::createColorBlock( const Color & color, u
             block[y*4 + x] = color[distanceToBitIndex( lookupTable & 0b11 )];
 
     return block;
-}
-
-BitmapConverter::Converted BitmapConverter::highToTrue( const HighColorPalette & palette ) const
-{
-    Converted converted( palette.size() );
-    std::transform(
-        palette.begin(), palette.end(), converted.begin(),
-        [this]( uint16_t color ){ return highToTrue( color ); });
-
-    return converted;
-}
-
-uint32_t BitmapConverter::highToTrue( uint16_t highColor ) const
-{
-    uint32_t trueColor( 0 );
-
-    for ( auto bitsToKeep : { 5, 6, 5 })
-    {
-        trueColor <<= 8;
-        trueColor |= upscaleSubColor( highColor, bitsToKeep );
-        highColor >>= bitsToKeep;
-    }
-
-    return trueColor;
 }

@@ -44,7 +44,7 @@ TEST = testrunner
 
 SOURCES := $(wildcard *.cpp)
 TEST_FILES := \
-	Bitmap.cpp DirectDrawSurface.cpp BitmapConverter.cpp
+	Bitmap.cpp BitmapConverter.cpp ColorDepth.cpp DirectDrawSurface.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o) $(patsubst %.cpp, $(USER_DIR)/src/%.o, $(TEST_FILES))
 DEPENDS = $(OBJECTS:.o=.d)
