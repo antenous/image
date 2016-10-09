@@ -41,7 +41,7 @@ namespace image
             @return 16bit color range
         */
         template<
-            template< class, class > typename Range, typename Alloc,
+            template< class, class > class Range, typename Alloc,
             typename AllocOut = std::allocator< uint16_t >>
         static Range< uint16_t, AllocOut > trueToHigh( const Range< uint32_t, Alloc > & in )
         {
@@ -73,7 +73,7 @@ namespace image
             @return 24bit color range
         */
         template<
-            template< class, class > typename Range, typename Alloc,
+            template< class, class > class Range, typename Alloc,
             typename AllocOut = std::allocator< uint32_t >>
         static Range< uint32_t, AllocOut > highToTrue( const Range< uint16_t, Alloc > & in )
         {
