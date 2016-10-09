@@ -7,3 +7,6 @@
 image
 testrunner
 *.[ado]
+
+# Doxygen files
+/.doxygen_doc
