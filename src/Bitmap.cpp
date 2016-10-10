@@ -191,11 +191,12 @@ void Bitmap::readInfoHeader( std::istream & file )
 
 void Bitmap::readPalette( std::istream & file )
 {
-    palette.clear();
+    palette.resize( infoHeader.height * infoHeader.width );
+    auto it( palette.begin() );
 
     for ( int32_t row( 0 ); row < infoHeader.height; ++row, skipPadding( file, padding ))
         for ( int32_t column( 0 ); column < infoHeader.width; ++column )
-            palette.push_back( readColor( file ));
+            *it++ = readColor( file );
 }
 
 void Bitmap::writeFileHeader( std::ostream & file ) const

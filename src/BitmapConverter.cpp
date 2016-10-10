@@ -160,12 +160,13 @@ BitmapConverter::HighColorPalette BitmapConverter::rearrangeBlocksToPalette(
 BitmapConverter::Converted BitmapConverter::convertBlocks( const HighColorPalette & blocks ) const
 {
     Converted result;
+    result.reserve( blocks.size() );
 
     for ( auto first( blocks.begin() ), last( blocks.end() ); first != last; std::advance( first, 16 ))
     {
         Block block;
         std::copy_n( first, 16, block.begin() );
-        auto converted( convertBlock( block ));
+        const auto converted( convertBlock( block ));
         result.insert( result.end(), converted.begin(), converted.end() );
     }
 
@@ -221,6 +222,7 @@ BitmapConverter::HighColorPalette BitmapConverter::createColorBlocks( const Dire
         throw BadSize();
 
     HighColorPalette palette;
+    palette.reserve( 8 * surface.size() );
 
     for ( auto first( surface.begin() ), last( surface.end() ); first != last; std::advance( first, 2 ))
     {
