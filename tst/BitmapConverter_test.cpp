@@ -20,10 +20,6 @@ namespace
     class DetailsTester : public BitmapConverter
     {
     public:
-        using BitmapConverter::rearrangePaletteToBlocks;
-
-        using BitmapConverter::rearrangeBlocksToPalette;
-
         using BitmapConverter::createColorTable;
 
         using BitmapConverter::createLookupTable;
@@ -85,46 +81,6 @@ TEST_F( BitmapConverterTest, CanThrowAndCatchBadSize )
     }
 }
 
-TEST_F( BitmapConverterTest, GivenHeightIsNotMultipleOfFour_WhenConverted_ThrowsBadSize )
-{
-    EXPECT_CALL( bitmap, getPalette() ).WillOnce( Return( palette ));
-    EXPECT_CALL( bitmap, getHeight() ).WillOnce( Return( 3 ));
-    EXPECT_CALL( bitmap, getWidth() ).WillOnce( Return( 4 ));
-
-    EXPECT_THROW( converter.convert( bitmap ), BitmapConverter::BadSize );
-
-    EXPECT_CALL( dds, getSurface() ).WillOnce( Return( surface ));
-    EXPECT_CALL( dds, getHeight() ).WillOnce( Return( 3 ));
-    EXPECT_CALL( dds, getWidth() ).WillOnce( Return( 4 ));
-
-    EXPECT_THROW( converter.convert( dds ), BitmapConverter::BadSize );
-}
-
-TEST_F( BitmapConverterTest, GivenWidthIsNotMultipleOfFour_WhenConverted_ThrowsBadSize )
-{
-    EXPECT_CALL( bitmap, getPalette() ).WillOnce( Return( palette ));
-    EXPECT_CALL( bitmap, getHeight() ).WillOnce( Return( 4 ));
-    EXPECT_CALL( bitmap, getWidth() ).WillOnce( Return( 5 ));
-
-    EXPECT_THROW( converter.convert( bitmap ), BitmapConverter::BadSize );
-
-    EXPECT_CALL( dds, getSurface() ).WillOnce( Return( surface ));
-    EXPECT_CALL( dds, getHeight() ).WillOnce( Return( 4 ));
-    EXPECT_CALL( dds, getWidth() ).WillOnce( Return( 5 ));
-
-    EXPECT_THROW( converter.convert( dds ), BitmapConverter::BadSize );
-}
-
-TEST_F( BitmapConverterTest, GivenPaletteSizeIsNotMultipleOfSixteen_WhenConverted_ThrowsBadSize )
-{
-    palette.resize( 15 );
-    EXPECT_CALL( bitmap, getPalette() ).WillOnce( Return( palette ));
-    EXPECT_CALL( bitmap, getHeight() ).WillOnce( Return( 4 ));
-    EXPECT_CALL( bitmap, getWidth() ).WillOnce( Return( 4 ));
-
-    EXPECT_THROW( converter.convert( bitmap ), BitmapConverter::BadSize );
-}
-
 TEST_F( BitmapConverterTest, ConvertBitmap )
 {
     convertBlockToPalette( block );
@@ -153,40 +109,6 @@ TEST_F( BitmapConverterTest, ConvertDirectDrawSurface )
     EXPECT_CALL( dds, getWidth() ).WillOnce( Return( 4 ));
 
     EXPECT_EQ( palette, converter.convert( dds ));
-}
-
-TEST_F( BitmapConverterTest, RearrangePaletteToBlocks )
-{
-    const BitmapConverter::HighColorPalette palette{
-         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
-        16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-        32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
-        48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63 };
-
-    const BitmapConverter::HighColorPalette expected{
-        32, 33, 34, 35, 40, 41, 42, 43, 48, 49, 50, 51, 56, 57, 58, 59,
-        36, 37, 38, 39, 44, 45, 46, 47, 52, 53, 54, 55, 60, 61, 62, 63,
-         0,  1,  2,  3,  8,  9, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27,
-         4,  5,  6,  7, 12, 13, 14, 15, 20, 21, 22, 23, 28, 29, 30, 31 };
-
-    EXPECT_EQ( expected, details.rearrangePaletteToBlocks( 8, 8, palette ));
-}
-
-TEST_F( BitmapConverterTest, RearrangeBlocksToPalette )
-{
-    const BitmapConverter::HighColorPalette blocks{
-        32, 33, 34, 35, 40, 41, 42, 43, 48, 49, 50, 51, 56, 57, 58, 59,
-        36, 37, 38, 39, 44, 45, 46, 47, 52, 53, 54, 55, 60, 61, 62, 63,
-         0,  1,  2,  3,  8,  9, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27,
-         4,  5,  6,  7, 12, 13, 14, 15, 20, 21, 22, 23, 28, 29, 30, 31 };
-
-    const BitmapConverter::HighColorPalette palette{
-        0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
-       16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-       32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
-       48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63 };
-
-    EXPECT_EQ( palette, details.rearrangeBlocksToPalette( 8, 8, blocks ));
 }
 
 TEST_F( BitmapConverterTest, CreateColorTable )

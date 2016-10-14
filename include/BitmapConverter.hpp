@@ -59,8 +59,6 @@ namespace image
         Converted convert( const DirectDrawSurface & dds ) const;
 
     protected:
-        HighColorPalette rearrangePaletteToBlocks( int32_t height, int32_t width, const HighColorPalette & palette ) const;
-
         Converted convertBlocks( const HighColorPalette & blocks ) const;
 
         std::array< uint32_t, 2 > convertBlock( const Block & block ) const;
@@ -68,8 +66,6 @@ namespace image
         Color createColorTable( const Block & block ) const;
 
         uint32_t createLookupTable( const Color & color, const Block & block ) const;
-
-        HighColorPalette rearrangeBlocksToPalette( int32_t height, int32_t width, const HighColorPalette & palette ) const;
 
         Color createColorTable( uint32_t referenceColors ) const;
 

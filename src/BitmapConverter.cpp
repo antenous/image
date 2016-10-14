@@ -8,37 +8,13 @@
 #include "BitmapConverter.hpp"
 #include <algorithm>
 #include <functional>
-#include <initializer_list>
 #include "ColorDepth.hpp"
+#include "ColorPalette.hpp"
 
 using namespace image;
 
 namespace
 {
-    class MultiplesTester
-    {
-    public:
-        MultiplesTester( int32_t value ) :
-            value( value )
-        {}
-
-        MultiplesTester( const BitmapConverter::HighColorPalette & palette ) :
-            MultiplesTester( palette.size() )
-        {}
-
-        MultiplesTester( const DirectDrawSurface::Surface & surface ) :
-            MultiplesTester( surface.size() )
-        {}
-
-        bool isMultipleOf( uint8_t divisor ) const
-        {
-            return ( value && value % divisor == 0 );
-        }
-
-    private:
-        int32_t value;
-    };
-
     void convertIntoDistanceFromReference( uint16_t reference, BitmapConverter::Color & color )
     {
         std::transform( color.begin(), color.end(), color.begin(),
@@ -56,14 +32,9 @@ namespace
         return distanceToBitIndex( std::distance( color.begin(), std::min_element( color.begin(), color.end() )));
     }
 
-    bool isValidSize( MultiplesTester height, MultiplesTester width, MultiplesTester palette )
+    bool isValidSize( const DirectDrawSurface::Surface & surface )
     {
-        return height.isMultipleOf( 4 ) && width.isMultipleOf( 4 ) && palette.isMultipleOf( 16 );
-    }
-
-    bool isValidSize( MultiplesTester surface )
-    {
-        return surface.isMultipleOf( 2 );
+        return !surface.empty() && surface.size() % 2 == 0;
     }
 
     uint32_t referenceColors( const BitmapConverter::Color & color )
@@ -115,46 +86,8 @@ namespace
 
 BitmapConverter::Converted BitmapConverter::convert( const Bitmap & bitmap ) const
 {
-    return convertBlocks( rearrangePaletteToBlocks(
+    return convertBlocks( ColorPalette::rearrangeForDirectDrawSurface(
         bitmap.getHeight(), bitmap.getWidth(), ColorDepth::trueToHigh( bitmap.getPalette() )));
-}
-
-BitmapConverter::HighColorPalette BitmapConverter::rearrangePaletteToBlocks(
-    int32_t height, int32_t width, const HighColorPalette & palette ) const
-
-{
-    if ( !isValidSize( height, width, palette ))
-        throw BadSize();
-
-    HighColorPalette rearranged( palette.size() );
-    auto it( rearranged.begin() );
-
-    for ( int32_t y( height - 4 ); y >= 0; y -= 4 )
-        for ( int32_t x( 0 ); x < width; x += 4 )
-            for ( auto i( y*width + x ), end( i + width*4 ); i < end; i += width )
-                for ( auto j( i ), end( j + 4 ); j < end; ++j)
-                    *it++ = palette[j];
-
-    return std::move( rearranged );
-}
-
-BitmapConverter::HighColorPalette BitmapConverter::rearrangeBlocksToPalette(
-    int32_t height, int32_t width, const HighColorPalette & blocks ) const
-
-{
-    if ( !isValidSize( height, width, blocks ))
-        throw BadSize();
-
-    HighColorPalette rearranged( blocks.size() );
-    auto it( blocks.begin() );
-
-    for ( int32_t y( height - 4 ); y >= 0; y -= 4 )
-        for ( int32_t x( 0 ); x < width; x += 4 )
-            for ( auto i( y*width + x ), end( i + width*4 ); i < end; i += width )
-                for ( auto j( i ), end( j + 4 ); j < end; ++j)
-                    rearranged[j] = *it++;
-
-    return std::move( rearranged );
 }
 
 BitmapConverter::Converted BitmapConverter::convertBlocks( const HighColorPalette & blocks ) const
@@ -202,7 +135,8 @@ BitmapConverter::Color BitmapConverter::createColorTable( uint32_t referenceColo
 
 BitmapConverter::Converted BitmapConverter::convert( const DirectDrawSurface & dds ) const
 {
-    return ColorDepth::highToTrue( rearrangeBlocksToPalette( dds.getHeight(), dds.getWidth(), createColorBlocks( dds.getSurface() )));
+    return ColorDepth::highToTrue( ColorPalette::rearrangeForBitmap(
+        dds.getHeight(), dds.getWidth(), createColorBlocks( dds.getSurface() )));
 }
 
 uint32_t BitmapConverter::createLookupTable( const Color & color, const Block & block ) const
