@@ -1,5 +1,5 @@
 CPPFLAGS += -Iinclude
-CXXFLAGS += -std=c++14 -c -g -MD -Wall -Werror -Wextra
+CXXFLAGS += -std=c++14 -c -g -MD -Wall -Werror -Wextra -O2
 LDFLAGS += -lrt
 
 SRC_DIR := src
