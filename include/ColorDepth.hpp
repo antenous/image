@@ -50,7 +50,7 @@ namespace image
                 in.begin(), in.end(), out.begin(),
                 []( uint32_t color ){ return trueToHigh( color ); });
 
-            return std::move( out );
+            return out;
         }
 
         /**
@@ -82,7 +82,7 @@ namespace image
                 in.begin(), in.end(), out.begin(),
                 []( uint16_t color ){ return highToTrue( color ); });
 
-            return std::move( out );
+            return out;
         }
     };
 

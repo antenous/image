@@ -57,7 +57,7 @@ ColorPalette::Colors ColorPalette::rearrangeForDirectDrawSurface( int32_t height
     Colors out( in.size() );
     auto it( out.begin() );
     rearrangeColorPalette( height, width, in, [&in, &it]( int32_t j ){ *it++ = in[j]; });
-    return std::move( out );
+    return out;
 }
 
 ColorPalette::Colors ColorPalette::rearrangeForBitmap(int32_t height, int32_t width, const Colors & in )
@@ -65,5 +65,5 @@ ColorPalette::Colors ColorPalette::rearrangeForBitmap(int32_t height, int32_t wi
     Colors out( in.size() );
     auto it( in.cbegin() );
     rearrangeColorPalette( height, width, in, [&it, &out]( int32_t j ){ out[j] = *it++; });
-    return std::move( out );
+    return out;
 }

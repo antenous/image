@@ -26,7 +26,7 @@ namespace
         std::ifstream in( file, std::ios::binary );
         T t;
         t.loadFrom( in );
-        return std::move( t );
+        return t;
     }
 
     template< typename T, typename U >
@@ -34,7 +34,7 @@ namespace
     {
         T t;
         t.convertFrom( u );
-        return std::move( t );
+        return t;
     }
 
     void writeToFile( const DirectDrawSurface & dds )

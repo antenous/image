@@ -103,7 +103,7 @@ BitmapConverter::Converted BitmapConverter::convertBlocks( const HighColorPalett
         result.insert( result.end(), converted.begin(), converted.end() );
     }
 
-    return std::move( result );
+    return result;
 }
 
 std::array< uint32_t, 2 > BitmapConverter::convertBlock( const Block & block ) const
@@ -120,7 +120,7 @@ BitmapConverter::Color BitmapConverter::createColorTable( const Block & block ) 
     color[1] = *std::max_element( block.begin(), block.end() );
 
     countIntermediateColors( color );
-    return std::move( color );
+    return color;
 }
 
 BitmapConverter::Color BitmapConverter::createColorTable( uint32_t referenceColors ) const
@@ -130,7 +130,7 @@ BitmapConverter::Color BitmapConverter::createColorTable( uint32_t referenceColo
     color[1] = referenceColors & 0xffff;
 
     countIntermediateColors( color );
-    return std::move( color );
+    return color;
 }
 
 BitmapConverter::Converted BitmapConverter::convert( const DirectDrawSurface & dds ) const

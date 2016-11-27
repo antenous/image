@@ -140,7 +140,7 @@ namespace
             palette[12] = blue;
             palette[13] = blue;
 
-            return std::move( palette );
+            return palette;
         }
 
         DirectDrawSurface dds;
