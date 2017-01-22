@@ -82,13 +82,9 @@ namespace
 
         void writeSurfaceData()
         {
-            writeToFile( createBlueAndWhiteReferenceColors() );
+            writeToFile( white );
+            writeToFile( blue );
             writeToFile( createLookUpTableWithBlueTopLeftCorner() );
-        }
-
-        uint32_t createBlueAndWhiteReferenceColors() const
-        {
-            return blue << 16 | white;
         }
 
         uint32_t createLookUpTableWithBlueTopLeftCorner() const

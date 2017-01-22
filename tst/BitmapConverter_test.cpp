@@ -55,7 +55,7 @@ namespace
             241, 313, 131, 241,
             241, 131, 313, 170 }};
 
-        const BitmapConverter::Color color{{ 131, 313, 170, 241 }};
+        const BitmapConverter::Color color{{ 313, 131, 241, 170 }};
 
         const uint32_t lookup{
             ( 0 << 6 | 2 << 4 | 3 << 2 | 1 ) << 24 |
@@ -63,7 +63,7 @@ namespace
             ( 2 << 6 | 1 << 4 | 0 << 2 | 2 ) <<  8 |
             ( 3 << 6 | 0 << 4 | 1 << 2 | 2 )};
 
-        const uint32_t referenceColors{ 131 << 16 | 313 };
+        const uint32_t referenceColors{ 313 << 16 | 131 };
 
         DirectDrawSurface::Surface surface{ referenceColors, lookup };
     };

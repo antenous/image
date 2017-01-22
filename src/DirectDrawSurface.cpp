@@ -20,16 +20,34 @@ namespace
         return magic == 0x20534444;
     }
 
+    uint32_t swap( uint32_t colors )
+    {
+        return (( colors & 0x0000ffff ) << 16 )|
+               (( colors & 0xffff0000 ) >> 16 );
+    }
+
     template< typename T >
     void read( std::istream & file, T & t )
     {
         file.read( reinterpret_cast< char* >( &t ), sizeof( t ));
     }
 
+    void readReferenceColors( std::istream & file, uint32_t & colors )
+    {
+        read( file, colors );
+        colors = swap( colors );
+    }
+
     template< typename T >
     void write( std::ostream & file, const T & t )
     {
         file.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
+    }
+
+    void writeReferenceColors( std::ostream & file, uint32_t colors )
+    {
+        colors = swap( colors );
+        write( file, colors );
     }
 }
 
@@ -124,8 +142,11 @@ void DirectDrawSurface::readSurfaceData( std::istream & file )
 {
     surface.resize( countSurfaceBlocks() );
 
-    for ( auto & block : surface )
-        read( file, block );
+    for ( auto first( surface.begin() ), last( surface.end() ); first != last; ++first )
+    {
+        readReferenceColors( file, *first );
+        read( file, *++first );
+    }
 }
 
 uint32_t DirectDrawSurface::countSurfaceBlocks() const
@@ -148,6 +169,9 @@ void DirectDrawSurface::writeHeader( std::ostream & file ) const
 
 void DirectDrawSurface::writeSurfaceData( std::ostream & file ) const
 {
-    for ( auto & block : surface )
-        write( file, block );
+    for ( auto first( surface.begin() ), last( surface.end() ); first != last; ++first )
+    {
+        writeReferenceColors( file, *first );
+        write( file, *++first );
+    }
 }

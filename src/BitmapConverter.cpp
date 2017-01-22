@@ -21,15 +21,10 @@ namespace
             [&reference]( uint16_t color ){ return std::abs( reference - color ); });
     }
 
-    uint8_t distanceToBitIndex( uint16_t dist )
-    {
-        return dist < 2 ? !dist : dist == 2 ? 3 : 2;
-    }
-
     uint8_t closestMatch( uint16_t reference, BitmapConverter::Color color )
     {
         convertIntoDistanceFromReference( reference, color );
-        return distanceToBitIndex( std::distance( color.begin(), std::min_element( color.begin(), color.end() )));
+        return std::distance( color.begin(), std::min_element( color.begin(), color.end() ));
     }
 
     bool isValidSize( const DirectDrawSurface::Surface & surface )
@@ -116,8 +111,8 @@ std::array< uint32_t, 2 > BitmapConverter::convertBlock( const Block & block ) c
 BitmapConverter::Color BitmapConverter::createColorTable( const Block & block ) const
 {
     Color color;
-    color[0] = *std::min_element( block.begin(), block.end() );
-    color[1] = *std::max_element( block.begin(), block.end() );
+    color[0] = *std::max_element( block.begin(), block.end() );
+    color[1] = *std::min_element( block.begin(), block.end() );
 
     countIntermediateColors( color );
     return color;
@@ -173,7 +168,7 @@ BitmapConverter::Block BitmapConverter::createColorBlock( const Color & color, u
 
     for ( int y( 3 ); y >= 0; --y )
         for ( unsigned x( 0 ); x < 4; ++x, lookupTable >>= 2 )
-            block[y*4 + x] = color[distanceToBitIndex( lookupTable & 0b11 )];
+            block[y*4 + x] = color[ lookupTable & 0b11 ];
 
     return block;
 }

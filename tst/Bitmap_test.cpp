@@ -217,7 +217,7 @@ namespace
         {
             const uint16_t blue{ 0x1f };
             const uint16_t white{ 0xffff };
-            const uint32_t reference( blue << 16 | white );
+            const uint32_t reference( white << 16 | blue );
             const auto lookup( createLookupTableWithBlueTopLeftCorner() );
             return { reference, lookup };
         };
