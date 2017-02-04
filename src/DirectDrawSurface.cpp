@@ -9,7 +9,7 @@
 #include <cstring>
 #include <istream>
 #include "Bitmap.hpp"
-#include "BitmapConverter.hpp"
+#include "ImageConverter.hpp"
 
 using namespace image;
 
@@ -81,7 +81,7 @@ void DirectDrawSurface::convertFrom( const Bitmap & bitmap )
     if ( !bitmap )
         throw BadBitmap();
 
-    surface = BitmapConverter().convert( bitmap );
+    surface = ImageConverter().convert( bitmap );
 
     memset( &header, 0, sizeof( header ));
     magic = 0x20534444;

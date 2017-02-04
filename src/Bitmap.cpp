@@ -8,8 +8,8 @@
 #include "Bitmap.hpp"
 #include <cstring>
 #include <istream>
-#include "BitmapConverter.hpp"
 #include "DirectDrawSurface.hpp"
+#include "ImageConverter.hpp"
 
 using namespace image;
 
@@ -102,7 +102,7 @@ void Bitmap::convertFrom( const DirectDrawSurface & dds )
     if ( !dds )
         throw BadDirectDrawSurface();
 
-    palette = BitmapConverter().convert( dds );
+    palette = ImageConverter().convert( dds );
 
     createInfoHeader( dds );
     createFileHeader();

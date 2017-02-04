@@ -1,11 +1,11 @@
 /*
- * BitmapConverter_test.cpp
+ * ImageConverter_test.cpp
  *
  *  Created on: Oct 2, 2016
  *      Author: Antero Nousiainen
  */
 
-#include "BitmapConverter.hpp"
+#include "ImageConverter.hpp"
 #include <algorithm>
 #include <gtest/gtest.h>
 #include "ColorDepth.hpp"
@@ -17,10 +17,10 @@ using namespace testing;
 
 namespace
 {
-    class BitmapConverterTest : public Test
+    class ImageConverterTest : public Test
     {
     protected:
-        BitmapConverter converter;
+        ImageConverter converter;
         MockBitmap bitmap;
         MockDirectDrawSurface dds;
 
@@ -48,7 +48,7 @@ namespace
     };
 }
 
-TEST_F( BitmapConverterTest, ConvertBitmap )
+TEST_F( ImageConverterTest, ConvertBitmap )
 {
     EXPECT_CALL( bitmap, getPalette() ).WillOnce( Return( ColorDepth::highToTrue( original )));
     EXPECT_CALL( bitmap, getHeight() ).WillOnce( Return( 4 ));
@@ -57,7 +57,7 @@ TEST_F( BitmapConverterTest, ConvertBitmap )
     EXPECT_EQ( compressed, converter.convert( bitmap ));
 }
 
-TEST_F( BitmapConverterTest, ConvertDirectDrawSurface )
+TEST_F( ImageConverterTest, ConvertDirectDrawSurface )
 {
     EXPECT_CALL( dds, getSurface() ).WillOnce( Return( compressed ));
     EXPECT_CALL( dds, getHeight() ).WillOnce( Return( 4 ));

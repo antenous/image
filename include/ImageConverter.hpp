@@ -1,13 +1,13 @@
 /*
- * @file include/BitmapConverter.hpp
- * BitmapConverter.hpp
+ * @file include/ImageConverter.hpp
+ * ImageConverter.hpp
  *
  *  Created on: Oct 2, 2016
  *      Author: Antero Nousiainen
  */
 
-#ifndef BITMAPCONVERTER_HPP_
-#define BITMAPCONVERTER_HPP_
+#ifndef IMAGECONVERTER_HPP_
+#define IMAGECONVERTER_HPP_
 
 #include <cstdint>
 #include <vector>
@@ -24,7 +24,7 @@ namespace image
         The current supported conversion is between a bitmap image and a direct
         draw surface image.
     */
-    class BitmapConverter
+    class ImageConverter
     {
     public:
         typedef std::vector< uint32_t > Converted;
