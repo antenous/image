@@ -16,7 +16,7 @@ ImageConverter::Converted ImageConverter::convert( const Bitmap & bitmap ) const
 {
     return BlockCompressor::compress(
            ColorPalette::rearrangeForDirectDrawSurface( bitmap.getHeight(), bitmap.getWidth(),
-           ColorDepth::trueToHigh( bitmap.getPalette() )));
+           ColorDepth::trueToHigh( bitmap.getColors() )));
 }
 
 ImageConverter::Converted ImageConverter::convert( const DirectDrawSurface & dds ) const

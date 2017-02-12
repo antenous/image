@@ -33,7 +33,7 @@ namespace image
 
         class BadDirectDrawSurface;
 
-        typedef std::vector< uint32_t > Palette;
+        typedef std::vector< uint32_t > Colors;
 
         virtual ~Bitmap() = default;
 
@@ -88,18 +88,22 @@ namespace image
         virtual int32_t getWidth() const;
 
         /**
-            Return the image color palette
+            Return the image colors
 
-            @return Image color palette
+            @return Image colors
         */
-        virtual Palette getPalette() const;
+        virtual Colors getColors() const;
 
     private:
+        typedef std::vector< uint8_t > Data;
+
         void readFileHeader( std::istream & file );
 
         void readInfoHeader( std::istream & file );
 
-        void readPalette( std::istream & file );
+        void readColors( std::istream & file );
+
+        void dataToColors( const Data & data );
 
         void createInfoHeader( const DirectDrawSurface & dds );
 
@@ -109,9 +113,9 @@ namespace image
 
         void writeInfoHeader( std::ostream & file ) const;
 
-        void writePalette( std::ostream & file ) const;
+        void writeColors( std::ostream & file ) const;
 
-        void writePaletteRow( std::ostream & file, typename Palette::size_type row ) const;
+        Data colorsToData() const;
 
         struct
         {
@@ -139,7 +143,7 @@ namespace image
 
         uint8_t padding;
 
-        Palette palette;
+        Colors colors;
     };
 
     class Bitmap::BadFile : public std::runtime_error

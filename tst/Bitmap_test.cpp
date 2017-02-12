@@ -32,9 +32,9 @@ namespace
         void writeFileHeader()
         {
             const char type[]{ 'B', 'M' };
-            const uint32_t size( 102 );
             const uint32_t reserved( 0 );
-            const uint32_t offset( 54 );
+            const uint32_t offset( 14 + 40 );
+            const uint32_t size( offset + 16 );
 
             writeToFile( type );
             writeToFile( size );
@@ -328,7 +328,7 @@ TEST_F( BitmapTest, WhenBitmapIsLoaded_PaletteIsGettable )
 {
     loadBitmapFromFile();
 
-    EXPECT_EQ( 4, bitmap.getPalette().size() );
+    EXPECT_EQ( 4, bitmap.getColors().size() );
 }
 
 TEST_F( BitmapTest, GivenBadFile_WhenSaved_ThrowsBadFile )

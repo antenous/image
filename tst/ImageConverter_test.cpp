@@ -50,7 +50,7 @@ namespace
 
 TEST_F( ImageConverterTest, ConvertBitmap )
 {
-    EXPECT_CALL( bitmap, getPalette() ).WillOnce( Return( ColorDepth::highToTrue( original )));
+    EXPECT_CALL( bitmap, getColors() ).WillOnce( Return( ColorDepth::highToTrue( original )));
     EXPECT_CALL( bitmap, getHeight() ).WillOnce( Return( 4 ));
     EXPECT_CALL( bitmap, getWidth() ).WillOnce( Return( 4 ));
 

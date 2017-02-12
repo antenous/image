@@ -26,7 +26,7 @@ namespace image
 
         MOCK_CONST_METHOD0( getWidth, int32_t() );
 
-        MOCK_CONST_METHOD0( getPalette, Palette() );
+        MOCK_CONST_METHOD0( getColors, Colors() );
     };
 
 }

@@ -126,11 +126,11 @@ namespace
                 std::istreambuf_iterator< char >( fileIn ));
         }
 
-        Bitmap::Palette createPaletteWithBlueTopLeftCorner() const
+        Bitmap::Colors createPaletteWithBlueTopLeftCorner() const
         {
             const uint32_t white( 0xffffff );
             const uint32_t blue(  0xff0000 );
-            Bitmap::Palette palette( 16, white );
+            Bitmap::Colors palette( 16, white );
             palette[8] = blue;
             palette[9] = blue;
             palette[12] = blue;
@@ -280,7 +280,7 @@ TEST_F( DirectDrawSurfaceTest, IsConvertibleFromBitmap )
 {
     EXPECT_CALL( bmp, getHeight() ).WillRepeatedly( Return( 4 ));
     EXPECT_CALL( bmp, getWidth() ).WillRepeatedly( Return( 4 ));
-    EXPECT_CALL( bmp, getPalette() ).WillOnce( Return( createPaletteWithBlueTopLeftCorner() ));
+    EXPECT_CALL( bmp, getColors() ).WillOnce( Return( createPaletteWithBlueTopLeftCorner() ));
 
     dds.convertFrom( bmp );
     dds.saveTo( fileOut );

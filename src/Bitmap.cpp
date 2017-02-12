@@ -15,10 +15,51 @@ using namespace image;
 
 namespace
 {
+    bool isBitmap( const char type[2] )
+    {
+        return type[0] == 'B' && type[1] == 'M';
+    }
+
     template< typename T >
     void read( std::istream & file, T & t )
     {
         file.read( reinterpret_cast< char* >( &t ), sizeof( t ));
+    }
+
+    uint8_t countPadding( uint16_t bits, int32_t width )
+    {
+        const auto bytesInRow(( bits * width + 31 ) / 32 * 4 );
+        return bytesInRow - width * 3;
+    }
+
+    void skipPadding( std::istream & file, std::istream::streamoff off )
+    {
+        file.seekg( off, file.cur );
+    }
+
+    std::vector< uint8_t > readData( std::istream & file, int32_t height, int32_t width, std::istream::streamoff padding )
+    {
+        std::vector< uint8_t > data( height * width * 3 );
+
+        for ( int32_t y( 0 ); y < height; ++y, skipPadding( file, padding ))
+            file.read( reinterpret_cast< char* >( &data[ y * width * 3 ] ), width * 3 );
+
+        return data;
+    }
+
+    inline uint32_t blue( uint8_t blue )
+    {
+        return blue << 16;
+    }
+
+    inline uint32_t green( uint8_t green )
+    {
+        return green << 8;
+    }
+
+    inline uint32_t red( uint8_t red )
+    {
+        return red;
     }
 
     template< typename T >
@@ -27,48 +68,31 @@ namespace
         file.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
     }
 
-    bool isBitmap( const char type[2] )
+    inline uint8_t blue( uint32_t color )
     {
-        return type[0] == 'B' && type[1] == 'M';
+        return (( color >> 16 ) & 0xff );
     }
 
-    uint32_t readColor( std::istream & file )
+    inline uint8_t green( uint32_t color )
     {
-        uint8_t blue, green, red;
-
-        read( file, blue );
-        read( file, green );
-        read( file, red );
-
-        return blue << 16 | green << 8 | red;
+        return (( color >> 8 ) & 0xff );
     }
 
-    void writeColor( std::ostream & file, uint32_t color )
+    inline uint8_t red( uint32_t color )
     {
-        const uint8_t blue(( color >> 16 ) & 0xff );
-        const uint8_t green(( color >> 8 ) & 0xff );
-        const uint8_t red( color & 0xff );
-
-        write( file, blue );
-        write( file, green );
-        write( file, red );
-    }
-
-    void skipPadding( std::istream & file, std::istream::streamoff off )
-    {
-        file.seekg( off, file.cur );
+        return ( color & 0xff );
     }
 
     void addPadding( std::ostream & file, uint8_t bytes )
     {
-        char padding[] = { 0, 0, 0 };
+        const char padding[] = { 0, 0, 0 };
         file.write( padding, bytes );
     }
 
-    uint8_t countPadding( uint16_t bits, int32_t width )
+    void writeData( std::ostream & file, const std::vector< uint8_t > & data, int32_t height, int32_t width, std::istream::streamoff padding )
     {
-        const auto bytesInRow(( bits * width + 31 ) / 32 * 4 );
-        return bytesInRow - width * 3;
+        for ( int32_t y( 0 ); y < height; ++y, addPadding( file, padding ))
+            file.write( reinterpret_cast< const char* >( &data[ y * width * 3 ] ), width * 3 );
     }
 }
 
@@ -88,75 +112,13 @@ void Bitmap::loadFrom( std::istream & file )
     {
         readFileHeader( file );
         readInfoHeader( file );
-        readPalette( file );
+        readColors( file );
     }
     catch ( const std::istream::failure & )
     {
         fileHeader.type[0] = 0;
         throw BadFile();
     }
-}
-
-void Bitmap::convertFrom( const DirectDrawSurface & dds )
-{
-    if ( !dds )
-        throw BadDirectDrawSurface();
-
-    palette = ImageConverter().convert( dds );
-
-    createInfoHeader( dds );
-    createFileHeader();
-}
-
-void Bitmap::createInfoHeader( const DirectDrawSurface & dds )
-{
-    memset( &infoHeader, 0, sizeof( infoHeader ));
-
-    infoHeader.size = 40;
-    infoHeader.width = dds.getWidth();
-    infoHeader.height = dds.getHeight();
-    infoHeader.planes = 1;
-    infoHeader.bits = 24;
-
-    padding = countPadding( infoHeader.bits, infoHeader.width );
-
-    infoHeader.imageSize = palette.size() * 3 + padding * infoHeader.width;
-}
-
-void Bitmap::createFileHeader()
-{
-    memset( &fileHeader, 0 , sizeof( fileHeader ));
-
-    fileHeader.type[0] = 'B';
-    fileHeader.type[1] = 'M';
-    fileHeader.size = 14;
-    fileHeader.offset = 54;
-    fileHeader.size += infoHeader.size + infoHeader.imageSize;
-}
-
-void Bitmap::saveTo( std::ostream & file ) const
-{
-    if ( !file )
-        throw BadFile();
-
-    writeFileHeader( file );
-    writeInfoHeader( file );
-    writePalette( file );
-}
-
-int32_t Bitmap::getHeight() const
-{
-    return infoHeader.height;
-}
-
-int32_t Bitmap::getWidth() const
-{
-    return infoHeader.width;
-}
-
-Bitmap::Palette Bitmap::getPalette() const
-{
-    return palette;
 }
 
 void Bitmap::readFileHeader( std::istream & file )
@@ -189,14 +151,65 @@ void Bitmap::readInfoHeader( std::istream & file )
     padding = countPadding( infoHeader.bits, infoHeader.width );
 }
 
-void Bitmap::readPalette( std::istream & file )
+void Bitmap::readColors( std::istream & file )
 {
-    palette.resize( infoHeader.height * infoHeader.width );
-    auto it( palette.begin() );
+    dataToColors( readData( file, infoHeader.height, infoHeader.width, padding ));
+}
 
-    for ( int32_t row( 0 ); row < infoHeader.height; ++row, skipPadding( file, padding ))
-        for ( int32_t column( 0 ); column < infoHeader.width; ++column )
-            *it++ = readColor( file );
+void Bitmap::dataToColors( const std::vector< uint8_t > & data )
+{
+    colors.resize( infoHeader.height * infoHeader.width );
+    auto it( colors.begin() );
+
+    for ( auto first( data.begin() ), last( data.end() ); first != last; std::advance( first, 3 ), ++it )
+        *it = blue( *std::next( first, 0 )) | green( *std::next( first, 1 )) | red( *std::next( first, 2 ));
+}
+
+void Bitmap::convertFrom( const DirectDrawSurface & dds )
+{
+    if ( !dds )
+        throw BadDirectDrawSurface();
+
+    colors = ImageConverter().convert( dds );
+
+    createInfoHeader( dds );
+    createFileHeader();
+}
+
+void Bitmap::createInfoHeader( const DirectDrawSurface & dds )
+{
+    memset( &infoHeader, 0, sizeof( infoHeader ));
+
+    infoHeader.size = 40;
+    infoHeader.width = dds.getWidth();
+    infoHeader.height = dds.getHeight();
+    infoHeader.planes = 1;
+    infoHeader.bits = 24;
+
+    padding = countPadding( infoHeader.bits, infoHeader.width );
+
+    infoHeader.imageSize = colors.size() * 3 + padding * infoHeader.width;
+}
+
+void Bitmap::createFileHeader()
+{
+    memset( &fileHeader, 0 , sizeof( fileHeader ));
+
+    fileHeader.type[0] = 'B';
+    fileHeader.type[1] = 'M';
+    fileHeader.size = 14;
+    fileHeader.offset = 54;
+    fileHeader.size += infoHeader.size + infoHeader.imageSize;
+}
+
+void Bitmap::saveTo( std::ostream & file ) const
+{
+    if ( !file )
+        throw BadFile();
+
+    writeFileHeader( file );
+    writeInfoHeader( file );
+    writeColors( file );
 }
 
 void Bitmap::writeFileHeader( std::ostream & file ) const
@@ -226,16 +239,37 @@ void Bitmap::writeInfoHeader( std::ostream & file ) const
     write( file, infoHeader.importantColors );
 }
 
-void Bitmap::writePalette( std::ostream & file ) const
+void Bitmap::writeColors( std::ostream & file ) const
 {
-    for ( Palette::size_type row( 0 ), end( infoHeader.height ); row < end; ++row )
-        writePaletteRow( file, row );
+    writeData( file, colorsToData(), infoHeader.height, infoHeader.width, padding );
 }
 
-void Bitmap::writePaletteRow( std::ostream & file, typename Palette::size_type row ) const
+Bitmap::Data Bitmap::colorsToData() const
 {
-    for ( auto i( row * infoHeader.width ), end( i + infoHeader.width ); i < end; ++i )
-        writeColor( file, palette[i] );
+    Data data( colors.size() * 3 );
+    auto it( data.begin() );
 
-    addPadding( file, padding );
+    for ( auto first( colors.begin() ), last( colors.end() ); first != last; ++first, std::advance( it, 3 ))
+    {
+        *std::next( it, 0 ) = blue( *first );
+        *std::next( it, 1 ) = green( *first );
+        *std::next( it, 2 ) = red( *first );
+    }
+
+    return data;
+}
+
+int32_t Bitmap::getHeight() const
+{
+    return infoHeader.height;
+}
+
+int32_t Bitmap::getWidth() const
+{
+    return infoHeader.width;
+}
+
+Bitmap::Colors Bitmap::getColors() const
+{
+    return colors;
 }
