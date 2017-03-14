@@ -2,34 +2,50 @@
 
 A BMP to DDS converter (and the other way around)
 
-## Compilation
+## Building
 
-These instructions assume that the project has been
-cloned into a directory named `image`.
-
-### Compilation in the source directory
+These instructions assume that the project has been cloned into a
+directory named `image`. To build the project run the below commands.
 
     cd image
-    make all test
+    make
 
-## Running the tests
+This will create an executable named `image` in the project's root
+directory.
 
-This project comes along with full suite of unit tests
-that can be executed with the make command. E.g.:
+## Testing
+
+This project is written using Test Driven Development (TDD) practices.
+To run the unit tests pass the `test` parameter to `make`.
 
     cd image
     make test
+
+### Submodules
+
+This project includes a Google Test unit testing framework as a git
+submodule. The submodules are not cloned as part of the project by
+default, in order to run the unit tests the below commands need to be
+run once.
+
+    cd image
+    git submodule init
+    git submodule update
+
+This will initialize and update the submodules in the repository.
+Another way to achieve this is to pass `--recursive` option when
+cloning the project.
+
+    git clone --recursive <repository>
 
 ## Running
 
 The converter is executed simply by giving it the name
 of the file to be converted. The file type is detected
 automatically and if the file has no problems the converted
-file will be stored as `out.<filetype>`. E.g.:
+file will be stored as `out.<bmp|dds>`.
 
     cd image
     ./image foobar.bmp
 
-The resulting file will be `out.dds`. If the image was
-detected to be a direct draw surface (DDS) the output filetype
-is `out.bmp`.
+In the above case the resulting file will be `out.dds`.

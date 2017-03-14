@@ -1,3 +1,15 @@
-job:
+stages:
+  - build
+  - test
+
+builder:
+  stage: build
   script:
-    - make all test
+    - make -j `nproc --all`
+
+tester:
+  stage: test
+  script:
+    - git submodule init
+    - git submodule update
+    - make -j `nproc --all` test
