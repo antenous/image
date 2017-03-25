@@ -5,6 +5,8 @@ stages:
 builder:
   stage: build
   script:
+    - ./bootstrap
+    - ./configure
     - make -j `nproc --all`
 
 tester:
@@ -12,4 +14,7 @@ tester:
   script:
     - git submodule init
     - git submodule update
-    - make -j `nproc --all` test
+    - ./bootstrap
+    - ./configure --enable-code-coverage
+    - make -j `nproc --all` check
+    - gcovr -r .

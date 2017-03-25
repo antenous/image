@@ -3,10 +3,35 @@
 /.project
 /.settings/
 
-# Compilation files
-image
-testrunner
-*.[ado]
+# Bootstrap
+*.in
+*.m4
+!/m4/m4*
+/autom4te.cache/
+/build-aux/
+configure
 
-# Doxygen files
-/.doxygen_doc
+# Configure
+*.log
+*.status
+.deps/
+include/config.h
+include/stamp-h1
+Doxyfile
+libtool
+Makefile
+
+# Build
+*.o
+
+# Code coverage
+*.gcda
+*.gcno
+*-coverage/
+*-coverage.info
+
+# Doxygen
+/doxygen-doc/
+
+# Distribute
+*.tar.gz
