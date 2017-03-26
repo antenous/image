@@ -12,6 +12,7 @@ builder:
 tester:
   stage: test
   script:
+    - apt-get update -qq && apt-get install -y -qq lcov gcovr
     - git submodule init
     - git submodule update
     - ./bootstrap
