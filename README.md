@@ -2,6 +2,9 @@
 
 A BMP to DDS converter (and the other way around)
 
+[![build status](https://gitlab.com/antenous/image/badges/master/build.svg)](https://gitlab.com/antenous/image/commits/master)
+[![coverage report](https://gitlab.com/antenous/image/badges/master/coverage.svg)](https://gitlab.com/antenous/image/commits/master)
+
 ## Building
 
 These instructions assume that the project has been cloned into a
@@ -75,6 +78,8 @@ This will initialize and update the submodules in the repository.
 Another way to achieve this is to pass `--recursive` option to `git`
 when cloning this project.
 
+Find more about git submodules from [here](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
+
 ### Code coverage
 
 To create a code coverage report, configure the project with
@@ -91,13 +96,12 @@ folder. View `image-<version>-coverage/index.html` to see the results.
 To get a quick overview of the code coverage use `gcovr`.
 
 ```sh
-make check
 gcovr -r .
 ```
 
 ## Documentation
 
-The create project documentation using `doxygen` build the project with
+To create project documentation using `doxygen` build the project with
 `doxygen-doc`.
 
 ```sh
