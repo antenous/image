@@ -8,6 +8,7 @@
 #include "Bitmap.hpp"
 #include <cstring>
 #include <istream>
+#include "BitmapDataReader.hpp"
 #include "DirectDrawSurface.hpp"
 #include "ImageConverter.hpp"
 
@@ -30,21 +31,6 @@ namespace
     {
         const auto bytesInRow(( bits * width + 31 ) / 32 * 4 );
         return bytesInRow - width * 3;
-    }
-
-    void skipPadding( std::istream & file, std::istream::streamoff off )
-    {
-        file.seekg( off, file.cur );
-    }
-
-    std::vector< uint8_t > readData( std::istream & file, int32_t height, int32_t width, std::istream::streamoff padding )
-    {
-        std::vector< uint8_t > data( height * width * 3 );
-
-        for ( int32_t y( 0 ); y < height; ++y, skipPadding( file, padding ))
-            file.read( reinterpret_cast< char* >( &data[ y * width * 3 ] ), width * 3 );
-
-        return data;
     }
 
     inline uint32_t blue( uint8_t blue )
@@ -153,16 +139,12 @@ void Bitmap::readInfoHeader( std::istream & file )
 
 void Bitmap::readColors( std::istream & file )
 {
-    dataToColors( readData( file, infoHeader.height, infoHeader.width, padding ));
-}
-
-void Bitmap::dataToColors( const std::vector< uint8_t > & data )
-{
     colors.resize( infoHeader.height * infoHeader.width );
     auto it( colors.begin() );
 
-    for ( auto first( data.begin() ), last( data.end() ); first != last; std::advance( first, 3 ), ++it )
-        *it = blue( *std::next( first, 0 )) | green( *std::next( first, 1 )) | red( *std::next( first, 2 ));
+    for ( auto & data : BitmapDataReader( file, infoHeader.width, infoHeader.height ))
+        for ( auto first( data.begin() ), last( data.end() ); first != last; std::advance( first, 3 ), ++it )
+            *it = blue( *std::next( first, 0 )) | green( *std::next( first, 1 )) | red( *std::next( first, 2 ));
 }
 
 void Bitmap::convertFrom( const DirectDrawSurface & dds )

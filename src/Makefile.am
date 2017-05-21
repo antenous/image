@@ -5,6 +5,7 @@ AM_CXXFLAGS += $(CODE_COVERAGE_CXXFLAGS)
 bin_PROGRAMS = image
 image_SOURCES = \
 	../include/Bitmap.hpp \
+	../BitmapDataReader.hpp \
 	../include/BlockCompressor.hpp \
 	../include/ColorDepth.hpp \
 	../include/ColorPalette.hpp \
@@ -12,6 +13,7 @@ image_SOURCES = \
 	../include/doxygen.hpp \
 	../include/ImageConverter.hpp \
 	Bitmap.cpp \
+	BitmapDataReader.cpp \
 	BlockCompressor.cpp \
 	ColorDepth.cpp \
 	ColorPalette.cpp \

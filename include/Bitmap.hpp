@@ -103,8 +103,6 @@ namespace image
 
         void readColors( std::istream & file );
 
-        void dataToColors( const Data & data );
-
         void createInfoHeader( const DirectDrawSurface & dds );
 
         void createFileHeader();
