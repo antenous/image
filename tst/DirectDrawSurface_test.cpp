@@ -8,7 +8,6 @@
 #include "DirectDrawSurface.hpp"
 #include <algorithm>
 #include <gtest/gtest.h>
-#include "MockBitmap.hpp"
 
 using namespace image;
 using namespace testing;
@@ -126,21 +125,7 @@ namespace
                 std::istreambuf_iterator< char >( fileIn ));
         }
 
-        Bitmap::Colors createPaletteWithBlueTopLeftCorner() const
-        {
-            const uint32_t white( 0xffffff );
-            const uint32_t blue(  0xff0000 );
-            Bitmap::Colors palette( 16, white );
-            palette[8] = blue;
-            palette[9] = blue;
-            palette[12] = blue;
-            palette[13] = blue;
-
-            return palette;
-        }
-
         DirectDrawSurface dds;
-        MockBitmap bmp;
         std::stringstream fileIn;
         std::stringstream fileOut;
         const uint16_t blue{ 0x1f };
@@ -170,23 +155,6 @@ TEST_F( DirectDrawSurfaceTest, CanThrowAndCatchInvalidType )
     {
         EXPECT_STREQ( "invalid type", e.what() );
     }
-}
-
-TEST_F( DirectDrawSurfaceTest, CanThrowAndCatchBadBitmap )
-{
-    try
-    {
-        throw DirectDrawSurface::BadBitmap();
-    }
-    catch ( const std::runtime_error & e )
-    {
-        EXPECT_STREQ( "bad bitmap", e.what() );
-    }
-}
-
-TEST_F( DirectDrawSurfaceTest, HasVirtualDestructor )
-{
-    EXPECT_TRUE( std::has_virtual_destructor< DirectDrawSurface >::value );
 }
 
 TEST_F( DirectDrawSurfaceTest, GivenBadFile_WhenLoaded_ThrowsBadFile )
@@ -266,27 +234,6 @@ TEST_F( DirectDrawSurfaceTest, GivenDirectDrawSurfaceIsLoaded_WhenSaved_WritesFi
     rewindFile();
 
     dds.saveTo( fileOut );
-
-    ASSERT_TRUE( hasUnreadData( fileOut ));
-    EXPECT_TRUE( filesAreEqual() );
-}
-
-TEST_F( DirectDrawSurfaceTest, GivenBitmapNotLoaded_WhenConverted_ThrowsBadBitmap )
-{
-    EXPECT_THROW( dds.convertFrom( Bitmap() ), DirectDrawSurface::BadBitmap );
-}
-
-TEST_F( DirectDrawSurfaceTest, IsConvertibleFromBitmap )
-{
-    EXPECT_CALL( bmp, getHeight() ).WillRepeatedly( Return( 4 ));
-    EXPECT_CALL( bmp, getWidth() ).WillRepeatedly( Return( 4 ));
-    EXPECT_CALL( bmp, getColors() ).WillOnce( Return( createPaletteWithBlueTopLeftCorner() ));
-
-    dds.convertFrom( bmp );
-    dds.saveTo( fileOut );
-
-    writeFileHeader();
-    writeSurfaceData();
 
     ASSERT_TRUE( hasUnreadData( fileOut ));
     EXPECT_TRUE( filesAreEqual() );

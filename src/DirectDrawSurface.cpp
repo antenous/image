@@ -6,10 +6,7 @@
  */
 
 #include "DirectDrawSurface.hpp"
-#include <cstring>
 #include <istream>
-#include "Bitmap.hpp"
-#include "ImageConverter.hpp"
 
 using namespace image;
 
@@ -74,30 +71,6 @@ void DirectDrawSurface::loadFrom( std::istream & file )
         magic = 0;
         throw BadFile();
     }
-}
-
-void DirectDrawSurface::convertFrom( const Bitmap & bitmap )
-{
-    if ( !bitmap )
-        throw BadBitmap();
-
-    surface = ImageConverter().convert( bitmap );
-
-    memset( &header, 0, sizeof( header ));
-    magic = 0x20534444;
-    header.size = 124;
-    header.flags = 0x1 | 0x2 | 0x4 | 0x1000;
-    header.height = bitmap.getHeight();
-    header.width = bitmap.getWidth();
-    header.pitch = surface.size() * 4;
-    header.caps = 0x1000;
-
-    header.pixelFormat.size = 32;
-    header.pixelFormat.flags = 0x4;
-    header.pixelFormat.fourCC[0] = 'D';
-    header.pixelFormat.fourCC[1] = 'X';
-    header.pixelFormat.fourCC[2] = 'T';
-    header.pixelFormat.fourCC[3] = '1';
 }
 
 void DirectDrawSurface::saveTo( std::ostream & file ) const

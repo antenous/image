@@ -9,6 +9,7 @@
 #include <iostream>
 #include "Bitmap.hpp"
 #include "DirectDrawSurface.hpp"
+#include "ImageConverter.hpp"
 
 using namespace image;
 
@@ -21,19 +22,10 @@ namespace
     }
 
     template< typename T >
-    T load( const char * file )
+    T & loadFromFile( const char * file, T & t )
     {
         std::ifstream in( file, std::ios::binary );
-        T t;
         t.loadFrom( in );
-        return t;
-    }
-
-    template< typename T, typename U >
-    T convertTo( const U & u )
-    {
-        T t;
-        t.convertFrom( u );
         return t;
     }
 
@@ -48,6 +40,13 @@ namespace
         std::ofstream out( "out.bmp", std::ios::binary );
         bmp.saveTo( out );
     }
+
+    template< typename T >
+    void convert( const char * file )
+    {
+        T t;
+        writeToFile( ImageConverter::convert( loadFromFile( file, t )));
+    }
 }
 
 int main( int argc, char * argv[] )
@@ -57,18 +56,13 @@ int main( int argc, char * argv[] )
 
     try
     {
-        writeToFile( convertTo< DirectDrawSurface >( load< Bitmap >( argv[1] )));
-    }
-    catch ( const Bitmap::InvalidType & )
-    {
         try
         {
-            writeToFile( convertTo< Bitmap >( load< DirectDrawSurface >( argv[1] )));
+            convert< Bitmap >( argv[1] );
         }
-        catch ( const std::runtime_error & e )
+        catch ( const Bitmap::InvalidType & )
         {
-            std::cerr << e.what() << std::endl;
-            return 1;
+            convert< DirectDrawSurface >( argv[1] );
         }
     }
     catch( const std::runtime_error & e )

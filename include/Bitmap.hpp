@@ -15,14 +15,8 @@
 namespace image
 {
 
-    class DirectDrawSurface;
-
     /**
-        @brief  Class representation of a bitmap image file
-
-        This class is used to load a bitmap image from a file or to convert a
-        direct draw surface image into a bitmap. Once the image has been loaded
-        into the class it can be saved to a file.
+        Class to hold all the data about a bitmap image
     */
     class Bitmap
     {
@@ -31,18 +25,14 @@ namespace image
 
         class InvalidType;
 
-        class BadDirectDrawSurface;
-
         typedef std::vector< uint32_t > Colors;
 
-        virtual ~Bitmap() = default;
-
         /**
-            Check if the image has been loaded or converted successfully
+            Check if holds a valid bitmap image
 
-            @return true when bitmap has been successfully loaded
+            @return true if holds a valid bitmap image
         */
-        virtual explicit operator bool() const;
+        explicit operator bool() const;
 
         /**
             Load a bitmap image from a file
@@ -53,15 +43,6 @@ namespace image
             @throw InvalidType if file is not a bitmap image
         */
         void loadFrom( std::istream & file );
-
-        /**
-            Convert a bitmap image from a direct draw surface image
-
-            @param dds Direct draw surface image to convert from
-
-            @throw BadDirectDrawSurface if the direct draw surface has not been loaded
-        */
-        void convertFrom( const DirectDrawSurface & dds );
 
         /**
             Save the loaded image to a file
@@ -78,23 +59,25 @@ namespace image
 
             @return Height of the image
         */
-        virtual int32_t getHeight() const;
+        int32_t getHeight() const;
 
         /**
             Return width of the image
 
             @return Width of the image
         */
-        virtual int32_t getWidth() const;
+        int32_t getWidth() const;
 
         /**
             Return the image colors
 
             @return Image colors
         */
-        virtual Colors getColors() const;
+        Colors getColors() const;
 
     private:
+        friend class ImageConverter;
+
         typedef std::vector< uint8_t > Data;
 
         void readFileHeader( std::istream & file );
@@ -102,10 +85,6 @@ namespace image
         void readInfoHeader( std::istream & file );
 
         void readColors( std::istream & file );
-
-        void createInfoHeader( const DirectDrawSurface & dds );
-
-        void createFileHeader();
 
         void writeFileHeader( std::ostream & file ) const;
 
@@ -157,14 +136,6 @@ namespace image
     public:
         InvalidType() :
             std::runtime_error( "invalid type" )
-        {}
-    };
-
-    class Bitmap::BadDirectDrawSurface : public std::runtime_error
-    {
-    public:
-        BadDirectDrawSurface() :
-            std::runtime_error( "bad direct draw surface" )
         {}
     };
 

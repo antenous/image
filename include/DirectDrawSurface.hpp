@@ -15,14 +15,8 @@
 namespace image
 {
 
-    class Bitmap;
-
     /**
-        @brief  Class representation of a direct draw surface image
-
-        This class is used to load a direct draw surface image from a file or
-        to convert a bitmap image into a direct draw surface. Once the image
-        has been loaded into the class it can be saved to a file.
+        Class to hold all the data about a direct draw surface image
     */
     class DirectDrawSurface
     {
@@ -31,18 +25,14 @@ namespace image
 
         class InvalidType;
 
-        class BadBitmap;
-
         typedef std::vector< uint32_t > Surface;
 
-        virtual ~DirectDrawSurface() = default;
-
         /**
-            Check if the image has been loaded or converted successfully
+            Check if holds a valid direct draw surface image
 
-            @return true when direct draw surface has been successfully loaded
+            @return true if holds a valid direct draw surface image
         */
-        virtual explicit operator bool() const;
+        explicit operator bool() const;
 
         /**
             Load a direct draw surface image from a file
@@ -53,15 +43,6 @@ namespace image
             @throw InvalidType if file is not a direct draw surface image
         */
         void loadFrom( std::istream & file );
-
-        /**
-            Convert a direct draw surface image from a bitmap image
-
-            @param bitmap Bitmap image to convert from
-
-            @throw BadBitmap if the bitmap has not been loaded
-        */
-        void convertFrom( const Bitmap & bitmap );
 
         /**
             Save the loaded image to a file
@@ -78,23 +59,25 @@ namespace image
 
             @return Height of the image
         */
-        virtual uint32_t getHeight() const;
+        uint32_t getHeight() const;
 
         /**
              Return width of the image
 
              @return Width of the image
         */
-        virtual uint32_t getWidth() const;
+        uint32_t getWidth() const;
 
         /**
-            Return the image durface data
+            Return the image surface data
 
-            @return Surface date
+            @return Surface data
         */
-        virtual Surface getSurface() const;
+        Surface getSurface() const;
 
     private:
+        friend class ImageConverter;
+
         void readMagic( std::istream & file );
 
         void readHeader( std::istream & file );
@@ -157,14 +140,6 @@ namespace image
     public:
         InvalidType() :
             std::runtime_error( "invalid type" )
-        {}
-    };
-
-    class DirectDrawSurface::BadBitmap : public std::runtime_error
-    {
-    public:
-        BadBitmap() :
-            std::runtime_error( "bad bitmap" )
         {}
     };
 

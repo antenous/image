@@ -1,11 +1,11 @@
-AM_LIBS = $(CODE_COVERAGE_LIBS)
+LIBS = $(CODE_COVERAGE_LIBS)
 AM_CPPFLAGS = -I$(top_srcdir)/include $(CODE_COVERAGE_CPPFLAGS)
 AM_CXXFLAGS += $(CODE_COVERAGE_CXXFLAGS)
 
 bin_PROGRAMS = image
 image_SOURCES = \
 	../include/Bitmap.hpp \
-	../BitmapDataReader.hpp \
+	../include/BitmapDataReader.hpp \
 	../include/BlockCompressor.hpp \
 	../include/ColorDepth.hpp \
 	../include/ColorPalette.hpp \

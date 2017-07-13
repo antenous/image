@@ -90,9 +90,7 @@ testrunner_SOURCES = \
 	ColorDepth_test.cpp \
 	ColorPalette_test.cpp \
 	DirectDrawSurface_test.cpp \
-	ImageConverter_test.cpp \
-	MockBitmap.hpp \
-	MockDirectDrawSurface.hpp
+	ImageConverter_test.cpp
 testrunner_CPPFLAGS = -I$(top_srcdir)/include $(AM_CPPFLAGS)
 testrunner_LDADD = \
 	libgmock_main.la \

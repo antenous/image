@@ -7,7 +7,6 @@
 
 #include "Bitmap.hpp"
 #include <gtest/gtest.h>
-#include "MockDirectDrawSurface.hpp"
 
 using namespace image;
 using namespace testing;
@@ -42,19 +41,6 @@ namespace
             writeToFile( offset );
         }
 
-        void writeConvertedFileHeader()
-        {
-            const char type[]{ 'B', 'M' };
-            const uint32_t offset( 14 + 40 );
-            const uint32_t size( offset + 4 * 3 * 4 );
-            const uint32_t reserved( 0 );
-
-            writeToFile( type );
-            writeToFile( size );
-            writeToFile( reserved );
-            writeToFile( offset );
-        }
-
         void writeInfoHeader()
         {
             const uint32_t size( 40 );
@@ -82,33 +68,6 @@ namespace
             writeToFile( importantColors );
         }
 
-        void writeConvertedInfoHeader()
-        {
-            const uint32_t size( 40 );
-            const int32_t width( 4 );
-            const int32_t height( 4 );
-            const uint16_t planes( 1 );
-            const uint16_t bits( 24 );
-            const uint32_t compression( 0 );
-            const uint32_t imageSize( 4 * 3 * 4 );
-            const uint32_t horizontalResolution( 0 );
-            const uint32_t verticalResolution( 0 );
-            const uint32_t colors( 0 );
-            const uint32_t importantColors( 0 );
-
-            writeToFile( size );
-            writeToFile( width );
-            writeToFile( height );
-            writeToFile( planes );
-            writeToFile( bits );
-            writeToFile( compression );
-            writeToFile( imageSize );
-            writeToFile( horizontalResolution );
-            writeToFile( verticalResolution );
-            writeToFile( colors );
-            writeToFile( importantColors );
-        }
-
         void writeColorTable()
         {
             createRedPixel();
@@ -117,29 +76,6 @@ namespace
             createBluePixel();
             createGreenPixel();
             createPadding();
-        }
-
-        void writeConvertedColorTable()
-        {
-            createWhitePixel();
-            createWhitePixel();
-            createWhitePixel();
-            createWhitePixel();
-
-            createWhitePixel();
-            createWhitePixel();
-            createWhitePixel();
-            createWhitePixel();
-
-            createBluePixel();
-            createBluePixel();
-            createWhitePixel();
-            createWhitePixel();
-
-            createBluePixel();
-            createBluePixel();
-            createWhitePixel();
-            createWhitePixel();
         }
 
         void createRedPixel()
@@ -204,26 +140,7 @@ namespace
                 std::istreambuf_iterator< char >( fileIn ));
         }
 
-        uint32_t createLookupTableWithBlueTopLeftCorner() const
-        {
-            return (
-                0b00000000 << 24 |
-                0b00000000 << 16 |
-                0b00000101 << 8  |
-                0b00000101 );
-        }
-
-        DirectDrawSurface::Surface createSurface()
-        {
-            const uint16_t blue{ 0x1f };
-            const uint16_t white{ 0xffff };
-            const uint32_t reference( white << 16 | blue );
-            const auto lookup( createLookupTableWithBlueTopLeftCorner() );
-            return { reference, lookup };
-        };
-
         Bitmap bitmap;
-        MockDirectDrawSurface dds;
         std::stringstream fileIn;
         std::stringstream fileOut;
     };
@@ -252,23 +169,6 @@ TEST_F( BitmapTest, CanThrowAndCatchInvalidType )
     {
         EXPECT_STREQ( "invalid type", e.what() );
     }
-}
-
-TEST_F( BitmapTest, CanThrowAndCatchBadDirectDrawSurface )
-{
-    try
-    {
-        throw Bitmap::BadDirectDrawSurface();
-    }
-    catch ( const std::runtime_error & e )
-    {
-        EXPECT_STREQ( "bad direct draw surface", e.what() );
-    }
-}
-
-TEST_F( BitmapTest, HasVirtualDestructor )
-{
-    EXPECT_TRUE( std::has_virtual_destructor< Bitmap >::value );
 }
 
 TEST_F( BitmapTest, GivenBadFile_WhenLoaded_ThrowsBadFile )
@@ -349,30 +249,6 @@ TEST_F( BitmapTest, GivenBitmapIsLoaded_WhenSaved_WritesFile )
     rewindFile();
 
     bitmap.saveTo( fileOut );
-
-    ASSERT_TRUE( hasUnreadData( fileOut ));
-    EXPECT_TRUE( filesAreEqual() );
-}
-
-TEST_F( BitmapTest, GivenDirectDrawSurfaceNotLoaded_WhenConverted_ThrowsBadDirectDrawSurface )
-{
-    EXPECT_THROW( bitmap.convertFrom( DirectDrawSurface() ), Bitmap::BadDirectDrawSurface );
-}
-
-TEST_F( BitmapTest, IsConvertibleFromDirectDrawSurface )
-{
-    const auto surface( createSurface() );
-
-    EXPECT_CALL( dds, getSurface() ).WillOnce( Return( surface ));
-    EXPECT_CALL( dds, getHeight() ).WillRepeatedly( Return( 4 ));
-    EXPECT_CALL( dds, getWidth() ).WillRepeatedly( Return( 4 ));
-
-    bitmap.convertFrom( dds );
-    bitmap.saveTo( fileOut );
-
-    writeConvertedFileHeader();
-    writeConvertedInfoHeader();
-    writeConvertedColorTable();
 
     ASSERT_TRUE( hasUnreadData( fileOut ));
     EXPECT_TRUE( filesAreEqual() );

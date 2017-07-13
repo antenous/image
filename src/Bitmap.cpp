@@ -6,11 +6,8 @@
  */
 
 #include "Bitmap.hpp"
-#include <cstring>
 #include <istream>
 #include "BitmapDataReader.hpp"
-#include "DirectDrawSurface.hpp"
-#include "ImageConverter.hpp"
 
 using namespace image;
 
@@ -145,43 +142,6 @@ void Bitmap::readColors( std::istream & file )
     for ( auto & data : BitmapDataReader( file, infoHeader.width, infoHeader.height ))
         for ( auto first( data.begin() ), last( data.end() ); first != last; std::advance( first, 3 ), ++it )
             *it = blue( *std::next( first, 0 )) | green( *std::next( first, 1 )) | red( *std::next( first, 2 ));
-}
-
-void Bitmap::convertFrom( const DirectDrawSurface & dds )
-{
-    if ( !dds )
-        throw BadDirectDrawSurface();
-
-    colors = ImageConverter().convert( dds );
-
-    createInfoHeader( dds );
-    createFileHeader();
-}
-
-void Bitmap::createInfoHeader( const DirectDrawSurface & dds )
-{
-    memset( &infoHeader, 0, sizeof( infoHeader ));
-
-    infoHeader.size = 40;
-    infoHeader.width = dds.getWidth();
-    infoHeader.height = dds.getHeight();
-    infoHeader.planes = 1;
-    infoHeader.bits = 24;
-
-    padding = countPadding( infoHeader.bits, infoHeader.width );
-
-    infoHeader.imageSize = colors.size() * 3 + padding * infoHeader.width;
-}
-
-void Bitmap::createFileHeader()
-{
-    memset( &fileHeader, 0 , sizeof( fileHeader ));
-
-    fileHeader.type[0] = 'B';
-    fileHeader.type[1] = 'M';
-    fileHeader.size = 14;
-    fileHeader.offset = 54;
-    fileHeader.size += infoHeader.size + infoHeader.imageSize;
 }
 
 void Bitmap::saveTo( std::ostream & file ) const

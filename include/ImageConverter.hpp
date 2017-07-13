@@ -27,27 +27,56 @@ namespace image
     class ImageConverter
     {
     public:
-        typedef std::vector< uint32_t > Converted;
+        class BadBitmap;
+
+        class BadDirectDrawSurface;
 
         /**
             Convert a bitmap into a direct draw surface
 
             @param bmp  Bitmap image to be converted
-            @return Surface data for the direct draw surface image
 
+            @throw BadBitmap if the bmp is not a valid image
             @throw BlockCompressor::BadSize if the image has unsupported dimensions
         */
-        Converted convert( const Bitmap & bmp ) const;
+        static DirectDrawSurface convert( const Bitmap & bmp );
 
         /**
             Convert a direct draw surface into a bitmap
 
             @param dds  Direct draw surface to be converted
-            @return Color palette for the bitmap image
 
+            @throw BadDirectDrawSurface if the dds is not a valid image
             @throw BlockCompressor::BadSize if the image has unsupported dimensions
         */
-        Converted convert( const DirectDrawSurface & dds ) const;
+        static Bitmap convert( const DirectDrawSurface & dds );
+
+    private:
+        static void convertData( DirectDrawSurface & dds, const Bitmap & bmp );
+
+        static void createFileHeader( DirectDrawSurface & dds, const Bitmap & bmp );
+
+        static void convertData( Bitmap & bmp, const DirectDrawSurface & dds );
+
+        static void createInfoHeader( Bitmap & bmp, const DirectDrawSurface & dds );
+
+        static void createFileHeader( Bitmap & bmp );
+    };
+
+    class ImageConverter::BadBitmap : public std::runtime_error
+    {
+    public:
+        BadBitmap() :
+            std::runtime_error( "bad bitmap" )
+        {}
+    };
+
+    class ImageConverter::BadDirectDrawSurface : public std::runtime_error
+    {
+    public:
+        BadDirectDrawSurface() :
+            std::runtime_error( "bad direct draw surface" )
+        {}
     };
 
 }
