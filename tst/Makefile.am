@@ -94,10 +94,4 @@ testrunner_SOURCES = \
 testrunner_CPPFLAGS = -I$(top_srcdir)/include $(AM_CPPFLAGS)
 testrunner_LDADD = \
 	libgmock_main.la \
-	../src/Bitmap.o \
-	../src/BitmapDataReader.o \
-	../src/ColorDepth.o \
-	../src/DirectDrawSurface.o \
-	../src/BlockCompressor.o \
-	../src/ColorPalette.o \
-	../src/ImageConverter.o
+	../src/libimage.la

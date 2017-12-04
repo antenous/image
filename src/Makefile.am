@@ -2,8 +2,8 @@ LIBS = $(CODE_COVERAGE_LIBS)
 AM_CPPFLAGS = -I$(top_srcdir)/include $(CODE_COVERAGE_CPPFLAGS)
 AM_CXXFLAGS += $(CODE_COVERAGE_CXXFLAGS)
 
-bin_PROGRAMS = image
-image_SOURCES = \
+noinst_LTLIBRARIES = libimage.la
+libimage_la_SOURCES = \
 	../include/Bitmap.hpp \
 	../include/BitmapDataReader.hpp \
 	../include/BlockCompressor.hpp \
@@ -18,5 +18,8 @@ image_SOURCES = \
 	ColorDepth.cpp \
 	ColorPalette.cpp \
 	DirectDrawSurface.cpp \
-	ImageConverter.cpp \
-	main.cpp
+	ImageConverter.cpp
+
+bin_PROGRAMS = image
+image_SOURCES = main.cpp
+image_LDADD = libimage.la
