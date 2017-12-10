@@ -42,7 +42,7 @@ AC_TYPE_UINT32_T
 AX_COMPILER_VERSION
 CXX_VERSION=$ax_cv_cxx_compiler_version
 
-AX_CXX_COMPILE_STDCXX(11, [noext], [mandatory])
+AX_CXX_COMPILE_STDCXX(14, [noext], [mandatory])
 AX_PTHREAD
 
 # AC_PROG_CXX will by default set 'CXXFLAGS=-g -02'. For the code

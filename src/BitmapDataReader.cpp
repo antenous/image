@@ -31,14 +31,7 @@ auto BitmapDataReader::begin() -> LineIterator
     if ( !file )
         throw SubsequentCallToBegin();
 
-// Gitlab CI does not yet support C++14, hence the check below
-#if __cplusplus >= 201402L
     return LineIterator( *std::exchange( file, nullptr ), width );
-#else
-    auto tmp( file );
-    file = nullptr;
-    return LineIterator( *tmp, width );
-#endif
 }
 
 auto BitmapDataReader::end() const -> LineIterator
