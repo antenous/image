@@ -13,15 +13,6 @@
 
 using namespace image;
 
-namespace
-{
-    uint8_t countPadding( uint16_t bits, int32_t width )
-    {
-        const auto bytesInRow(( bits * width + 31 ) / 32 * 4 );
-        return bytesInRow - width * 3;
-    }
-}
-
 DirectDrawSurface ImageConverter::convert( const Bitmap & bmp )
 {
     if ( !bmp )
@@ -90,9 +81,7 @@ void ImageConverter::createInfoHeader( Bitmap & bmp, const DirectDrawSurface & d
     bmp.infoHeader.planes = 1;
     bmp.infoHeader.bits = 24;
 
-    bmp.padding = countPadding( bmp.infoHeader.bits, bmp.infoHeader.width );
-
-    bmp.infoHeader.imageSize = bmp.colors.size() * 3 + bmp.padding * bmp.infoHeader.width;
+    bmp.infoHeader.imageSize = bmp.colors.size() * 3 + bmp.padding() * bmp.infoHeader.width;
 }
 
 void ImageConverter::createFileHeader( Bitmap & bmp )

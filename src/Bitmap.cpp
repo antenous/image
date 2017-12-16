@@ -24,12 +24,6 @@ namespace
         file.read( reinterpret_cast< char* >( &t ), sizeof( t ));
     }
 
-    uint8_t countPadding( uint16_t bits, int32_t width )
-    {
-        const auto bytesInRow(( bits * width + 31 ) / 32 * 4 );
-        return bytesInRow - width * 3;
-    }
-
     inline uint32_t blue( uint8_t blue )
     {
         return blue << 16;
@@ -130,8 +124,6 @@ void Bitmap::readInfoHeader( std::istream & file )
     read( file, infoHeader.verticalResolution );
     read( file, infoHeader.colors );
     read( file, infoHeader.importantColors );
-
-    padding = countPadding( infoHeader.bits, infoHeader.width );
 }
 
 void Bitmap::readColors( std::istream & file )
@@ -183,7 +175,7 @@ void Bitmap::writeInfoHeader( std::ostream & file ) const
 
 void Bitmap::writeColors( std::ostream & file ) const
 {
-    writeData( file, colorsToData(), infoHeader.height, infoHeader.width, padding );
+    writeData( file, colorsToData(), infoHeader.height, infoHeader.width, padding() );
 }
 
 Bitmap::Data Bitmap::colorsToData() const
@@ -214,4 +206,10 @@ int32_t Bitmap::getWidth() const
 Bitmap::Colors Bitmap::getColors() const
 {
     return colors;
+}
+
+uint8_t Bitmap::padding() const
+{
+    const auto bytesInRow(( infoHeader.bits * infoHeader.width + 31 ) / 32 * 4 );
+    return bytesInRow - infoHeader.width * 3;
 }

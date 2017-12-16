@@ -94,6 +94,8 @@ namespace image
 
         Data colorsToData() const;
 
+        uint8_t padding() const;
+
         struct
         {
             char type[2];
@@ -117,8 +119,6 @@ namespace image
             uint32_t colors;
             uint32_t importantColors;
         } infoHeader;
-
-        uint8_t padding;
 
         Colors colors;
     };
