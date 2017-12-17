@@ -22,7 +22,7 @@ namespace
         {
             Bitmap bitmap;
             auto file( makeBitmapFile() );
-            bitmap.loadFrom( file );
+            bitmap.load( file );
             return bitmap;
         }
 
@@ -89,7 +89,7 @@ namespace
         {
             DirectDrawSurface dds;
             auto file( makeDirectDrawSurfaceFile() );
-            dds.loadFrom( file );
+            dds.load( file );
             return dds;
         }
 
@@ -218,7 +218,7 @@ TEST_F( ImageConverterTest, ConvertBitmap )
     auto expected( makeDirectDrawSurfaceFile() );
 
     std::stringstream result;
-    ImageConverter::convert( makeBitmap() ).saveTo( result );
+    ImageConverter::convert( makeBitmap() ).save( result );
 
     EXPECT_TRUE( filesAreEqual( expected, result ));
 }
@@ -245,7 +245,7 @@ TEST_F( ImageConverterTest, ConvertDirectDrawSurface )
     auto expected( makeBitmapFile() );
 
     std::stringstream result;
-    ImageConverter::convert( makeDirectDrawSurface() ).saveTo( result );
+    ImageConverter::convert( makeDirectDrawSurface() ).save( result );
 
     EXPECT_TRUE( filesAreEqual( expected, result ));
 }

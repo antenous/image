@@ -125,7 +125,7 @@ namespace
             writeFileHeader();
             writeInfoHeader();
             writeColorTable();
-            bitmap.loadFrom( fileIn );
+            bitmap.load( fileIn );
         }
 
         void rewindFile()
@@ -175,19 +175,19 @@ TEST_F( BitmapTest, GivenBadFile_WhenLoaded_ThrowsBadFile )
 {
     makeBadFile( fileIn );
 
-    EXPECT_THROW( bitmap.loadFrom( fileIn ), Bitmap::BadFile );
+    EXPECT_THROW( bitmap.load( fileIn ), Bitmap::BadFile );
 }
 
 TEST_F( BitmapTest, GivenEmptyFile_WhenLoaded_ThrowsBadFile )
 {
-    EXPECT_THROW( bitmap.loadFrom( fileIn ), Bitmap::BadFile );
+    EXPECT_THROW( bitmap.load( fileIn ), Bitmap::BadFile );
 }
 
 TEST_F( BitmapTest, GivenFileWithInvalidType_WhenLoaded_ThrowsInvalidType )
 {
     createFileHeaderWithInvalidType();
 
-    EXPECT_THROW( bitmap.loadFrom( fileIn ), Bitmap::InvalidType );
+    EXPECT_THROW( bitmap.load( fileIn ), Bitmap::InvalidType );
 }
 
 TEST_F( BitmapTest, WhenNotLoaded_EvaluatesToFalse )
@@ -199,7 +199,7 @@ TEST_F( BitmapTest, WhenFileFailedToLoad_EvaluatesToFalse )
 {
     writeFileHeader();
 
-    EXPECT_THROW( bitmap.loadFrom( fileIn ), Bitmap::BadFile );
+    EXPECT_THROW( bitmap.load( fileIn ), Bitmap::BadFile );
     EXPECT_FALSE( bitmap );
 }
 
@@ -235,12 +235,12 @@ TEST_F( BitmapTest, GivenBadFile_WhenSaved_ThrowsBadFile )
 {
     makeBadFile( fileOut );
 
-    EXPECT_THROW( bitmap.saveTo( fileOut ), Bitmap::BadFile );
+    EXPECT_THROW( bitmap.save( fileOut ), Bitmap::BadFile );
 }
 
 TEST_F( BitmapTest, GivenBitmapIsNotLoaded_WhenSaved_ThrowsInvalidType )
 {
-    EXPECT_THROW( bitmap.saveTo( fileOut ), Bitmap::InvalidType );
+    EXPECT_THROW( bitmap.save( fileOut ), Bitmap::InvalidType );
 }
 
 TEST_F( BitmapTest, GivenBitmapIsLoaded_WhenSaved_WritesFile )
@@ -248,7 +248,7 @@ TEST_F( BitmapTest, GivenBitmapIsLoaded_WhenSaved_WritesFile )
     loadBitmapFromFile();
     rewindFile();
 
-    bitmap.saveTo( fileOut );
+    bitmap.save( fileOut );
 
     ASSERT_TRUE( hasUnreadData( fileOut ));
     EXPECT_TRUE( filesAreEqual() );

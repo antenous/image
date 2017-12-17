@@ -86,10 +86,14 @@ check_PROGRAMS = testrunner
 testrunner_SOURCES = \
 	Bitmap_test.cpp \
 	BitmapDataReader_test.cpp \
+	BitmapReader_test.cpp \
+	BitmapWriter_test.cpp \
 	BlockCompressor_test.cpp \
 	ColorDepth_test.cpp \
 	ColorPalette_test.cpp \
 	DirectDrawSurface_test.cpp \
+	DirectDrawSurfaceReader_test.cpp \
+	DirectDrawSurfaceWriter_test.cpp \
 	ImageConverter_test.cpp
 testrunner_CPPFLAGS = -I$(top_srcdir)/include $(AM_CPPFLAGS)
 testrunner_LDADD = \

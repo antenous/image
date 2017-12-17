@@ -78,7 +78,7 @@ Bitmap::operator bool() const
     return isBitmap( fileHeader.type );
 }
 
-void Bitmap::loadFrom( std::istream & file )
+void Bitmap::load( std::istream & file )
 {
     if ( !file )
         throw BadFile();
@@ -136,7 +136,7 @@ void Bitmap::readColors( std::istream & file )
             *it = blue( *std::next( first, 0 )) | green( *std::next( first, 1 )) | red( *std::next( first, 2 ));
 }
 
-void Bitmap::saveTo( std::ostream & file ) const
+void Bitmap::save( std::ostream & file ) const
 {
     if ( !file )
         throw BadFile();

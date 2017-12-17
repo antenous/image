@@ -105,7 +105,7 @@ namespace
         {
             writeFileHeader();
             writeSurfaceData();
-            dds.loadFrom( fileIn );
+            dds.load( fileIn );
         }
 
         bool hasUnreadData( std::stringstream & file ) const
@@ -161,19 +161,19 @@ TEST_F( DirectDrawSurfaceTest, GivenBadFile_WhenLoaded_ThrowsBadFile )
 {
     makeBadFile( fileIn );
 
-    EXPECT_THROW( dds.loadFrom( fileIn ), DirectDrawSurface::BadFile );
+    EXPECT_THROW( dds.load( fileIn ), DirectDrawSurface::BadFile );
 }
 
 TEST_F( DirectDrawSurfaceTest, GivenEmptyFile_WhenLoaded_ThrowsBadFile )
 {
-    EXPECT_THROW( dds.loadFrom( fileIn ), DirectDrawSurface::BadFile );
+    EXPECT_THROW( dds.load( fileIn ), DirectDrawSurface::BadFile );
 }
 
 TEST_F( DirectDrawSurfaceTest, GivenFileWithInvalidMagic_WhenLoaded_ThrowsInvalidType )
 {
     writeFileHeaderWithBadMagic();
 
-    EXPECT_THROW( dds.loadFrom( fileIn ), DirectDrawSurface::InvalidType );
+    EXPECT_THROW( dds.load( fileIn ), DirectDrawSurface::InvalidType );
 }
 TEST_F( DirectDrawSurfaceTest, GivenValidFile_WhenLoaded_ReadsFile )
 {
@@ -191,7 +191,7 @@ TEST_F( DirectDrawSurfaceTest, WhenFileFailedToLoad_EvaluatesToFalse )
 {
     writeFileHeader();
 
-    EXPECT_THROW( dds.loadFrom( fileIn ), DirectDrawSurface::BadFile );
+    EXPECT_THROW( dds.load( fileIn ), DirectDrawSurface::BadFile );
     EXPECT_FALSE( dds );
 }
 
@@ -220,12 +220,12 @@ TEST_F( DirectDrawSurfaceTest, GivenBadFile_WhenSaved_ThrowsBadFile )
 {
     makeBadFile( fileOut );
 
-    EXPECT_THROW( dds.saveTo( fileOut ), DirectDrawSurface::BadFile );
+    EXPECT_THROW( dds.save( fileOut ), DirectDrawSurface::BadFile );
 }
 
 TEST_F( DirectDrawSurfaceTest, GivenDirectDrawSurfaceIsNotLoaded_WhenSaved_ThrowsInvalidType )
 {
-    EXPECT_THROW( dds.saveTo( fileOut ), DirectDrawSurface::InvalidType );
+    EXPECT_THROW( dds.save( fileOut ), DirectDrawSurface::InvalidType );
 }
 
 TEST_F( DirectDrawSurfaceTest, GivenDirectDrawSurfaceIsLoaded_WhenSaved_WritesFile )
@@ -233,7 +233,7 @@ TEST_F( DirectDrawSurfaceTest, GivenDirectDrawSurfaceIsLoaded_WhenSaved_WritesFi
     loadDirectDrawSurfaceFromFile();
     rewindFile();
 
-    dds.saveTo( fileOut );
+    dds.save( fileOut );
 
     ASSERT_TRUE( hasUnreadData( fileOut ));
     EXPECT_TRUE( filesAreEqual() );

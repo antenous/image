@@ -42,7 +42,7 @@ namespace image
             @throw BadFile if unable to load from the file
             @throw InvalidType if file is not a bitmap image
         */
-        void loadFrom( std::istream & file );
+        void load( std::istream & file );
 
         /**
             Save the loaded image to a file
@@ -52,7 +52,7 @@ namespace image
             @throw BadFile if unable to save to the file
             @throw InvalidType if bitmap has not been loaded
         */
-        void saveTo( std::ostream & file ) const;
+        void save( std::ostream & file ) const;
 
         /**
             Return height of the image

@@ -7,65 +7,48 @@
 
 #include <fstream>
 #include <iostream>
-#include "Bitmap.hpp"
-#include "DirectDrawSurface.hpp"
+#include "BitmapReader.hpp"
+#include "BitmapWriter.hpp"
+#include "DirectDrawSurfaceReader.hpp"
+#include "DirectDrawSurfaceWriter.hpp"
 #include "ImageConverter.hpp"
 
 using namespace image;
 
 namespace
 {
-    int help( const char * name )
+    int help(const char * name)
     {
         std::cout << "usage: " << name << " <bmp|dds file>" << std::endl;
         return 0;
     }
 
-    template< typename T >
-    T & loadFromFile( const char * file, T & t )
+    template<typename Reader, typename Writer>
+    void convert(const char * in, const char * out)
     {
-        std::ifstream in( file, std::ios::binary );
-        t.loadFrom( in );
-        return t;
-    }
-
-    void writeToFile( const DirectDrawSurface & dds )
-    {
-        std::ofstream bkp( "out.dds", std::ios::binary );
-        dds.saveTo( bkp );
-    }
-
-    void writeToFile( const Bitmap & bmp )
-    {
-        std::ofstream out( "out.bmp", std::ios::binary );
-        bmp.saveTo( out );
-    }
-
-    template< typename T >
-    void convert( const char * file )
-    {
-        T t;
-        writeToFile( ImageConverter::convert( loadFromFile( file, t )));
+        Writer::write(std::ofstream(out, std::ios::binary),
+            ImageConverter::convert(
+                Reader::read(std::ifstream(in, std::ios::binary))));
     }
 }
 
-int main( int argc, char * argv[] )
+int main(int argc, char * argv[])
 {
-    if ( argc != 2 )
-        return help( argv[0] );
+    if (argc != 2)
+        return help(argv[0]);
 
     try
     {
         try
         {
-            convert< Bitmap >( argv[1] );
+            convert<BitmapReader, DirectDrawSurfaceWriter>(argv[1], "out.dds");
         }
-        catch ( const Bitmap::InvalidType & )
+        catch (const Bitmap::InvalidType &)
         {
-            convert< DirectDrawSurface >( argv[1] );
+            convert<DirectDrawSurfaceReader, BitmapWriter>(argv[1], "out.bmp");
         }
     }
-    catch( const std::runtime_error & e )
+    catch (const std::runtime_error & e)
     {
         std::cerr << e.what() << std::endl;
         return 1;

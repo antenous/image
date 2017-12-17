@@ -53,7 +53,7 @@ DirectDrawSurface::operator bool() const
     return isDirectDrawSurface( magic );
 }
 
-void DirectDrawSurface::loadFrom( std::istream & file )
+void DirectDrawSurface::load( std::istream & file )
 {
     if ( !file )
         throw BadFile();
@@ -73,7 +73,7 @@ void DirectDrawSurface::loadFrom( std::istream & file )
     }
 }
 
-void DirectDrawSurface::saveTo( std::ostream & file ) const
+void DirectDrawSurface::save( std::ostream & file ) const
 {
     if ( !file )
         throw BadFile();
