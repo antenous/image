@@ -16,6 +16,8 @@ libimage_la_SOURCES = \
 	../include/DirectDrawSurfaceWriter.hpp \
 	../include/doxygen.hpp \
 	../include/ImageConverter.hpp \
+	../include/Reader.hpp \
+	../include/Writer.hpp \
 	Bitmap.cpp \
 	BitmapDataReader.cpp \
 	BitmapReader.cpp \

@@ -43,7 +43,7 @@ int main(int argc, char * argv[])
         {
             convert<BitmapReader, DirectDrawSurfaceWriter>(argv[1], "out.dds");
         }
-        catch (const Bitmap::InvalidType &)
+        catch (const BitmapReader::InvalidType &)
         {
             convert<DirectDrawSurfaceReader, BitmapWriter>(argv[1], "out.bmp");
         }

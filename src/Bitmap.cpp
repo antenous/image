@@ -6,8 +6,7 @@
  */
 
 #include "Bitmap.hpp"
-#include <istream>
-#include "BitmapDataReader.hpp"
+#include <ostream>
 
 using namespace image;
 
@@ -16,27 +15,6 @@ namespace
     bool isBitmap( const char type[2] )
     {
         return type[0] == 'B' && type[1] == 'M';
-    }
-
-    template< typename T >
-    void read( std::istream & file, T & t )
-    {
-        file.read( reinterpret_cast< char* >( &t ), sizeof( t ));
-    }
-
-    inline uint32_t blue( uint8_t blue )
-    {
-        return blue << 16;
-    }
-
-    inline uint32_t green( uint8_t green )
-    {
-        return green << 8;
-    }
-
-    inline uint32_t red( uint8_t red )
-    {
-        return red;
     }
 
     template< typename T >
@@ -66,7 +44,7 @@ namespace
         file.write( padding, bytes );
     }
 
-    void writeData( std::ostream & file, const std::vector< uint8_t > & data, int32_t height, int32_t width, std::istream::streamoff padding )
+    void writeData( std::ostream & file, const std::vector< uint8_t > & data, int32_t height, int32_t width, std::ostream::streamoff padding )
     {
         for ( int32_t y( 0 ); y < height; ++y, addPadding( file, padding ))
             file.write( reinterpret_cast< const char* >( &data[ y * width * 3 ] ), width * 3 );
@@ -76,64 +54,6 @@ namespace
 Bitmap::operator bool() const
 {
     return isBitmap( fileHeader.type );
-}
-
-void Bitmap::load( std::istream & file )
-{
-    if ( !file )
-        throw BadFile();
-
-    file.exceptions( std::istream::failbit | std::istream::badbit );
-
-    try
-    {
-        readFileHeader( file );
-        readInfoHeader( file );
-        readColors( file );
-    }
-    catch ( const std::istream::failure & )
-    {
-        fileHeader.type[0] = 0;
-        throw BadFile();
-    }
-}
-
-void Bitmap::readFileHeader( std::istream & file )
-{
-    read( file, fileHeader.type );
-
-    if ( !isBitmap( fileHeader.type ))
-        throw InvalidType();
-
-    read( file, fileHeader.size );
-    read( file, fileHeader.reserved1 );
-    read( file, fileHeader.reserved2 );
-    read( file, fileHeader.offset );
-}
-
-void Bitmap::readInfoHeader( std::istream & file )
-{
-    read( file, infoHeader.size );
-    read( file, infoHeader.width );
-    read( file, infoHeader.height );
-    read( file, infoHeader.planes );
-    read( file, infoHeader.bits );
-    read( file, infoHeader.compression );
-    read( file, infoHeader.imageSize );
-    read( file, infoHeader.horizontalResolution );
-    read( file, infoHeader.verticalResolution );
-    read( file, infoHeader.colors );
-    read( file, infoHeader.importantColors );
-}
-
-void Bitmap::readColors( std::istream & file )
-{
-    colors.resize( infoHeader.height * infoHeader.width );
-    auto it( colors.begin() );
-
-    for ( auto & data : BitmapDataReader( file, infoHeader.width, infoHeader.height ))
-        for ( auto first( data.begin() ), last( data.end() ); first != last; std::advance( first, 3 ), ++it )
-            *it = blue( *std::next( first, 0 )) | green( *std::next( first, 1 )) | red( *std::next( first, 2 ));
 }
 
 void Bitmap::save( std::ostream & file ) const
@@ -153,8 +73,7 @@ void Bitmap::writeFileHeader( std::ostream & file ) const
 
     write( file, fileHeader.type );
     write( file, fileHeader.size );
-    write( file, fileHeader.reserved1 );
-    write( file, fileHeader.reserved2 );
+    write( file, fileHeader.reserved );
     write( file, fileHeader.offset );
 }
 

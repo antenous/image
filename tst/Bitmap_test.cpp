@@ -7,6 +7,7 @@
 
 #include "Bitmap.hpp"
 #include <gtest/gtest.h>
+#include "BitmapReader.hpp"
 
 using namespace image;
 using namespace testing;
@@ -125,7 +126,7 @@ namespace
             writeFileHeader();
             writeInfoHeader();
             writeColorTable();
-            bitmap.load( fileIn );
+            bitmap = BitmapReader::read(std::move(fileIn));
         }
 
         void rewindFile()
@@ -171,35 +172,8 @@ TEST_F( BitmapTest, CanThrowAndCatchInvalidType )
     }
 }
 
-TEST_F( BitmapTest, GivenBadFile_WhenLoaded_ThrowsBadFile )
-{
-    makeBadFile( fileIn );
-
-    EXPECT_THROW( bitmap.load( fileIn ), Bitmap::BadFile );
-}
-
-TEST_F( BitmapTest, GivenEmptyFile_WhenLoaded_ThrowsBadFile )
-{
-    EXPECT_THROW( bitmap.load( fileIn ), Bitmap::BadFile );
-}
-
-TEST_F( BitmapTest, GivenFileWithInvalidType_WhenLoaded_ThrowsInvalidType )
-{
-    createFileHeaderWithInvalidType();
-
-    EXPECT_THROW( bitmap.load( fileIn ), Bitmap::InvalidType );
-}
-
 TEST_F( BitmapTest, WhenNotLoaded_EvaluatesToFalse )
 {
-    EXPECT_FALSE( bitmap );
-}
-
-TEST_F( BitmapTest, WhenFileFailedToLoad_EvaluatesToFalse )
-{
-    writeFileHeader();
-
-    EXPECT_THROW( bitmap.load( fileIn ), Bitmap::BadFile );
     EXPECT_FALSE( bitmap );
 }
 

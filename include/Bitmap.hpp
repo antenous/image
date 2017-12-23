@@ -35,16 +35,6 @@ namespace image
         explicit operator bool() const;
 
         /**
-            Load a bitmap image from a file
-
-            @param file File to load the image from
-
-            @throw BadFile if unable to load from the file
-            @throw InvalidType if file is not a bitmap image
-        */
-        void load( std::istream & file );
-
-        /**
             Save the loaded image to a file
 
             @param file File to load to
@@ -80,12 +70,6 @@ namespace image
 
         typedef std::vector< uint8_t > Data;
 
-        void readFileHeader( std::istream & file );
-
-        void readInfoHeader( std::istream & file );
-
-        void readColors( std::istream & file );
-
         void writeFileHeader( std::ostream & file ) const;
 
         void writeInfoHeader( std::ostream & file ) const;
@@ -96,14 +80,14 @@ namespace image
 
         uint8_t padding() const;
 
+    public:
         struct
         {
             char type[2];
             uint32_t size;
-            uint16_t reserved1;
-            uint16_t reserved2;
+            uint32_t reserved;
             uint32_t offset;
-        } fileHeader{{ 0, 0 }, 0, 0, 0, 0 };
+        } fileHeader{{ 0, 0 }, 0, 0, 0 };
 
         struct
         {

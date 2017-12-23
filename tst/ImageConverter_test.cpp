@@ -8,6 +8,7 @@
 #include "ImageConverter.hpp"
 #include <algorithm>
 #include <gtest/gtest.h>
+#include "BitmapReader.hpp"
 #include "ColorDepth.hpp"
 
 using namespace image;
@@ -20,10 +21,7 @@ namespace
     protected:
         Bitmap makeBitmap() const
         {
-            Bitmap bitmap;
-            auto file( makeBitmapFile() );
-            bitmap.load( file );
-            return bitmap;
+            return BitmapReader::read(makeBitmapFile());
         }
 
         std::stringstream makeBitmapFile() const
