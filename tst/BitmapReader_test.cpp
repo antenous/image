@@ -169,6 +169,5 @@ TEST_F(BitmapReaderTest, GivenValidFile_WhenRead_CreatesBitmap)
         { 40, 2, 2, 1, 24, 0, 16, 0, 0, 0, 0 },
         { 0xff, 0xffffff, 0xff0000, 0xff00 }};
 
-    bmp.infoHeader.size = 5;
     EXPECT_EQ(bmp, BitmapReader::read(makeFile(bmp)));
 }

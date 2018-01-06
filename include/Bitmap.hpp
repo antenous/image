@@ -21,10 +21,6 @@ namespace image
     class Bitmap
     {
     public:
-        class BadFile;
-
-        class InvalidType;
-
         typedef std::vector< uint32_t > Colors;
 
         /**
@@ -33,16 +29,6 @@ namespace image
             @return true if holds a valid bitmap image
         */
         explicit operator bool() const;
-
-        /**
-            Save the loaded image to a file
-
-            @param file File to load to
-
-            @throw BadFile if unable to save to the file
-            @throw InvalidType if bitmap has not been loaded
-        */
-        void save( std::ostream & file ) const;
 
         /**
             Return height of the image
@@ -65,22 +51,8 @@ namespace image
         */
         Colors getColors() const;
 
-    private:
-        friend class ImageConverter;
-
-        typedef std::vector< uint8_t > Data;
-
-        void writeFileHeader( std::ostream & file ) const;
-
-        void writeInfoHeader( std::ostream & file ) const;
-
-        void writeColors( std::ostream & file ) const;
-
-        Data colorsToData() const;
-
         uint8_t padding() const;
 
-    public:
         struct
         {
             char type[2];
@@ -105,22 +77,6 @@ namespace image
         } infoHeader;
 
         Colors colors;
-    };
-
-    class Bitmap::BadFile : public std::runtime_error
-    {
-    public:
-        BadFile() :
-            std::runtime_error( "bad file" )
-        {}
-    };
-
-    class Bitmap::InvalidType : public std::runtime_error
-    {
-    public:
-        InvalidType() :
-            std::runtime_error( "invalid type" )
-        {}
     };
 
 }

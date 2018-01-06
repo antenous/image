@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <gtest/gtest.h>
 #include "BitmapReader.hpp"
+#include "BitmapWriter.hpp"
 #include "ColorDepth.hpp"
 
 using namespace image;
@@ -243,7 +244,7 @@ TEST_F( ImageConverterTest, ConvertDirectDrawSurface )
     auto expected( makeBitmapFile() );
 
     std::stringstream result;
-    ImageConverter::convert( makeDirectDrawSurface() ).save( result );
+    BitmapWriter::write( std::move(result), ImageConverter::convert( makeDirectDrawSurface() ));
 
     EXPECT_TRUE( filesAreEqual( expected, result ));
 }

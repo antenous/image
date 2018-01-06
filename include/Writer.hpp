@@ -8,7 +8,9 @@
 #ifndef WRITER_HPP_
 #define WRITER_HPP_
 
+#include <tuple>
 #include <ostream>
+#include <utility>
 
 namespace image
 {

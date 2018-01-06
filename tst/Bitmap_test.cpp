@@ -18,17 +18,6 @@ namespace
     class BitmapTest : public Test
     {
     protected:
-        void createFileHeaderWithInvalidType()
-        {
-            char type[]{ 'M', 'B' };
-            writeToFile( type );
-        }
-
-        void makeBadFile( std::stringstream & file ) const
-        {
-            file.setstate( std::ios::badbit );
-        }
-
         void writeFileHeader()
         {
             const char type[]{ 'B', 'M' };
@@ -129,47 +118,10 @@ namespace
             bitmap = BitmapReader::read(std::move(fileIn));
         }
 
-        void rewindFile()
-        {
-            fileIn.seekg( 0, fileIn.beg );
-        }
-
-        bool filesAreEqual()
-        {
-            return std::equal(
-                std::istreambuf_iterator< char >( fileOut ), std::istreambuf_iterator< char >(),
-                std::istreambuf_iterator< char >( fileIn ));
-        }
-
         Bitmap bitmap;
         std::stringstream fileIn;
-        std::stringstream fileOut;
     };
 
-}
-
-TEST_F( BitmapTest, CanThrowAndCatchBadFile )
-{
-    try
-    {
-        throw Bitmap::BadFile();
-    }
-    catch ( const std::runtime_error & e )
-    {
-        EXPECT_STREQ( "bad file", e.what() );
-    }
-}
-
-TEST_F( BitmapTest, CanThrowAndCatchInvalidType )
-{
-    try
-    {
-        throw Bitmap::InvalidType();
-    }
-    catch ( const std::runtime_error & e )
-    {
-        EXPECT_STREQ( "invalid type", e.what() );
-    }
 }
 
 TEST_F( BitmapTest, WhenNotLoaded_EvaluatesToFalse )
@@ -203,27 +155,4 @@ TEST_F( BitmapTest, WhenBitmapIsLoaded_PaletteIsGettable )
     loadBitmapFromFile();
 
     EXPECT_EQ( 4, bitmap.getColors().size() );
-}
-
-TEST_F( BitmapTest, GivenBadFile_WhenSaved_ThrowsBadFile )
-{
-    makeBadFile( fileOut );
-
-    EXPECT_THROW( bitmap.save( fileOut ), Bitmap::BadFile );
-}
-
-TEST_F( BitmapTest, GivenBitmapIsNotLoaded_WhenSaved_ThrowsInvalidType )
-{
-    EXPECT_THROW( bitmap.save( fileOut ), Bitmap::InvalidType );
-}
-
-TEST_F( BitmapTest, GivenBitmapIsLoaded_WhenSaved_WritesFile )
-{
-    loadBitmapFromFile();
-    rewindFile();
-
-    bitmap.save( fileOut );
-
-    ASSERT_TRUE( hasUnreadData( fileOut ));
-    EXPECT_TRUE( filesAreEqual() );
 }

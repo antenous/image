@@ -16,6 +16,10 @@ namespace image
     class BitmapWriter
     {
     public:
+        class BadFile;
+
+        class InvalidType;
+
         /**
             Write the bitmap image to the stream
 
@@ -23,6 +27,18 @@ namespace image
             @throw InvalidType if the image is not a valid bitmap image
         */
         static void write(std::ostream && to, const Bitmap & bmp);
+    };
+
+    class BitmapWriter::BadFile : public std::invalid_argument
+    {
+    public:
+        BadFile();
+    };
+
+    class BitmapWriter::InvalidType : public std::invalid_argument
+    {
+    public:
+        InvalidType();
     };
 
 }
