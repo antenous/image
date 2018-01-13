@@ -15,7 +15,7 @@ using namespace testing;
 
 namespace
 {
-    auto toTuple(const decltype(Bitmap::fileHeader) & fileHeader)
+    auto toTuple(const Bitmap::FileHeader & fileHeader)
     {
         return std::make_tuple(
             fileHeader.type[0],
@@ -25,7 +25,7 @@ namespace
             fileHeader.offset);
     }
 
-    auto toTuple(const decltype(Bitmap::infoHeader) & infoHeader)
+    auto toTuple(const Bitmap::InfoHeader & infoHeader)
     {
         return std::make_tuple(
             infoHeader.size,
@@ -44,13 +44,13 @@ namespace
     template<std::size_t... I>
     auto toTuple(const Bitmap::Data & data, std::index_sequence<I...>)
     {
-      return std::make_tuple(data.at(I)...);
+        return std::make_tuple(data.at(I)...);
     }
 
     template<std::size_t N>
     auto toTuple(const Bitmap::Data & data)
     {
-      return toTuple(data, std::make_index_sequence<N>());
+        return toTuple(data, std::make_index_sequence<N>());
     }
 
     auto toTuple(const Bitmap & bmp)

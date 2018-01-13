@@ -9,7 +9,8 @@
 #ifndef BITMAP_HPP_
 #define BITMAP_HPP_
 
-#include <stdexcept>
+#include <cstdint>
+#include <sys/types.h>
 #include <vector>
 
 namespace image
@@ -21,44 +22,38 @@ namespace image
     class Bitmap
     {
     public:
-        typedef std::vector< uint32_t > Colors;
+        using Colors = std::vector<uint32_t>;
 
-        typedef std::vector< uint8_t> Data;
+        using Data = std::vector<uint8_t>;
 
         /**
-            Check if holds a valid bitmap image
-
-            @return true if holds a valid bitmap image
+            Return true if bitmap is valid
         */
         explicit operator bool() const;
 
         /**
             Return height of the image
-
-            @return Height of the image
         */
-        int32_t getHeight() const;
+        int32_t height() const;
 
         /**
             Return width of the image
-
-            @return Width of the image
         */
-        int32_t getWidth() const;
+        int32_t width() const;
 
         /**
             Convert raw pixel data to colors
         */
-        Colors getColors() const;
+        Colors colors() const;
 
         /**
             Convert colors to raw pixel data
         */
-        void setColors(const Colors & colors);
+        void colors(const Colors & colors);
 
         uint8_t padding() const;
 
-        struct
+        struct FileHeader
         {
             char type[2];
             uint32_t size;
@@ -66,7 +61,7 @@ namespace image
             uint32_t offset;
         } fileHeader{{ 0, 0 }, 0, 0, 0 };
 
-        struct
+        struct InfoHeader
         {
             uint32_t size;
             int32_t width;

@@ -12,7 +12,7 @@ using namespace image;
 
 namespace
 {
-    void read(std::istream & from, decltype(Bitmap::fileHeader) & fileHeader)
+    void read(std::istream & from, Bitmap::FileHeader & fileHeader)
     {
         Reader::read(from, std::tie(
             fileHeader.type[0],
@@ -22,7 +22,7 @@ namespace
             fileHeader.offset));
     }
 
-    void read(std::istream & from, decltype(Bitmap::infoHeader) & infoHeader)
+    void read(std::istream & from, Bitmap::InfoHeader & infoHeader)
     {
         Reader::read(from, std::tie(
             infoHeader.size,

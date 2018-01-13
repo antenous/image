@@ -8,6 +8,7 @@
 #ifndef BITMAPWRITER_HPP_
 #define BITMAPWRITER_HPP_
 
+#include <ostream>
 #include "Bitmap.hpp"
 
 namespace image

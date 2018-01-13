@@ -9,8 +9,6 @@
 #ifndef IMAGECONVERTER_HPP_
 #define IMAGECONVERTER_HPP_
 
-#include <cstdint>
-#include <vector>
 #include "Bitmap.hpp"
 #include "DirectDrawSurface.hpp"
 

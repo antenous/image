@@ -12,7 +12,7 @@ using namespace image;
 
 namespace
 {
-    void write(std::ostream & to, const decltype(Bitmap::fileHeader) & fileHeader)
+    void write(std::ostream & to, const Bitmap::FileHeader & fileHeader)
     {
         Writer::write(to, std::tie(
             fileHeader.type[0],
@@ -22,7 +22,7 @@ namespace
             fileHeader.offset));
     }
 
-    void write(std::ostream & to, const decltype(Bitmap::infoHeader) & infoHeader)
+    void write(std::ostream & to, const Bitmap::InfoHeader & infoHeader)
     {
         Writer::write(to, std::tie(
             infoHeader.size,

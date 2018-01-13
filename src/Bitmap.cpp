@@ -51,35 +51,35 @@ Bitmap::operator bool() const
     return fileHeader.type[0] == 'B' && fileHeader.type[1] == 'M';
 }
 
-int32_t Bitmap::getHeight() const
+int32_t Bitmap::height() const
 {
     return infoHeader.height;
 }
 
-int32_t Bitmap::getWidth() const
+int32_t Bitmap::width() const
 {
     return infoHeader.width;
 }
 
-Bitmap::Colors Bitmap::getColors() const
+Bitmap::Colors Bitmap::colors() const
 {
     Colors colors;
-    colors.reserve(getHeight()*getWidth());
+    colors.reserve(height()*width());
 
     for (auto it(data.begin()); it != data.end(); skipPadding(it, padding()))
-        for (auto end(std::next(it, 3*getWidth())); it != end; std::advance(it, 3))
+        for (auto end(std::next(it, 3*width())); it != end; std::advance(it, 3))
             colors.emplace_back(samplesToColor(it));
 
     return colors;
 }
 
-void Bitmap::setColors(const Colors & colors)
+void Bitmap::colors(const Colors & colors)
 {
     Data data;
     data.reserve(infoHeader.imageSize);
 
     for (auto it(colors.begin()); it != colors.end(); addPadding(data, padding()))
-        for (auto end(std::next(it, getWidth())); it != end; ++it)
+        for (auto end(std::next(it, width())); it != end; ++it)
             data.insert(data.end(), { blue(*it), green(*it), red(*it) });
 
     std::swap(data, this->data);
@@ -87,6 +87,6 @@ void Bitmap::setColors(const Colors & colors)
 
 uint8_t Bitmap::padding() const
 {
-    const auto bytesInRow(( infoHeader.bits * infoHeader.width + 31 ) / 32 * 4 );
-    return bytesInRow - infoHeader.width * 3;
+    const auto bytesInRow((infoHeader.bits*infoHeader.width + 31)/32*4);
+    return bytesInRow - infoHeader.width*3;
 }

@@ -27,29 +27,29 @@ namespace
     };
 }
 
-TEST_F(BitmapTest, EmptyBitmapEvaluatesToFalse)
+TEST_F(BitmapTest, FalseIfEmpty)
 {
     EXPECT_FALSE(Bitmap());
 }
 
-TEST_F(BitmapTest, GetHeight)
+TEST_F(BitmapTest, Height)
 {
-    EXPECT_EQ(2, bmp.getHeight());
+    EXPECT_EQ(2, bmp.height());
 }
 
-TEST_F(BitmapTest, GetWidth)
+TEST_F(BitmapTest, Width)
 {
-    EXPECT_EQ(2, bmp.getWidth());
+    EXPECT_EQ(2, bmp.width());
 }
 
-TEST_F(BitmapTest, GetColors)
+TEST_F(BitmapTest, DataToColors)
 {
     bmp.data = data;
-    EXPECT_EQ(colors, bmp.getColors());
+    EXPECT_EQ(colors, bmp.colors());
 }
 
-TEST_F(BitmapTest, SetColors)
+TEST_F(BitmapTest, ColorsToData)
 {
-    bmp.setColors(colors);
+    bmp.colors(colors);
     EXPECT_EQ(data, bmp.data);
 }
