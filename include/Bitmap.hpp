@@ -23,6 +23,8 @@ namespace image
     public:
         typedef std::vector< uint32_t > Colors;
 
+        typedef std::vector< uint8_t> Data;
+
         /**
             Check if holds a valid bitmap image
 
@@ -45,11 +47,14 @@ namespace image
         int32_t getWidth() const;
 
         /**
-            Return the image colors
-
-            @return Image colors
+            Convert raw pixel data to colors
         */
         Colors getColors() const;
+
+        /**
+            Convert colors to raw pixel data
+        */
+        void setColors(const Colors & colors);
 
         uint8_t padding() const;
 
@@ -76,7 +81,7 @@ namespace image
             uint32_t importantColors;
         } infoHeader;
 
-        Colors colors;
+        Data data;
     };
 
 }

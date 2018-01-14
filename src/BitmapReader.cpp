@@ -6,8 +6,6 @@
  */
 
 #include "BitmapReader.hpp"
-#include <numeric>
-#include "BitmapDataReader.hpp"
 #include "Reader.hpp"
 
 using namespace image;
@@ -40,14 +38,10 @@ namespace
             infoHeader.importantColors));
     }
 
-    void read(std::istream & file, decltype(Bitmap::colors) & colors, int32_t width, int32_t height)
+    void read(std::istream & from, Bitmap::Data & data, uint32_t size)
     {
-        colors.resize(height*width);
-        auto it(colors.begin());
-
-        for (const auto & line : BitmapDataReader(file, width, height))
-            for (auto first(line.begin()), last(line.end()); first != last; std::advance(first, 3), ++it)
-                *it = std::accumulate(first, std::next(first, 3), 0, [](uint32_t i, uint8_t j){ return i << 8 | j; });
+        data.resize(size);
+        from.read(reinterpret_cast<char*>(data.data()), size);
     }
 
     Bitmap readBitmap(std::istream & from)
@@ -60,7 +54,7 @@ namespace
             throw BitmapReader::InvalidType();
 
         read(from, bmp.infoHeader);
-        read(from, bmp.colors, bmp.infoHeader.width, bmp.infoHeader.height);
+        read(from, bmp.data, bmp.infoHeader.imageSize);
 
         return bmp;
     }

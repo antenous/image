@@ -14,51 +14,50 @@ using namespace testing;
 
 namespace
 {
-    inline uint8_t blue(uint32_t color)
+    auto toTuple(const decltype(Bitmap::fileHeader) & fileHeader)
     {
-        return ((color >> 16) & 0xff);
+        return std::make_tuple(
+            fileHeader.type[0],
+            fileHeader.type[1],
+            fileHeader.size,
+            fileHeader.reserved,
+            fileHeader.offset);
     }
 
-    inline uint8_t green(uint32_t color)
+    auto toTuple(const decltype(Bitmap::infoHeader) & infoHeader)
     {
-        return ((color >> 8) & 0xff);
+        return std::make_tuple(
+            infoHeader.size,
+            infoHeader.width,
+            infoHeader.height,
+            infoHeader.planes,
+            infoHeader.bits,
+            infoHeader.compression,
+            infoHeader.imageSize,
+            infoHeader.horizontalResolution,
+            infoHeader.verticalResolution,
+            infoHeader.colors,
+            infoHeader.importantColors);
     }
 
-    inline uint8_t red(uint32_t color)
+    template<std::size_t... I>
+    auto toTuple(const Bitmap::Data & data, std::index_sequence<I...>)
     {
-        return (color & 0xff);
+      return std::make_tuple(data.at(I)...);
     }
 
-    auto breakIntoSamples(uint32_t color)
+    template<std::size_t N>
+    auto toTuple(const Bitmap::Data & data)
     {
-        return std::make_tuple(blue(color), green(color), red(color));
+      return toTuple(data, std::make_index_sequence<N>());
     }
 
-    auto makeTuple(const Bitmap & bmp)
+    auto toTuple(const Bitmap & bmp)
     {
-        const std::tuple<uint8_t, uint8_t> padding;
-
         return std::tuple_cat(
-            std::make_tuple(
-                bmp.fileHeader.type[0],
-                bmp.fileHeader.type[1],
-                bmp.fileHeader.size,
-                bmp.fileHeader.reserved,
-                bmp.fileHeader.offset),
-            std::make_tuple(
-                bmp.infoHeader.size,
-                bmp.infoHeader.width,
-                bmp.infoHeader.height,
-                bmp.infoHeader.planes,
-                bmp.infoHeader.bits,
-                bmp.infoHeader.compression,
-                bmp.infoHeader.imageSize,
-                bmp.infoHeader.horizontalResolution,
-                bmp.infoHeader.verticalResolution,
-                bmp.infoHeader.colors,
-                bmp.infoHeader.importantColors),
-            breakIntoSamples(bmp.colors.at(0)), breakIntoSamples(bmp.colors.at(1)), padding,
-            breakIntoSamples(bmp.colors.at(2)), breakIntoSamples(bmp.colors.at(3)), padding);
+            toTuple(bmp.fileHeader),
+            toTuple(bmp.infoHeader),
+            toTuple<16>(bmp.data));
     }
 
     class BitmapWriterTest : public Test
@@ -74,7 +73,7 @@ namespace
         std::stringstream makeFile(const Bitmap & bmp) const
         {
             std::stringstream file;
-            Writer::write(file, makeTuple(bmp));
+            Writer::write(file, toTuple(bmp));
             return file;
         }
 
@@ -127,7 +126,8 @@ TEST_F(BitmapWriterTest, GivenValidBitmap_WhenWritten_WritesFile)
     Bitmap bmp{
         {{ 'B', 'M' }, 70, 1, 54 },
         { 40, 2, 2, 1, 24, 0, 16, 0, 0, 0, 0 },
-        { 0xff, 0xffffff, 0xff0000, 0xff00 }};
+        { 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00,
+          0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00 }};
 
     std::stringstream file;
     BitmapWriter::write(std::move(file), bmp);

@@ -5,7 +5,6 @@ AM_CXXFLAGS += $(CODE_COVERAGE_CXXFLAGS)
 noinst_LTLIBRARIES = libimage.la
 libimage_la_SOURCES = \
 	../include/Bitmap.hpp \
-	../include/BitmapDataReader.hpp \
 	../include/BitmapReader.hpp \
 	../include/BitmapWriter.hpp \
 	../include/BlockCompressor.hpp \
@@ -19,7 +18,6 @@ libimage_la_SOURCES = \
 	../include/Reader.hpp \
 	../include/Writer.hpp \
 	Bitmap.cpp \
-	BitmapDataReader.cpp \
 	BitmapReader.cpp \
 	BitmapWriter.cpp \
 	BlockCompressor.cpp \

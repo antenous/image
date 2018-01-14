@@ -7,152 +7,49 @@
 
 #include "Bitmap.hpp"
 #include <gtest/gtest.h>
-#include "BitmapReader.hpp"
 
 using namespace image;
 using namespace testing;
 
 namespace
 {
-
     class BitmapTest : public Test
     {
     protected:
-        void writeFileHeader()
-        {
-            const char type[]{ 'B', 'M' };
-            const uint32_t reserved( 0 );
-            const uint32_t offset( 14 + 40 );
-            const uint32_t size( offset + 16 );
-
-            writeToFile( type );
-            writeToFile( size );
-            writeToFile( reserved );
-            writeToFile( offset );
-        }
-
-        void writeInfoHeader()
-        {
-            const uint32_t size( 40 );
-            const int32_t width( 2 );
-            const int32_t height( 2 );
-            const uint16_t planes( 1 );
-            const uint16_t bits( 24 );
-            const uint32_t compression( 0 );
-            const uint32_t imageSize( 16 );
-            const uint32_t horizontalResolution( 0 );
-            const uint32_t verticalResolution( 0 );
-            const uint32_t colors( 0 );
-            const uint32_t importantColors( 0 );
-
-            writeToFile( size );
-            writeToFile( width );
-            writeToFile( height );
-            writeToFile( planes );
-            writeToFile( bits );
-            writeToFile( compression );
-            writeToFile( imageSize );
-            writeToFile( horizontalResolution );
-            writeToFile( verticalResolution );
-            writeToFile( colors );
-            writeToFile( importantColors );
-        }
-
-        void writeColorTable()
-        {
-            createRedPixel();
-            createWhitePixel();
-            createPadding();
-            createBluePixel();
-            createGreenPixel();
-            createPadding();
-        }
-
-        void createRedPixel()
-        {
-            writeToFile({ 0, 0, 255 });
-        }
-
-        void createWhitePixel()
-        {
-            writeToFile({ 255, 255, 255 });
-        }
-
-        void createPadding()
-        {
-            writeToFile({ 0, 0 });
-        }
-
-        void createBluePixel()
-        {
-            writeToFile({ 255, 0 , 0 });
-        }
-
-        void createGreenPixel()
-        {
-            writeToFile({ 0, 255, 0 });
-        }
-
-        template< typename T >
-        void writeToFile( const T & t )
-        {
-            fileIn.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
-        }
-
-        void writeToFile( const std::vector< uint8_t > & bytes )
-        {
-            for ( auto byte : bytes )
-                writeToFile( byte );
-        }
-
-        bool hasUnreadData( std::stringstream & file ) const
-        {
-            return file.peek() != std::istream::traits_type::eof();
-        }
-
-        void loadBitmapFromFile()
-        {
-            writeFileHeader();
-            writeInfoHeader();
-            writeColorTable();
-            bitmap = BitmapReader::read(std::move(fileIn));
-        }
-
-        Bitmap bitmap;
-        std::stringstream fileIn;
+        Bitmap bmp{
+            {{ 'B', 'M' }, 70, 1, 54 },
+            { 40, 2, 2, 1, 24, 0, 16, 0, 0, 0, 0 },
+            { }};
+        Bitmap::Colors colors{ 0xff, 0xffffff, 0xff0000, 0xff00 };
+        Bitmap::Data data{
+            0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00,
+            0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00 };
     };
-
 }
 
-TEST_F( BitmapTest, WhenNotLoaded_EvaluatesToFalse )
+TEST_F(BitmapTest, EmptyBitmapEvaluatesToFalse)
 {
-    EXPECT_FALSE( bitmap );
+    EXPECT_FALSE(Bitmap());
 }
 
-TEST_F( BitmapTest, GivenValidFile_WhenLoaded_ReadsFile )
+TEST_F(BitmapTest, GetHeight)
 {
-    loadBitmapFromFile();
-
-    EXPECT_FALSE( hasUnreadData( fileIn ));
+    EXPECT_EQ(2, bmp.getHeight());
 }
 
-TEST_F( BitmapTest, WhenBitmapIsLoaded_HeightIsGettable )
+TEST_F(BitmapTest, GetWidth)
 {
-    loadBitmapFromFile();
-
-    EXPECT_EQ( 2, bitmap.getHeight() );
+    EXPECT_EQ(2, bmp.getWidth());
 }
 
-TEST_F( BitmapTest, WhenBitmapIsLoaded_WidthIsGettable )
+TEST_F(BitmapTest, GetColors)
 {
-    loadBitmapFromFile();
-
-    EXPECT_EQ( 2, bitmap.getWidth() );
+    bmp.data = data;
+    EXPECT_EQ(colors, bmp.getColors());
 }
 
-TEST_F( BitmapTest, WhenBitmapIsLoaded_PaletteIsGettable )
+TEST_F(BitmapTest, SetColors)
 {
-    loadBitmapFromFile();
-
-    EXPECT_EQ( 4, bitmap.getColors().size() );
+    bmp.setColors(colors);
+    EXPECT_EQ(data, bmp.data);
 }

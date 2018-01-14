@@ -86,7 +86,6 @@ check_PROGRAMS = testrunner
 testrunner_SOURCES = \
 	TuplePrinter.hpp \
 	Bitmap_test.cpp \
-	BitmapDataReader_test.cpp \
 	BitmapReader_test.cpp \
 	BitmapWriter_test.cpp \
 	BlockCompressor_test.cpp \
