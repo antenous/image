@@ -11,6 +11,7 @@
 #include "BitmapReader.hpp"
 #include "BitmapWriter.hpp"
 #include "ColorDepth.hpp"
+#include "DirectDrawSurfaceReader.hpp"
 
 using namespace image;
 using namespace testing;
@@ -86,10 +87,7 @@ namespace
 
         DirectDrawSurface makeDirectDrawSurface() const
         {
-            DirectDrawSurface dds;
-            auto file( makeDirectDrawSurfaceFile() );
-            dds.load( file );
-            return dds;
+            return DirectDrawSurfaceReader::read(makeDirectDrawSurfaceFile());
         }
 
         std::stringstream makeDirectDrawSurfaceFile() const

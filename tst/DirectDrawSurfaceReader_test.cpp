@@ -7,19 +7,178 @@
 
 #include "DirectDrawSurfaceReader.hpp"
 #include <gtest/gtest.h>
+#include "TuplePrinter.hpp"
+#include "Writer.hpp"
 
 using namespace image;
 using namespace testing;
 
 namespace
 {
+    auto toTuple(uint32_t magic)
+    {
+        return std::make_tuple(magic);
+    }
+
+    template<std::size_t N, typename Array, std::size_t... I>
+    auto toTuple(Array array[N], std::integer_sequence<std::size_t, I...>)
+    {
+        return std::make_tuple(array[I]...);
+    }
+
+    template<std::size_t N, typename Array>
+    auto toTuple(Array array[N])
+    {
+        return toTuple<N>(array, std::make_integer_sequence<std::size_t, N>());
+    }
+
+    auto toTuple(const decltype(DirectDrawSurface::header.pixelFormat) & pixelFormat)
+    {
+        return std::tuple_cat(
+            std::make_tuple(
+                pixelFormat.size,
+                pixelFormat.flags),
+            toTuple<4>(pixelFormat.fourCC),
+            std::make_tuple(
+                pixelFormat.bits,
+                pixelFormat.redBitMask,
+                pixelFormat.greenBitMask,
+                pixelFormat.blueBitMask,
+                pixelFormat.alphaBitMask));
+    }
+
+    auto toTuple(const decltype(DirectDrawSurface::header) & header)
+    {
+        return std::tuple_cat(
+            std::make_tuple(
+                header.size,
+                header.flags,
+                header.height,
+                header.width,
+                header.pitch,
+                header.depth,
+                header.mipmaps),
+            toTuple<11>(header.reserved1),
+            toTuple(header.pixelFormat),
+            std::make_tuple(
+                header.caps,
+                header.caps2,
+                header.caps3,
+                header.caps4,
+                header.reserved2));
+    }
+
+    auto toTuple(const decltype(DirectDrawSurface::surface) & surface)
+    {
+        return std::make_tuple(
+            static_cast<uint16_t>((surface.at(0) >> 16) & 0xffff),
+            static_cast<uint16_t>(surface.at(0) & 0xffff),
+            surface.at(1));
+    }
+
+    auto toTuple(const DirectDrawSurface & dds)
+    {
+        return std::tuple_cat(
+            toTuple(dds.magic),
+            toTuple(dds.header),
+            toTuple(dds.surface));
+    }
+
     class DirectDrawSurfaceReaderTest : public Test
     {
+    protected:
+        std::istringstream makeBadFile() const
+        {
+            std::istringstream file;
+            file.setstate(std::ios::badbit);
+            return file;
+        }
 
+        std::istringstream makeEmptyFile() const
+        {
+            return std::istringstream();
+        }
+
+        std::stringstream makeFile(const DirectDrawSurface & dds) const
+        {
+            std::stringstream file;
+            Writer::write(file, toTuple(dds));
+            return file;
+        }
+
+        DirectDrawSurface dds{
+              0x20534444,
+            { 124, 0x1 | 0x2 | 0x4 | 0x1000, 4, 4, 8, 0, 0, { 0 },
+            { 32, 0x4, { 'D', 'X', 'T', '1' }, 0, 0 },
+              0x1000, 0, 0, 0, 0 },
+            { 0xffffU << 16 | 0x1fU,
+              0b00000000U << 24 |
+              0b00000000U << 16 |
+              0b00000101U << 8  |
+              0b00000101U }};
     };
+}
+
+namespace image
+{
+    template<typename... Args>
+    void PrintTo(std::tuple<Args...> && t, std::ostream * os)
+    {
+        TuplePrinter<decltype(t), sizeof...(Args)>::print(t, os);
+    }
+
+    void PrintTo(const DirectDrawSurface & dds, std::ostream * os)
+    {
+        PrintTo(toTuple(dds), os);
+    }
+
+    bool operator==(const DirectDrawSurface & lhs, const DirectDrawSurface & rhs)
+    {
+        return toTuple(lhs) == toTuple(rhs);
+    }
+}
+TEST_F(DirectDrawSurfaceReaderTest, CanThrowAndCatchBadFile)
+{
+    try
+    {
+        throw DirectDrawSurfaceReader::BadFile();
+    }
+    catch (const std::invalid_argument & e)
+    {
+        EXPECT_STREQ("bad file", e.what());
+    }
+}
+
+TEST_F(DirectDrawSurfaceReaderTest, GivenBadFile_WhenRead_ThrowsBadFile)
+{
+    EXPECT_THROW(DirectDrawSurfaceReader::read(makeBadFile()), DirectDrawSurfaceReader::BadFile);
 }
 
 TEST_F(DirectDrawSurfaceReaderTest, GivenEmptyFile_WhenRead_ThrowsBadFile)
 {
-    EXPECT_THROW(DirectDrawSurfaceReader::read(std::istringstream()), DirectDrawSurface::BadFile);
+    EXPECT_THROW(DirectDrawSurfaceReader::read(makeEmptyFile()), DirectDrawSurfaceReader::BadFile);
+}
+
+TEST_F(DirectDrawSurfaceReaderTest, CanThrowAndCatchInvalidType)
+{
+    try
+    {
+        throw DirectDrawSurfaceReader::InvalidType();
+    }
+    catch (const std::runtime_error & e)
+    {
+        EXPECT_STREQ("invalid type", e.what());
+    }
+}
+
+TEST_F(DirectDrawSurfaceReaderTest, GivenFileWithInvalidMagic_WhenRead_ThrowsInvalidType)
+{
+    dds.magic = 313;
+
+    EXPECT_THROW(DirectDrawSurfaceReader::read(makeFile(dds)), DirectDrawSurfaceReader::InvalidType);
+}
+
+TEST_F(DirectDrawSurfaceReaderTest, GivenValidFile_WhenRead_CreatesDirectDrawSurface)
+{
+    EXPECT_EQ(dds, DirectDrawSurfaceReader::read(makeFile(dds)));
 }

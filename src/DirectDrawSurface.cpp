@@ -24,18 +24,6 @@ namespace
     }
 
     template< typename T >
-    void read( std::istream & file, T & t )
-    {
-        file.read( reinterpret_cast< char* >( &t ), sizeof( t ));
-    }
-
-    void readReferenceColors( std::istream & file, uint32_t & colors )
-    {
-        read( file, colors );
-        colors = swap( colors );
-    }
-
-    template< typename T >
     void write( std::ostream & file, const T & t )
     {
         file.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
@@ -51,26 +39,6 @@ namespace
 DirectDrawSurface::operator bool() const
 {
     return isDirectDrawSurface( magic );
-}
-
-void DirectDrawSurface::load( std::istream & file )
-{
-    if ( !file )
-        throw BadFile();
-
-    file.exceptions( std::istream::failbit | std::istream::badbit );
-
-    try
-    {
-        readMagic( file );
-        readHeader( file );
-        readSurfaceData( file );
-    }
-    catch ( const std::istream::failure & )
-    {
-        magic = 0;
-        throw BadFile();
-    }
 }
 
 void DirectDrawSurface::save( std::ostream & file ) const
@@ -96,35 +64,6 @@ uint32_t DirectDrawSurface::getWidth() const
 DirectDrawSurface::Surface DirectDrawSurface::getSurface() const
 {
     return surface;
-}
-
-void DirectDrawSurface::readMagic( std::istream & file )
-{
-    read( file, magic );
-
-    if ( !isDirectDrawSurface( magic ))
-        throw InvalidType();
-}
-
-void DirectDrawSurface::readHeader( std::istream & file )
-{
-    read( file, header );
-}
-
-void DirectDrawSurface::readSurfaceData( std::istream & file )
-{
-    surface.resize( countSurfaceBlocks() );
-
-    for ( auto first( surface.begin() ), last( surface.end() ); first != last; ++first )
-    {
-        readReferenceColors( file, *first );
-        read( file, *++first );
-    }
-}
-
-uint32_t DirectDrawSurface::countSurfaceBlocks() const
-{
-    return header.width / 4 * header.height / 4 * 2;
 }
 
 void DirectDrawSurface::writeMagic( std::ostream & file ) const

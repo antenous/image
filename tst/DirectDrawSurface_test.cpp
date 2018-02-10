@@ -8,6 +8,7 @@
 #include "DirectDrawSurface.hpp"
 #include <algorithm>
 #include <gtest/gtest.h>
+#include "DirectDrawSurfaceReader.hpp"
 
 using namespace image;
 using namespace testing;
@@ -18,14 +19,11 @@ namespace
     class DirectDrawSurfaceTest : public Test
     {
     protected:
-        void makeBadFile( std::stringstream & file ) const
+        std::ostringstream makeBadFile() const
         {
-            file.setstate( std::ios::badbit );
-        }
-
-        void writeFileHeaderWithBadMagic()
-        {
-            writeToFile< uint32_t >( 0x20534443 );
+            std::ostringstream file;
+            file.setstate(std::ios::badbit);
+            return file;
         }
 
         void writeFileHeader()
@@ -101,11 +99,11 @@ namespace
             fileIn.write( reinterpret_cast< const char* >( &t ), sizeof( t ));
         }
 
-        void loadDirectDrawSurfaceFromFile()
+        DirectDrawSurface loadDirectDrawSurfaceFromFile()
         {
             writeFileHeader();
             writeSurfaceData();
-            dds.load( fileIn );
+            return DirectDrawSurfaceReader::read(std::move(fileIn));
         }
 
         bool hasUnreadData( std::stringstream & file ) const
@@ -125,7 +123,6 @@ namespace
                 std::istreambuf_iterator< char >( fileIn ));
         }
 
-        DirectDrawSurface dds;
         std::stringstream fileIn;
         std::stringstream fileOut;
         const uint16_t blue{ 0x1f };
@@ -157,80 +154,49 @@ TEST_F( DirectDrawSurfaceTest, CanThrowAndCatchInvalidType )
     }
 }
 
-TEST_F( DirectDrawSurfaceTest, GivenBadFile_WhenLoaded_ThrowsBadFile )
+TEST_F(DirectDrawSurfaceTest, FalseWhenEmpty)
 {
-    makeBadFile( fileIn );
-
-    EXPECT_THROW( dds.load( fileIn ), DirectDrawSurface::BadFile );
+    EXPECT_FALSE(DirectDrawSurface());
 }
 
-TEST_F( DirectDrawSurfaceTest, GivenEmptyFile_WhenLoaded_ThrowsBadFile )
+TEST_F(DirectDrawSurfaceTest, Height)
 {
-    EXPECT_THROW( dds.load( fileIn ), DirectDrawSurface::BadFile );
+    DirectDrawSurface dds{ 0 };
+    const auto height(dds.header.height = 4);
+
+    EXPECT_EQ(height, dds.getHeight());
 }
 
-TEST_F( DirectDrawSurfaceTest, GivenFileWithInvalidMagic_WhenLoaded_ThrowsInvalidType )
+TEST_F(DirectDrawSurfaceTest, Width)
 {
-    writeFileHeaderWithBadMagic();
+    DirectDrawSurface dds{ 0 };
+    const auto width(dds.header.width = 4);
 
-    EXPECT_THROW( dds.load( fileIn ), DirectDrawSurface::InvalidType );
-}
-TEST_F( DirectDrawSurfaceTest, GivenValidFile_WhenLoaded_ReadsFile )
-{
-    loadDirectDrawSurfaceFromFile();
-
-    EXPECT_FALSE( hasUnreadData( fileIn ));
-}
-
-TEST_F( DirectDrawSurfaceTest, WhenNotLoaded_EvaluatesToFalse )
-{
-    EXPECT_FALSE( dds );
-}
-
-TEST_F( DirectDrawSurfaceTest, WhenFileFailedToLoad_EvaluatesToFalse )
-{
-    writeFileHeader();
-
-    EXPECT_THROW( dds.load( fileIn ), DirectDrawSurface::BadFile );
-    EXPECT_FALSE( dds );
-}
-
-TEST_F( DirectDrawSurfaceTest, WhenFileIsLoaded_HeightIsGettable )
-{
-    loadDirectDrawSurfaceFromFile();
-
-    EXPECT_EQ( 4, dds.getHeight() );
-}
-
-TEST_F( DirectDrawSurfaceTest, WhenFileIsLoaded_WidthIsGettable )
-{
-    loadDirectDrawSurfaceFromFile();
-
-    EXPECT_EQ( 4, dds.getWidth() );
+    EXPECT_EQ(width, dds.getWidth());
 }
 
 TEST_F( DirectDrawSurfaceTest, WhenFileIsLoaded_SurfaceIsGettable )
 {
-    loadDirectDrawSurfaceFromFile();
+    auto dds(loadDirectDrawSurfaceFromFile());
 
     EXPECT_EQ( 2, dds.getSurface().size() );
 }
 
 TEST_F( DirectDrawSurfaceTest, GivenBadFile_WhenSaved_ThrowsBadFile )
 {
-    makeBadFile( fileOut );
+    auto file(makeBadFile());
 
-    EXPECT_THROW( dds.save( fileOut ), DirectDrawSurface::BadFile );
+    EXPECT_THROW( DirectDrawSurface().save( file ), DirectDrawSurface::BadFile );
 }
 
 TEST_F( DirectDrawSurfaceTest, GivenDirectDrawSurfaceIsNotLoaded_WhenSaved_ThrowsInvalidType )
 {
-    EXPECT_THROW( dds.save( fileOut ), DirectDrawSurface::InvalidType );
+    EXPECT_THROW( DirectDrawSurface().save( fileOut ), DirectDrawSurface::InvalidType );
 }
 
 TEST_F( DirectDrawSurfaceTest, GivenDirectDrawSurfaceIsLoaded_WhenSaved_WritesFile )
 {
-    loadDirectDrawSurfaceFromFile();
+    auto dds(loadDirectDrawSurfaceFromFile());
     rewindFile();
 
     dds.save( fileOut );

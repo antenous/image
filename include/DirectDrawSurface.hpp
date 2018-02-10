@@ -35,16 +35,6 @@ namespace image
         explicit operator bool() const;
 
         /**
-            Load a direct draw surface image from a file
-
-            @param file File to load the image from
-
-            @throw BadFile if unable to load from the file
-            @throw InvalidType if file is not a direct draw surface image
-        */
-        void load( std::istream & file );
-
-        /**
             Save the loaded image to a file
 
             @param file File to load to
@@ -76,22 +66,13 @@ namespace image
         Surface getSurface() const;
 
     private:
-        friend class ImageConverter;
-
-        void readMagic( std::istream & file );
-
-        void readHeader( std::istream & file );
-
-        void readSurfaceData( std::istream & file );
-
-        uint32_t countSurfaceBlocks() const;
-
         void writeMagic( std::ostream & file ) const;
 
         void writeHeader( std::ostream & file ) const;
 
         void writeSurfaceData( std::ostream & file ) const;
 
+    public:
         uint32_t magic{ 0 };
 
         struct

@@ -1,4 +1,5 @@
 /*
+ * @file include/DirectDrawSurfaceReader.hpp
  * DirectDrawSurfaceReader.hpp
  *
  *  Created on: Dec 17, 2017
@@ -16,6 +17,10 @@ namespace image
     class DirectDrawSurfaceReader
     {
     public:
+        class BadFile;
+
+        class InvalidType;
+
         /**
             Read a direct draw surface image from the stream
 
@@ -23,6 +28,18 @@ namespace image
             @throw InvalidType if the stream does not contain a direct draw surface image
         */
         static DirectDrawSurface read(std::istream && from);
+    };
+
+    class DirectDrawSurfaceReader::BadFile : public std::invalid_argument
+    {
+    public:
+        BadFile();
+    };
+
+    class DirectDrawSurfaceReader::InvalidType : public std::runtime_error
+    {
+    public:
+        InvalidType();
     };
 
 }
