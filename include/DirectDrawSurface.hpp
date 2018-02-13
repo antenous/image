@@ -9,7 +9,8 @@
 #ifndef DIRECTDRAWSURFACE_HPP_
 #define DIRECTDRAWSURFACE_HPP_
 
-#include <stdexcept>
+#include <cstdint>
+#include <sys/types.h>
 #include <vector>
 
 namespace image
@@ -21,61 +22,28 @@ namespace image
     class DirectDrawSurface
     {
     public:
-        class BadFile;
+        using Magic = uint32_t;
 
-        class InvalidType;
-
-        typedef std::vector< uint32_t > Surface;
+        using Data = std::vector<uint32_t>;
 
         /**
-            Check if holds a valid direct draw surface image
-
-            @return true if holds a valid direct draw surface image
+            Return true if image is valid
         */
         explicit operator bool() const;
 
         /**
-            Save the loaded image to a file
-
-            @param file File to load to
-
-            @throw BadFile if unable to save to the file
-            @throw InvalidType if the direct draw surface has not been loaded
-        */
-        void save( std::ostream & file ) const;
-
-        /**
             Return height of the image
-
-            @return Height of the image
         */
-        uint32_t getHeight() const;
+        uint32_t height() const;
 
         /**
-             Return width of the image
-
-             @return Width of the image
+            Return width of the image
         */
-        uint32_t getWidth() const;
+        uint32_t width() const;
 
-        /**
-            Return the image surface data
+        Magic magic{ 0 };
 
-            @return Surface data
-        */
-        Surface getSurface() const;
-
-    private:
-        void writeMagic( std::ostream & file ) const;
-
-        void writeHeader( std::ostream & file ) const;
-
-        void writeSurfaceData( std::ostream & file ) const;
-
-    public:
-        uint32_t magic{ 0 };
-
-        struct
+        struct Header
         {
             uint32_t size;
             uint32_t flags;
@@ -86,7 +54,7 @@ namespace image
             uint32_t mipmaps;
             uint32_t reserved1[11];
 
-            struct
+            struct PixelFormat
             {
                 uint32_t size;
                 uint32_t flags;
@@ -105,23 +73,7 @@ namespace image
             uint32_t reserved2;
         } header;
 
-        Surface surface;
-    };
-
-    class DirectDrawSurface::BadFile : public std::runtime_error
-    {
-    public:
-        BadFile() :
-            std::runtime_error( "bad file" )
-        {}
-    };
-
-    class DirectDrawSurface::InvalidType : public std::runtime_error
-    {
-    public:
-        InvalidType() :
-            std::runtime_error( "invalid type" )
-        {}
+        Data data;
     };
 
 }

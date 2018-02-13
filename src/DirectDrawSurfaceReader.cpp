@@ -12,17 +12,17 @@ using namespace image;
 
 namespace
 {
-    void read(std::istream & from, uint32_t & magic)
+    void read(std::istream & from, DirectDrawSurface::Magic & magic)
     {
         Reader::read(from, magic);
     }
 
-    void read(std::istream & from, decltype(DirectDrawSurface::header) & header)
+    void read(std::istream & from, DirectDrawSurface::Header & header)
     {
         Reader::read(from, header);
     }
 
-    void read(std::istream & from, decltype(DirectDrawSurface::surface) & data, uint32_t size)
+    void read(std::istream & from, DirectDrawSurface::Data & data, uint32_t size)
     {
         data.resize(size/4);
         from.read(reinterpret_cast<char*>(data.data()), size);
@@ -33,7 +33,7 @@ namespace
         colors = (colors << 16)|(colors >> 16);
     }
 
-    void rearrangeReferenceColors(decltype(DirectDrawSurface::surface) & data)
+    void rearrangeReferenceColors(DirectDrawSurface::Data & data)
     {
         for (auto first(data.begin()), last(data.end()); first != last; std::advance(first, 2))
             rearrangeReferenceColors(*first);
@@ -48,8 +48,8 @@ namespace
             throw DirectDrawSurfaceReader::InvalidType();
 
         read(from, dds.header);
-        read(from, dds.surface, dds.header.pitch);
-        rearrangeReferenceColors(dds.surface);
+        read(from, dds.data, dds.header.pitch);
+        rearrangeReferenceColors(dds.data);
 
         return dds;
     }

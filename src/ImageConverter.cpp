@@ -27,7 +27,7 @@ DirectDrawSurface ImageConverter::convert( const Bitmap & bmp )
 
 void ImageConverter::convertData( DirectDrawSurface & dds, const Bitmap & bmp )
 {
-    dds.surface = BlockCompressor::compress(
+    dds.data = BlockCompressor::compress(
         ColorPalette::rearrangeForDirectDrawSurface( bmp.height(), bmp.width(),
         ColorDepth::trueToHigh( bmp.colors() )));
 }
@@ -40,7 +40,7 @@ void ImageConverter::createFileHeader( DirectDrawSurface & dds, const Bitmap & b
     dds.header.flags = 0x1 | 0x2 | 0x4 | 0x1000;
     dds.header.height = bmp.height();
     dds.header.width = bmp.width();
-    dds.header.pitch = dds.surface.size() * 4;
+    dds.header.pitch = dds.data.size() * 4;
     dds.header.caps = 0x1000;
 
     dds.header.pixelFormat.size = 32;
@@ -67,8 +67,8 @@ Bitmap ImageConverter::convert( const DirectDrawSurface & dds )
 void ImageConverter::convertData( Bitmap & bmp, const DirectDrawSurface & dds )
 {
     bmp.colors(ColorDepth::highToTrue(
-        ColorPalette::rearrangeForBitmap( dds.getHeight(), dds.getWidth(),
-        BlockCompressor::decompress( dds.getSurface() ))));
+        ColorPalette::rearrangeForBitmap( dds.height(), dds.width(),
+        BlockCompressor::decompress( dds.data ))));
 }
 
 void ImageConverter::createInfoHeader( Bitmap & bmp, const DirectDrawSurface & dds )
@@ -76,12 +76,12 @@ void ImageConverter::createInfoHeader( Bitmap & bmp, const DirectDrawSurface & d
     memset( &bmp.infoHeader, 0, sizeof( bmp.infoHeader ));
 
     bmp.infoHeader.size = 40;
-    bmp.infoHeader.width = dds.getWidth();
-    bmp.infoHeader.height = dds.getHeight();
+    bmp.infoHeader.width = dds.width();
+    bmp.infoHeader.height = dds.height();
     bmp.infoHeader.planes = 1;
     bmp.infoHeader.bits = 24;
 
-    bmp.infoHeader.imageSize = (3*dds.getWidth() + bmp.padding())*dds.getHeight();
+    bmp.infoHeader.imageSize = (3*dds.width() + bmp.padding())*dds.height();
 }
 
 void ImageConverter::createFileHeader( Bitmap & bmp )

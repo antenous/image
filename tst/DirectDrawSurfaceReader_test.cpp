@@ -32,7 +32,7 @@ namespace
         return toTuple<N>(array, std::make_integer_sequence<std::size_t, N>());
     }
 
-    auto toTuple(const decltype(DirectDrawSurface::header.pixelFormat) & pixelFormat)
+    auto toTuple(const DirectDrawSurface::Header::PixelFormat & pixelFormat)
     {
         return std::tuple_cat(
             std::make_tuple(
@@ -47,7 +47,7 @@ namespace
                 pixelFormat.alphaBitMask));
     }
 
-    auto toTuple(const decltype(DirectDrawSurface::header) & header)
+    auto toTuple(const DirectDrawSurface::Header & header)
     {
         return std::tuple_cat(
             std::make_tuple(
@@ -68,12 +68,12 @@ namespace
                 header.reserved2));
     }
 
-    auto toTuple(const decltype(DirectDrawSurface::surface) & surface)
+    auto toTuple(const DirectDrawSurface::Data & data)
     {
         return std::make_tuple(
-            static_cast<uint16_t>((surface.at(0) >> 16) & 0xffff),
-            static_cast<uint16_t>(surface.at(0) & 0xffff),
-            surface.at(1));
+            static_cast<uint16_t>((data.at(0) >> 16) & 0xffff),
+            static_cast<uint16_t>(data.at(0) & 0xffff),
+            data.at(1));
     }
 
     auto toTuple(const DirectDrawSurface & dds)
@@ -81,7 +81,7 @@ namespace
         return std::tuple_cat(
             toTuple(dds.magic),
             toTuple(dds.header),
-            toTuple(dds.surface));
+            toTuple(dds.data));
     }
 
     class DirectDrawSurfaceReaderTest : public Test

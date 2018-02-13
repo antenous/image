@@ -7,12 +7,82 @@
 
 #include "DirectDrawSurfaceWriter.hpp"
 #include <gtest/gtest.h>
+#include "Writer.hpp"
 
 using namespace image;
 using namespace testing;
 
 namespace
 {
+    auto toTuple(uint32_t magic)
+    {
+        return std::make_tuple(magic);
+    }
+
+    template<std::size_t N, typename Array, std::size_t... I>
+    auto toTuple(Array array[N], std::integer_sequence<std::size_t, I...>)
+    {
+        return std::make_tuple(array[I]...);
+    }
+
+    template<std::size_t N, typename Array>
+    auto toTuple(Array array[N])
+    {
+        return toTuple<N>(array, std::make_integer_sequence<std::size_t, N>());
+    }
+
+    auto toTuple(const DirectDrawSurface::Header::PixelFormat & pixelFormat)
+    {
+        return std::tuple_cat(
+            std::make_tuple(
+                pixelFormat.size,
+                pixelFormat.flags),
+            toTuple<4>(pixelFormat.fourCC),
+            std::make_tuple(
+                pixelFormat.bits,
+                pixelFormat.redBitMask,
+                pixelFormat.greenBitMask,
+                pixelFormat.blueBitMask,
+                pixelFormat.alphaBitMask));
+    }
+
+    auto toTuple(const DirectDrawSurface::Header & header)
+    {
+        return std::tuple_cat(
+            std::make_tuple(
+                header.size,
+                header.flags,
+                header.height,
+                header.width,
+                header.pitch,
+                header.depth,
+                header.mipmaps),
+            toTuple<11>(header.reserved1),
+            toTuple(header.pixelFormat),
+            std::make_tuple(
+                header.caps,
+                header.caps2,
+                header.caps3,
+                header.caps4,
+                header.reserved2));
+    }
+
+    auto toTuple(const DirectDrawSurface::Data & data)
+    {
+        return std::make_tuple(
+            static_cast<uint16_t>((data.at(0) >> 16) & 0xffff),
+            static_cast<uint16_t>(data.at(0) & 0xffff),
+            data.at(1));
+    }
+
+    auto toTuple(const DirectDrawSurface & dds)
+    {
+        return std::tuple_cat(
+            toTuple(dds.magic),
+            toTuple(dds.header),
+            toTuple(dds.data));
+    }
+
     class DirectDrawSurfaceWriterTest : public Test
     {
     protected:
@@ -22,10 +92,72 @@ namespace
             file.setstate(std::ios::badbit);
             return file;
         }
+
+        std::stringstream makeFile(const DirectDrawSurface & dds) const
+        {
+            std::stringstream file;
+            Writer::write(file, toTuple(dds));
+            return file;
+        }
+
+        AssertionResult Equal(std::istream && left, std::istream & right)
+        {
+            return std::equal(
+                std::istreambuf_iterator<char>(left), std::istreambuf_iterator<char>(),
+                std::istreambuf_iterator<char>(right)) ?
+                    AssertionSuccess() : AssertionFailure();
+        }
+
+        DirectDrawSurface dds{
+              0x20534444,
+            { 124, 0x1 | 0x2 | 0x4 | 0x1000, 4, 4, 8, 0, 0, { 0 },
+            { 32, 0x4, { 'D', 'X', 'T', '1' }, 0, 0 },
+              0x1000, 0, 0, 0, 0 },
+            { 0xffffU << 16 | 0x1fU,
+              0b00000000U << 24 |
+              0b00000000U << 16 |
+              0b00000101U << 8  |
+              0b00000101U }};
     };
+}
+
+TEST_F(DirectDrawSurfaceWriterTest, CanThrowAndCatchBadFile)
+{
+    try
+    {
+        throw DirectDrawSurfaceWriter::BadFile();
+    }
+    catch (const std::invalid_argument & e)
+    {
+        EXPECT_STREQ("bad file", e.what());
+    }
 }
 
 TEST_F(DirectDrawSurfaceWriterTest, GivenBadFile_WhenWritten_ThrowsBadFile)
 {
-    EXPECT_THROW(DirectDrawSurfaceWriter::write(makeBadFile(), DirectDrawSurface()), DirectDrawSurface::BadFile);
+    EXPECT_THROW(DirectDrawSurfaceWriter::write(makeBadFile(), dds), DirectDrawSurfaceWriter::BadFile);
+}
+
+TEST_F(DirectDrawSurfaceWriterTest, CanThrowAndCatchInvalidType)
+{
+    try
+    {
+        throw DirectDrawSurfaceWriter::InvalidType();
+    }
+    catch (const std::invalid_argument & e)
+    {
+        EXPECT_STREQ("invalid type", e.what());
+    }
+}
+
+TEST_F(DirectDrawSurfaceWriterTest, GivenInvalidDirectDrawSurface_WhenWritten_ThrowsInvalidType)
+{
+    EXPECT_THROW(DirectDrawSurfaceWriter::write(std::ostringstream(), DirectDrawSurface()), DirectDrawSurfaceWriter::InvalidType);
+}
+
+TEST_F(DirectDrawSurfaceWriterTest, GivenValidDirectDrawSurface_WhenWritten_WritesFile)
+{
+    std::stringstream file;
+    DirectDrawSurfaceWriter::write(std::move(file), dds);
+    EXPECT_TRUE(Equal(makeFile(dds), file));
 }

@@ -12,6 +12,7 @@
 #include "BitmapWriter.hpp"
 #include "ColorDepth.hpp"
 #include "DirectDrawSurfaceReader.hpp"
+#include "DirectDrawSurfaceWriter.hpp"
 
 using namespace image;
 using namespace testing;
@@ -215,7 +216,7 @@ TEST_F( ImageConverterTest, ConvertBitmap )
     auto expected( makeDirectDrawSurfaceFile() );
 
     std::stringstream result;
-    ImageConverter::convert( makeBitmap() ).save( result );
+    DirectDrawSurfaceWriter::write(std::move(result), ImageConverter::convert(makeBitmap()));
 
     EXPECT_TRUE( filesAreEqual( expected, result ));
 }
