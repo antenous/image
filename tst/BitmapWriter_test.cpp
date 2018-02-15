@@ -91,11 +91,12 @@ TEST_F(BitmapWriterTest, CanThrowAndCatchBadFile)
 {
     try
     {
-        throw BitmapWriter::BadFile();
+        throw new BitmapWriter::BadFile();
     }
-    catch (const std::invalid_argument & e)
+    catch (const std::invalid_argument * e)
     {
-        EXPECT_STREQ("bad file", e.what());
+        EXPECT_STREQ("bad file", e->what());
+        delete e;
     }
 }
 
@@ -108,11 +109,12 @@ TEST_F(BitmapWriterTest, CanThrowAndCatchInvalidType)
 {
     try
     {
-        throw BitmapWriter::InvalidType();
+        throw new BitmapWriter::InvalidType();
     }
-    catch (const std::invalid_argument & e)
+    catch (const std::invalid_argument * e)
     {
-        EXPECT_STREQ("invalid type", e.what());
+        EXPECT_STREQ("invalid type", e->what());
+        delete e;
     }
 }
 

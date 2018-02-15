@@ -6,48 +6,75 @@
  */
 
 #include "ColorDepth.hpp"
+#include <algorithm>
 #include <initializer_list>
 
 using namespace image;
 
 namespace
 {
-    uint8_t downscaleSubColor( uint32_t color, uint8_t bits )
+    ColorDepth::SampleColor downscaleSample(ColorDepth::TrueColor color, uint8_t bits)
     {
-        return ( color & 0xff ) >> ( 8 - bits );
+        return (color & 0xff)>>(8 - bits);
     }
 
-    uint8_t upscaleSubColor( uint16_t color, uint8_t bits )
+    ColorDepth::HighColor trueToHigh(ColorDepth::TrueColor trueColor)
     {
-        const uint8_t subColor(( color << ( 8 - bits )) & 0xff );
-        return subColor | ( subColor >> bits );
+        ColorDepth::HighColor highColor(0);
+
+        for (auto bitsToKeep : { 5, 6, 5 })
+        {
+            highColor <<= bitsToKeep;
+            highColor |= downscaleSample(trueColor, bitsToKeep);
+            trueColor >>= 8;
+        }
+
+        return highColor;
+    }
+
+    ColorDepth::SampleColor upscaleSample(ColorDepth::HighColor color, uint8_t bits)
+    {
+        const ColorDepth::SampleColor sample((color << (8 - bits)) & 0xff);
+        return sample | (sample >> bits);
+    }
+
+    ColorDepth::TrueColor highToTrue(ColorDepth::HighColor highColor)
+    {
+        ColorDepth::TrueColor trueColor(0);
+
+        for (auto bitsToKeep : { 5, 6, 5 })
+        {
+            trueColor <<= 8;
+            trueColor |= upscaleSample(highColor, bitsToKeep);
+            highColor >>= bitsToKeep;
+        }
+
+        return trueColor;
     }
 }
 
-uint16_t ColorDepth::trueToHigh( uint32_t trueColor )
+std::vector<ColorDepth::HighColor> ColorDepth::trueToHigh(const std::vector<TrueColor> & in)
 {
-    uint16_t highColor( 0 );
+    std::vector<HighColor> out;
+    out.reserve(in.size());
 
-    for ( auto bitsToKeep : { 5, 6, 5 })
+    std::transform(in.begin(), in.end(), std::back_inserter(out),[](TrueColor color)
     {
-        highColor <<= bitsToKeep;
-        highColor |= downscaleSubColor( trueColor, bitsToKeep );
-        trueColor >>= 8;
-    }
+        return ::trueToHigh(color);
+    });
 
-    return highColor;
+    return out;
 }
 
-uint32_t ColorDepth::highToTrue( uint16_t highColor )
+std::vector<ColorDepth::TrueColor> ColorDepth::highToTrue(const std::vector<HighColor> & in)
 {
-    uint32_t trueColor( 0 );
+    std::vector<TrueColor> out;
+    out.reserve(in.size());
 
-    for ( auto bitsToKeep : { 5, 6, 5 })
+    std::transform(in.begin(), in.end(), std::back_inserter(out),[](HighColor color)
     {
-        trueColor <<= 8;
-        trueColor |= upscaleSubColor( highColor, bitsToKeep );
-        highColor >>= bitsToKeep;
-    }
+        return ::highToTrue(color);
+    });
 
-    return trueColor;
+    return out;
 }

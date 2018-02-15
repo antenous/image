@@ -198,11 +198,12 @@ TEST_F( ImageConverterTest, CanThrowAndCatchBadBitmap )
 {
     try
     {
-        throw ImageConverter::BadBitmap();
+        throw new ImageConverter::BadBitmap();
     }
-    catch ( const std::runtime_error & e )
+    catch ( const std::runtime_error * e )
     {
-        EXPECT_STREQ( "bad bitmap", e.what() );
+        EXPECT_STREQ( "bad bitmap", e->what() );
+        delete e;
     }
 }
 
@@ -225,11 +226,12 @@ TEST_F( ImageConverterTest, CanThrowAndCatchBadDirectDrawSurface )
 {
     try
     {
-        throw ImageConverter::BadDirectDrawSurface();
+        throw new ImageConverter::BadDirectDrawSurface();
     }
-    catch ( const std::runtime_error & e )
+    catch ( const std::runtime_error * e )
     {
-        EXPECT_STREQ( "bad direct draw surface", e.what() );
+        EXPECT_STREQ( "bad direct draw surface", e->what() );
+        delete e;
     }
 }
 

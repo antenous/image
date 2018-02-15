@@ -134,18 +134,19 @@ namespace image
 
     bool operator==(const DirectDrawSurface & lhs, const DirectDrawSurface & rhs)
     {
-        return toTuple(lhs) == toTuple(rhs);
+        return PrintToString(lhs) == PrintToString(rhs);
     }
 }
 TEST_F(DirectDrawSurfaceReaderTest, CanThrowAndCatchBadFile)
 {
     try
     {
-        throw DirectDrawSurfaceReader::BadFile();
+        throw new DirectDrawSurfaceReader::BadFile();
     }
-    catch (const std::invalid_argument & e)
+    catch (const std::invalid_argument * e)
     {
-        EXPECT_STREQ("bad file", e.what());
+        EXPECT_STREQ("bad file", e->what());
+        delete e;
     }
 }
 
@@ -163,11 +164,12 @@ TEST_F(DirectDrawSurfaceReaderTest, CanThrowAndCatchInvalidType)
 {
     try
     {
-        throw DirectDrawSurfaceReader::InvalidType();
+        throw new DirectDrawSurfaceReader::InvalidType();
     }
-    catch (const std::runtime_error & e)
+    catch (const std::runtime_error * e)
     {
-        EXPECT_STREQ("invalid type", e.what());
+        EXPECT_STREQ("invalid type", e->what());
+        delete e;
     }
 }
 

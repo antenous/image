@@ -125,11 +125,12 @@ TEST_F(DirectDrawSurfaceWriterTest, CanThrowAndCatchBadFile)
 {
     try
     {
-        throw DirectDrawSurfaceWriter::BadFile();
+        throw new DirectDrawSurfaceWriter::BadFile();
     }
-    catch (const std::invalid_argument & e)
+    catch (const std::invalid_argument * e)
     {
-        EXPECT_STREQ("bad file", e.what());
+        EXPECT_STREQ("bad file", e->what());
+        delete e;
     }
 }
 
@@ -142,11 +143,12 @@ TEST_F(DirectDrawSurfaceWriterTest, CanThrowAndCatchInvalidType)
 {
     try
     {
-        throw DirectDrawSurfaceWriter::InvalidType();
+        throw new DirectDrawSurfaceWriter::InvalidType();
     }
-    catch (const std::invalid_argument & e)
+    catch (const std::invalid_argument * e)
     {
-        EXPECT_STREQ("invalid type", e.what());
+        EXPECT_STREQ("invalid type", e->what());
+        delete e;
     }
 }
 

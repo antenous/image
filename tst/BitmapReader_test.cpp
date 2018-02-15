@@ -113,7 +113,7 @@ namespace image
 
     bool operator==(const Bitmap & lhs, const Bitmap & rhs)
     {
-        return toTuple(lhs) == toTuple(rhs);
+        return PrintToString(lhs) == PrintToString(rhs);
     }
 }
 
@@ -121,11 +121,12 @@ TEST_F(BitmapReaderTest, CanThrowAndCatchBadFile)
 {
     try
     {
-        throw BitmapReader::BadFile();
+        throw new BitmapReader::BadFile();
     }
-    catch (const std::invalid_argument & e)
+    catch (const std::invalid_argument * e)
     {
-        EXPECT_STREQ("bad file", e.what());
+        EXPECT_STREQ("bad file", e->what());
+        delete e;
     }
 }
 
@@ -143,11 +144,12 @@ TEST_F(BitmapReaderTest, CanThrowAndCatchInvalidType)
 {
     try
     {
-        throw BitmapReader::InvalidType();
+        throw new BitmapReader::InvalidType();
     }
-    catch (const std::runtime_error & e)
+    catch (const std::runtime_error * e)
     {
-        EXPECT_STREQ("invalid type", e.what());
+        EXPECT_STREQ("invalid type", e->what());
+        delete e;
     }
 }
 

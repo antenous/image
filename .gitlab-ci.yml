@@ -17,4 +17,4 @@ test:
   script:
     - ./configure --enable-code-coverage
     - make check
-    - gcovr -sr .
+    - gcovr -sr . -e '.*/main.cpp' -e '.*/\.'

@@ -35,11 +35,12 @@ TEST_F( ColorPaletteTest, CanThrowAndCatchBadDimensions )
 {
     try
     {
-        throw ColorPalette::BadDimensions();
+        throw new ColorPalette::BadDimensions();
     }
-    catch ( const std::runtime_error & e )
+    catch ( const std::runtime_error * e )
     {
-        EXPECT_STREQ( "bad dimensions", e.what() );
+        EXPECT_STREQ( "bad dimensions", e->what() );
+        delete e;
     }
 }
 

@@ -44,11 +44,12 @@ TEST_F( BlockCompressorTest, CanThrowAndCatchBadSize )
 {
     try
     {
-        throw BlockCompressor::BadSize();
+        throw new BlockCompressor::BadSize();
     }
-    catch ( const std::runtime_error & e )
+    catch ( const std::runtime_error * e )
     {
-        EXPECT_STREQ( "bad size", e.what() );
+        EXPECT_STREQ( "bad size", e->what() );
+        delete e;
     }
 }
 
