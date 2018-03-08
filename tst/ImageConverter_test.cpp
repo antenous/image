@@ -170,12 +170,6 @@ namespace
                 std::istreambuf_iterator< char >( b ));
         }
 
-        const std::vector< uint16_t > original{{
-            131, 170, 241, 313,
-            282, 281, 162, 161,
-            221, 313, 131, 222,
-            250, 132, 312, 190 }};
-
         const uint32_t referenceColors{ 313 << 16 | 131 };
 
         const uint32_t lookup{

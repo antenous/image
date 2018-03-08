@@ -17,26 +17,36 @@ namespace
     {
     protected:
         const std::vector<uint16_t> original{{
-            131, 170, 241, 313,
-            282, 281, 162, 161,
-            221, 313, 131, 222,
-            250, 132, 312, 190 }};
+            50005, 54321, 54516, 54533,
+            47586, 50001, 45316, 45333,
+            47586, 54321, 45316, 45333,
+            50005, 50001, 54516, 54533 }};
 
-        const uint32_t referenceColors{ 313 << 16 | 131 };
+        const std::vector<uint32_t> compressed{{
+            54533U << 16 | 45316,
+            0b00000010 << 24 |
+            0b01011011 << 16 |
+            0b01010011 <<  8 |
+            0b00001010 <<  0 }};
 
-        const uint32_t lookup{
-            (0 << 6 | 2 << 4 | 3 << 2 | 1) << 24 |
-            (3 << 6 | 3 << 4 | 0 << 2 | 0) << 16 |
-            (2 << 6 | 1 << 4 | 0 << 2 | 2) <<  8 |
-            (3 << 6 | 0 << 4 | 1 << 2 | 2)};
-
-        const std::vector<uint32_t> compressed{{ referenceColors, lookup }};
+        const std::vector<uint32_t> compressedAlpha{{
+            45316U << 16 | 54533,
+            0b01010111 << 24 |
+            0b00001110 << 16 |
+            0b00000110 <<  8 |
+            0b01011111 <<  0 }};
 
         const std::vector<uint16_t> uncompressed{{
-            131, 170, 241, 313,
-            313, 313, 170, 170,
-            241, 313, 131, 241,
-            241, 131, 313, 170 }};
+            50084, 54533, 54533, 54533,
+            47683, 50084, 45316, 45316,
+            47683, 54533, 45316, 45316,
+            50084, 50084, 54533, 54533 }};
+
+        const std::vector<uint16_t> uncompressedAlpha{{
+            65535, 54533, 54533, 54533,
+            49924, 65535, 45316, 45316,
+            49924, 54533, 45316, 45316,
+            65535, 65535, 54533, 54533 }};
     };
 }
 
@@ -73,4 +83,9 @@ TEST_F(BlockCompressorTest, GivenRangeSizeNotMultipleOfTwo_WhenDecompressed_Thro
 TEST_F(BlockCompressorTest, Decompress)
 {
     EXPECT_EQ(uncompressed, BlockCompressor::decompress(compressed));
+}
+
+TEST_F(BlockCompressorTest, DecompressAlpha)
+{
+    EXPECT_EQ(uncompressedAlpha, BlockCompressor::decompress(compressedAlpha));
 }

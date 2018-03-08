@@ -8,6 +8,7 @@
 #include "BlockCompressor.hpp"
 #include <algorithm>
 #include <array>
+#include <tuple>
 
 using namespace image;
 
@@ -36,14 +37,18 @@ namespace
         return interpolate(red, a, b) | interpolate(green, a, b) | interpolate(blue, a, b);
     }
 
+    std::pair<uint16_t, uint16_t> interpolate(const Color & color)
+    {
+        return { interpolate(color[0], color[1]), interpolate(color[1], color[0]) };
+    }
+
     template<typename InputIterator>
     Color createColorTable(InputIterator first, InputIterator last)
     {
         Color color;
         color[0] = *std::max_element(first, last);
         color[1] = *std::min_element(first, last);
-        color[2] = interpolate(color[0], color[1]);
-        color[3] = interpolate(color[1], color[0]);
+        std::tie(color[2], color[3]) = interpolate(color);
         return color;
     }
 
@@ -103,13 +108,32 @@ std::vector<uint32_t> BlockCompressor::compress(const std::vector<uint16_t> & in
 
 namespace
 {
+    bool hasAlpha(const Color & color)
+    {
+        return color[0] <= color[1];
+    }
+
+    uint16_t blend(Mask mask, uint16_t a, uint16_t b)
+    {
+        return ((a & mask)/2 + (b & mask)/2) & mask;
+    }
+
+    uint16_t blend(uint16_t a, uint16_t b)
+    {
+        return blend(red, a, b) | blend(green, a, b) | blend(blue, a, b);
+    }
+
+    std::pair<uint16_t, uint16_t> blend(const Color & color)
+    {
+        return { blend(color[0], color[1]), 0xffff };
+    }
+
     Color recreateColorTable(uint32_t referenceColors)
     {
         Color color;
         color[0] = referenceColors >> 16;
         color[1] = referenceColors & 0xffff;
-        color[2] = interpolate(color[0], color[1]);
-        color[3] = interpolate(color[1], color[0]);
+        std::tie(color[2], color[3]) = hasAlpha(color) ? blend(color) : interpolate(color);
         return color;
     }
 
