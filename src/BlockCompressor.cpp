@@ -6,83 +6,141 @@
  */
 
 #include "BlockCompressor.hpp"
+#include <algorithm>
+#include <array>
 
 using namespace image;
 
+BlockCompressor::BadSize::BadSize() :
+    std::invalid_argument("bad size")
+{}
+
 namespace
 {
-    uint8_t red( uint16_t color )
+    using Color = std::array<uint16_t, 4>;
+
+    enum Mask: uint16_t
     {
-        return color >> 11;
+        red   = 0xf800,
+        green = 0x7e0,
+        blue  = 0x1f
+    };
+
+    uint16_t interpolate(Mask mask, uint16_t a, uint16_t b)
+    {
+        return (2*(a & mask)/3 + (b & mask)/3) & mask;
     }
 
-    uint16_t red( uint8_t color )
+    uint16_t interpolate(uint16_t a, uint16_t b)
     {
-        return color << 11;
+        return interpolate(red, a, b) | interpolate(green, a, b) | interpolate(blue, a, b);
     }
 
-    uint8_t green( uint16_t color )
+    template<typename InputIterator>
+    Color createColorTable(InputIterator first, InputIterator last)
     {
-        return ( color >> 5 ) & 0x3f;
+        Color color;
+        color[0] = *std::max_element(first, last);
+        color[1] = *std::min_element(first, last);
+        color[2] = interpolate(color[0], color[1]);
+        color[3] = interpolate(color[1], color[0]);
+        return color;
     }
 
-    uint16_t green( uint8_t color )
+    uint32_t referenceColors(const Color & color)
     {
-        return ( color & 0x3f ) << 5;
+        return color[0] << 16 | color[1];
     }
 
-    uint8_t blue( uint16_t color )
+    uint8_t findNearest(const Color & color, uint16_t ref)
     {
-        return color & 0x1f;
+        const auto nearest = [ref](auto x, auto y){ return std::abs(x - ref) < std::abs(y - ref); };
+        return std::distance(color.begin(), std::min_element(color.begin(), color.end(), nearest));
     }
 
-    uint16_t blue( uint8_t color )
+    template<typename InputIterator>
+    uint32_t createLookupTable(const Color & color, InputIterator first, InputIterator last)
     {
-        return color & 0x1f;
+        uint32_t lookup(0);
+
+        for (int y(24); first != last; y -= 8)
+            for (unsigned x(0); x < 8; x += 2)
+                lookup |= findNearest(color, *first++) << y << x;
+
+        return lookup;
     }
 
-    uint8_t interpolate( uint8_t lhs, uint8_t rhs )
+    template<typename InputIterator, typename OutputIterator>
+    OutputIterator compressBlock(InputIterator first, InputIterator last, OutputIterator result)
     {
-        return 2*lhs/3 + rhs/3;
+        const auto color(createColorTable(first, last));
+        *result++ = referenceColors(color);
+        *result++ = createLookupTable(color, first, last);
+        return result;
+    }
+
+    template<typename InputIterator, typename OutputIterator>
+    OutputIterator compress(InputIterator first, InputIterator last, OutputIterator result)
+    {
+        for (; first != last; std::advance(first, 16))
+            result = compressBlock(first, std::next(first, 16), result);
+
+        return result;
     }
 }
 
-uint16_t BlockCompressor::interpolate( uint16_t lhs, uint16_t rhs )
+std::vector<uint32_t> BlockCompressor::compress(const std::vector<uint16_t> & in)
 {
-    return
-        red(   ::interpolate( red(   lhs ), red(   rhs ))) +
-        green( ::interpolate( green( lhs ), green( rhs ))) +
-        blue(  ::interpolate( blue(  lhs ), blue(  rhs )));
+    if (in.size() == 0 || in.size() % 16 != 0)
+        throw BadSize();
+
+    std::vector<uint32_t> out;
+    out.reserve(in.size()/16*2);
+    ::compress(in.begin(), in.end(), std::back_inserter(out));
+
+    return out;
 }
 
-uint32_t BlockCompressor::referenceColors( const Color & color )
+namespace
 {
-    return color[0] << 16 | color[1];
+    Color recreateColorTable(uint32_t referenceColors)
+    {
+        Color color;
+        color[0] = referenceColors >> 16;
+        color[1] = referenceColors & 0xffff;
+        color[2] = interpolate(color[0], color[1]);
+        color[3] = interpolate(color[1], color[0]);
+        return color;
+    }
+
+    template<typename OutputIterator>
+    OutputIterator decompress(const Color & color, uint32_t lookup, OutputIterator result)
+    {
+        for (int y(24); y >= 0; y -= 8)
+            for (unsigned x(0); x < 8; x += 2)
+                *result++ = color[((lookup >> y >> x) & 0b11)];
+
+        return result;
+    }
+
+    template<typename InputIterator, typename OutputIterator>
+    OutputIterator decompress(InputIterator first, InputIterator last, OutputIterator result)
+    {
+        for (; first != last; std::advance(first, 2))
+            result = decompress(recreateColorTable(*first), *std::next(first), result);
+
+        return result;
+    }
 }
 
-uint8_t BlockCompressor::findClosest( Color color, uint16_t ref )
+std::vector<uint16_t> BlockCompressor::decompress(const std::vector<uint32_t> & in)
 {
-    for ( auto & c : color )
-        c = std::abs( c - ref );
+    if (in.size() == 0 || in.size() % 2 != 0)
+        throw BadSize();
 
-    return std::distance( color.begin(), std::min_element( color.begin(), color.end() ));
-}
+    std::vector<uint16_t> out;
+    out.reserve(in.size()/2*16);
+    ::decompress(in.begin(), in.end(), std::back_inserter(out));
 
-BlockCompressor::Color BlockCompressor::createColorTable( uint32_t referenceColors )
-{
-    Color color;
-    color[0] = referenceColors >> 16;
-    color[1] = referenceColors & 0xffff;
-    color[2] = interpolate( color[0], color[1] );
-    color[3] = interpolate( color[1], color[0] );
-
-    return color;
-}
-
-uint32_t BlockCompressor::reorderBytes( uint32_t lookup )
-{
-    return ( lookup >> 24 ) +
-          (( lookup >> 8 ) & 0xff00 ) +
-          (( lookup & 0xff00 ) << 8 ) +
-           ( lookup << 24 );
+    return out;
 }
