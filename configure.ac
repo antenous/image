@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 m4_define([image_major_version], [1])
-m4_define([image_minor_version], [0])
+m4_define([image_minor_version], [1])
 m4_define([image_micro_version], [0])
 m4_define([image_version],
           [image_major_version.image_minor_version.image_micro_version])
@@ -38,6 +38,7 @@ AC_TYPE_INT32_T
 AC_TYPE_UINT8_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
+AC_TYPE_SIZE_T
 
 AX_COMPILER_VERSION
 CXX_VERSION=$ax_cv_cxx_compiler_version
