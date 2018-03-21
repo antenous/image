@@ -29,7 +29,7 @@ namespace
 
     uint16_t interpolate(Mask mask, uint16_t a, uint16_t b)
     {
-        return (2*(a & mask)/3 + (b & mask)/3) & mask;
+        return (2*(a & mask) + (b & mask))/3 & mask;
     }
 
     uint16_t interpolate(uint16_t a, uint16_t b)
@@ -115,7 +115,7 @@ namespace
 
     uint16_t blend(Mask mask, uint16_t a, uint16_t b)
     {
-        return ((a & mask)/2 + (b & mask)/2) & mask;
+        return ((a & mask) + (b & mask))/2 & mask;
     }
 
     uint16_t blend(uint16_t a, uint16_t b)
