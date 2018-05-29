@@ -1,34 +1,23 @@
 # Eclipse
-/.autotools
+/.settings/
 /.cproject
 /.project
-/.settings/
-
-# Bootstrap
-*.in
-/aclocal.m4
-/autom4te.cache/
-/build-aux/
-/configure
-/m4/l*.m4
 
 # Configure
-.deps/
-Makefile
-config.h
-stamp-h1
-/config.log
-/config.status
+/build/
+/CMakeFiles/
+/CMakeCache.txt
 /Doxyfile
-/libtool
+/Makefile
+/*.cmake
+/*.pc
 
-# Make
-*.o
+# Test
+/Testing/
 
-# Code coverage
-*.gcda
-*.gcno
-/*coverage*
+# Coverage
+/image-coverage/
+/image-coverage.info
 
-# Distribute
-*.tar.gz
+# Doxygen
+/doxygen-doc

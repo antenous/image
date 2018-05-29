@@ -1,3 +1,8 @@
-/*.l[ao]
-/.libs/
-image
+# Configure
+/CMakeFiles/
+/Makefile
+/*.cmake
+
+# Build
+/image
+/libimg.a

@@ -1,3 +1,7 @@
-/*.la
-/.libs/
-/test*
+# Configure
+/CMakeFiles/
+/Makefile
+/*.cmake
+
+# Build
+/testrunner

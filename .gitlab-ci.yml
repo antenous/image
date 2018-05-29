@@ -1,20 +1,19 @@
 image: ubuntu:latest
 
 before_script:
-  - apt-get update -qq && apt-get install -y -qq autoconf build-essential git libtool lcov gcovr
+  - apt-get update -qq && apt-get install -y -qq build-essential cmake git lcov gcovr
   - git submodule sync --recursive
   - git submodule update --init --recursive
-  - ./bootstrap
 
 build:
   stage: build
   script:
-    - ./configure
+    - cmake ./
     - make
 
 test:
   stage: test
   script:
-    - ./configure --enable-code-coverage
+    - cmake -DENABLE_CODE_COVERAGE=ON ./
     - make check
-    - gcovr -sr . -e '.*/main.cpp' -e '.*/\.'
+    - gcovr -sr . -e '.*/main.cpp' -e '.*/\.' -e '3rdparty'
