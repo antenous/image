@@ -15,17 +15,18 @@ namespace
 {
     class DirectDrawSurfaceTest : public Test
     {
+    protected:
+        DirectDrawSurface dds{ };
     };
 }
 
 TEST_F(DirectDrawSurfaceTest, FalseWhenEmpty)
 {
-    EXPECT_FALSE(DirectDrawSurface());
+    EXPECT_FALSE(dds);
 }
 
 TEST_F(DirectDrawSurfaceTest, Height)
 {
-    DirectDrawSurface dds{ 0 };
     const auto height(dds.header.height = 4);
 
     EXPECT_EQ(height, dds.height());
@@ -33,7 +34,6 @@ TEST_F(DirectDrawSurfaceTest, Height)
 
 TEST_F(DirectDrawSurfaceTest, Width)
 {
-    DirectDrawSurface dds{ 0 };
     const auto width(dds.header.width = 4);
 
     EXPECT_EQ(width, dds.width());

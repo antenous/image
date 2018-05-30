@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-string(APPEND CMAKE_CXX_FLAGS " -Wall -Werror -Wextra -Wno-missing-field-initializers")
+string(APPEND CMAKE_CXX_FLAGS " -Wall -Werror -Wextra")
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(coverage)
 
