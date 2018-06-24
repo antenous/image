@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.9)
 cmake_policy(SET CMP0048 NEW) # https://cmake.org/cmake/help/v3.7/policy/CMP0048.html
 project(image VERSION 1.1.0)
 
@@ -40,35 +40,13 @@ endif()
 # documentation
 find_package(Doxygen)
 if (DOXYGEN_FOUND)
-    # TODO: Take `doxygen_add_docs` into use (added in CMake 3.9)
-
-    set(DOXYGEN_IN ${PROJECT_SOURCE_DIR}/Doxyfile.in)
-    set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-    set(GENERATE_HTML "YES")
-    set(GENERATE_HTMLHELP "NO")
-    set(GENERATE_CHI "NO")
-    set(GENERATE_LATEX "YES")
-    set(PAPER_SIZE "a4")
-    set(GENERATE_RTF "NO")
-    set(GENERATE_MAN "NO")
-    set(GENERATE_XML "NO")
-
-    find_program(DOT dot)
-    if(DOT)
-        set(HAVE_DOT "YES")
-    else()
-        set(HAVE_DOT "NO")
-    endif()
-
-    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
     set(target "doxygen-doc")
-
-    add_custom_target(${target}
-        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Generating documentation with Doxygen"
-        VERBATIM)
-
+    set(DOXYGEN_EXCLUDE_PATTERNS "*/3rdparty/*")
+    set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${target}")
+    set(DOXYGEN_GENERATE_HTML YES)
+    
+    doxygen_add_docs(${target} ${PROJECT_SOURCE_DIR}
+        COMMENT "Create project documentation")
     add_custom_command(TARGET ${target} POST_BUILD
-        COMMENT "View ${PROJECT_BINARY_DIR}/${target}/html/index.html to see the documentation")
+        COMMENT "View ${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html to see the documentation")
 endif()
