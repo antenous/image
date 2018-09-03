@@ -24,11 +24,11 @@ namespace
             50005, 50001, 54517, 54533 }};
 
         const std::vector<uint32_t> compressed{{
-            54533U << 16 | 45317,
-            0b00000010 << 24 |
-            0b01011011 << 16 |
-            0b01010011 <<  8 |
-            0b00001010 <<  0 }};
+            54533U << 16 | 45333,
+            0b00101011 << 24 |
+            0b01111011 << 16 |
+            0b01111011 <<  8 |
+            0b00101011 <<  0 }};
 
         const std::vector<uint32_t> compressedAlpha{{
             45317U << 16 | 54533,
@@ -38,10 +38,10 @@ namespace
             0b01011111 <<  0 }};
 
         const std::vector<uint16_t> uncompressed{{
-            50085, 54533, 54533, 54533,
-            47685, 50085, 45317, 45317,
-            47685, 54533, 45317, 45317,
-            50085, 50085, 54533, 54533 }};
+            47695, 50090, 50090, 54533,
+            47695, 50090, 47695, 45333,
+            47695, 50090, 47695, 45333,
+            47695, 50090, 50090, 54533 }};
 
         const std::vector<uint16_t> uncompressedAlpha{{
             65535, 54533, 54533, 54533,
@@ -73,17 +73,6 @@ TEST_F(BlockCompressorTest, GivenRangeSizeNotMultipleOfSixteen_WhenCompressed_Th
 TEST_F(BlockCompressorTest, Compress)
 {
     EXPECT_EQ(compressed, BlockCompressor::compress(original));
-}
-
-TEST_F(BlockCompressorTest, WhenCompressed_RoundingErrorsAreMinimized)
-{
-    const std::vector<uint16_t> original{{
-        92, 2176, 2048, 1920,
-        72,   96,   38,   40,
-        62, 1536,   48,   50,
-        92,   86, 1408, 1280 }};
-
-    EXPECT_EQ(std::bitset<32>(compressed[1]), std::bitset<32>(BlockCompressor::compress(original)[1]));
 }
 
 TEST_F(BlockCompressorTest, GivenRangeSizeNotMultipleOfTwo_WhenDecompressed_ThrowsBadSize)

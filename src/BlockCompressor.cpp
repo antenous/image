@@ -27,14 +27,14 @@ namespace
         blue  = 0x1f
     };
 
-    uint16_t interpolate(Mask mask, uint16_t a, uint16_t b)
+    uint16_t interpolate(Mask mask, uint16_t c0, uint16_t c1)
     {
-        return (2*(a & mask) + (b & mask))/3 & mask;
+        return (2*(c0 & mask) + (c1 & mask))/3 & mask;
     }
 
-    uint16_t interpolate(uint16_t a, uint16_t b)
+    uint16_t interpolate(uint16_t c0, uint16_t c1)
     {
-        return interpolate(red, a, b) | interpolate(green, a, b) | interpolate(blue, a, b);
+        return interpolate(red, c0, c1) | interpolate(green, c0, c1) | interpolate(blue, c0, c1);
     }
 
     std::pair<uint16_t, uint16_t> interpolate(const Color & color)
@@ -42,12 +42,41 @@ namespace
         return { interpolate(color[0], color[1]), interpolate(color[1], color[0]) };
     }
 
+    auto distance(uint16_t c0, uint16_t c1)
+    {
+        const auto r(((c0 & red) - (c1 & red)) >> 11);
+        const auto g(((c0 & green) - (c1 & green)) >> 5);
+        const auto b((c0 & blue) - (c1 & blue));
+        return r*r + g*g + b*b;
+    }
+
+    template<typename InputIterator>
+    std::pair<uint16_t, uint16_t> referenceColors(InputIterator first, InputIterator last)
+    {
+        std::pair<uint16_t, uint16_t> colors;
+        int maxDist(0);
+
+        for (; first != last; ++first)
+            for (auto second(std::next(first)); second != last; ++second)
+                if (auto dist(distance(*first, *second)); dist >= maxDist)
+                    std::tie(maxDist, colors.first, colors.second) = std::tie(dist, *first, *second);
+
+        return colors;
+    }
+
+    std::pair<uint16_t, uint16_t> reorder(std::pair<uint16_t, uint16_t> && colors)
+    {
+        if (colors.second > colors.first)
+            return { colors.second, colors.first };
+
+        return std::move(colors);
+    }
+
     template<typename InputIterator>
     Color createColorTable(InputIterator first, InputIterator last)
     {
         Color color;
-        color[0] = *std::max_element(first, last);
-        color[1] = *std::min_element(first, last);
+        std::tie(color[0], color[1]) = reorder(referenceColors(first, last));
         std::tie(color[2], color[3]) = interpolate(color);
         return color;
     }
@@ -59,7 +88,7 @@ namespace
 
     uint8_t findNearest(const Color & color, uint16_t ref)
     {
-        const auto nearest = [ref](auto x, auto y){ return std::abs(x - ref) < std::abs(y - ref); };
+        const auto nearest([ref](auto x, auto y){ return distance(x, ref) < distance(y, ref); });
         return std::distance(color.begin(), std::min_element(color.begin(), color.end(), nearest));
     }
 
