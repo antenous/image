@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 cmake_policy(SET CMP0048 NEW) # https://cmake.org/cmake/help/v3.7/policy/CMP0048.html
-project(image VERSION 1.1.0)
+project(image VERSION 1.2.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
