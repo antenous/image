@@ -54,11 +54,11 @@ namespace
     std::pair<uint16_t, uint16_t> referenceColors(InputIterator first, InputIterator last)
     {
         std::pair<uint16_t, uint16_t> colors;
-        int maxDist(0);
+        int maxDist(-1);
 
         for (; first != last; ++first)
             for (auto second(std::next(first)); second != last; ++second)
-                if (auto dist(distance(*first, *second)); dist >= maxDist)
+                if (auto dist(distance(*first, *second)); dist > maxDist)
                     std::tie(maxDist, colors.first, colors.second) = std::tie(dist, *first, *second);
 
         return colors;
