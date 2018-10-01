@@ -67,12 +67,17 @@ namespace
                 header.reserved2));
     }
 
-    auto toTuple(const DirectDrawSurface::Data & data)
+    auto toTuple(const DirectDrawSurface::Texel & texel)
     {
         return std::make_tuple(
-            static_cast<uint16_t>((data.at(0) >> 16) & 0xffff),
-            static_cast<uint16_t>(data.at(0) & 0xffff),
-            data.at(1));
+            texel.referenceColors[0],
+            texel.referenceColors[1],
+            texel.lookupTable);
+    }
+
+    auto toTuple(const DirectDrawSurface::Data & data)
+    {
+        return toTuple(data.at(0));
     }
 
     auto toTuple(const DirectDrawSurface & dds)
@@ -113,7 +118,7 @@ namespace
             { 124, 0x1 | 0x2 | 0x4 | 0x1000, 4, 4, 8, 0, 0, { 0 },
             { 32, 0x4, { 'D', 'X', 'T', '1' }, 0, 0, 0, 0, 0 },
               0x1000, 0, 0, 0, 0 },
-            { 2969883909, 1460536927 }};
+            {{{ 45316, 54533 }, 1460536927 }}};
     };
 }
 

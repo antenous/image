@@ -81,9 +81,9 @@ namespace
         return color;
     }
 
-    uint32_t referenceColors(const Color & color)
+    DirectDrawSurface::Texel::ReferenceColors referenceColors(const Color & color)
     {
-        return color[0] << 16 | color[1];
+        return { color[0], color[1] };
     }
 
     uint8_t findNearest(const Color & color, uint16_t ref)
@@ -108,9 +108,8 @@ namespace
     OutputIterator compressBlock(InputIterator first, InputIterator last, OutputIterator result)
     {
         const auto color(createColorTable(first, last));
-        *result++ = referenceColors(color);
-        *result++ = createLookupTable(color, first, last);
-        return result;
+        result = { referenceColors(color), createLookupTable(color, first, last) };
+        return ++result;
     }
 
     template<typename InputIterator, typename OutputIterator>
@@ -123,13 +122,13 @@ namespace
     }
 }
 
-std::vector<uint32_t> BlockCompressor::compress(const std::vector<uint16_t> & in)
+DirectDrawSurface::Data BlockCompressor::compress(const std::vector<uint16_t> & in)
 {
     if (in.size() == 0 || in.size() % 16 != 0)
         throw BadSize();
 
-    std::vector<uint32_t> out;
-    out.reserve(in.size()/16*2);
+    DirectDrawSurface::Data out;
+    out.reserve(in.size()/16);
     ::compress(in.begin(), in.end(), std::back_inserter(out));
 
     return out;
@@ -157,21 +156,22 @@ namespace
         return { blend(color[0], color[1]), 0xffff };
     }
 
-    Color recreateColorTable(uint32_t referenceColors)
+    Color recreateColorTable(const DirectDrawSurface::Texel::ReferenceColors & referenceColors)
     {
         Color color;
-        color[0] = referenceColors >> 16;
-        color[1] = referenceColors & 0xffff;
+        std::tie(color[0], color[1]) = std::tie(referenceColors[0], referenceColors[1]);
         std::tie(color[2], color[3]) = hasAlpha(color) ? blend(color) : interpolate(color);
         return color;
     }
 
     template<typename OutputIterator>
-    OutputIterator decompress(const Color & color, uint32_t lookup, OutputIterator result)
+    OutputIterator decompress(const DirectDrawSurface::Texel & texel, OutputIterator result)
     {
+        const auto color(recreateColorTable(texel.referenceColors));
+
         for (int y(24); y >= 0; y -= 8)
             for (unsigned x(0); x < 8; x += 2)
-                *result++ = color[((lookup >> y >> x) & 0b11)];
+                *result++ = color[((texel.lookupTable >> y >> x) & 0b11)];
 
         return result;
     }
@@ -179,20 +179,20 @@ namespace
     template<typename InputIterator, typename OutputIterator>
     OutputIterator decompress(InputIterator first, InputIterator last, OutputIterator result)
     {
-        for (; first != last; std::advance(first, 2))
-            result = decompress(recreateColorTable(*first), *std::next(first), result);
+        for (; first != last; ++first)
+            result = decompress(*first, result);
 
         return result;
     }
 }
 
-std::vector<uint16_t> BlockCompressor::decompress(const std::vector<uint32_t> & in)
+std::vector<uint16_t> BlockCompressor::decompress(const DirectDrawSurface::Data & in)
 {
-    if (in.size() == 0 || in.size() % 2 != 0)
+    if (in.empty())
         throw BadSize();
 
     std::vector<uint16_t> out;
-    out.reserve(in.size()/2*16);
+    out.reserve(in.size()*16);
     ::decompress(in.begin(), in.end(), std::back_inserter(out));
 
     return out;

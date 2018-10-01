@@ -9,8 +9,7 @@
 #ifndef DIRECTDRAWSURFACE_HPP_
 #define DIRECTDRAWSURFACE_HPP_
 
-#include <cstdint>
-#include <sys/types.h>
+#include <tuple>
 #include <vector>
 
 namespace image
@@ -22,9 +21,25 @@ namespace image
     class DirectDrawSurface
     {
     public:
-        using Magic = uint32_t;
+        struct Texel
+        {
+            using ReferenceColors = std::array<uint16_t, 2>;
 
-        using Data = std::vector<uint32_t>;
+            using LookupTable = uint32_t;
+
+            ReferenceColors referenceColors;
+
+            LookupTable lookupTable;
+
+            bool operator==(const Texel & other) const
+            {
+                return std::tie(referenceColors, lookupTable) == std::tie(other.referenceColors, other.lookupTable);
+            }
+        };
+
+        using Data = std::vector<Texel>;
+
+        using Magic = uint32_t;
 
         /**
             Return true if image is valid

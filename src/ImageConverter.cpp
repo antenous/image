@@ -40,7 +40,7 @@ void ImageConverter::createFileHeader( DirectDrawSurface & dds, const Bitmap & b
     dds.header.flags = 0x1 | 0x2 | 0x4 | 0x1000;
     dds.header.height = bmp.height();
     dds.header.width = bmp.width();
-    dds.header.pitch = dds.data.size() * 4;
+    dds.header.pitch = dds.data.size() * sizeof(DirectDrawSurface::Data::value_type);
     dds.header.caps = 0x1000;
 
     dds.header.pixelFormat.size = 32;

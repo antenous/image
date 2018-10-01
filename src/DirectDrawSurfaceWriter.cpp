@@ -22,31 +22,17 @@ namespace
         Writer::write(to, header);
     }
 
-    void write(std::ostream & to, DirectDrawSurface::Data && data, uint32_t size)
+    void write(std::ostream & to, const DirectDrawSurface::Data & data, uint32_t size)
     {
         to.write(reinterpret_cast<const char*>(data.data()), size);
     }
 
-    void rearrangeReferenceColors(uint32_t & colors)
-    {
-        colors = (colors << 16)|(colors >> 16);
-    }
-
-    auto rearrangeReferenceColors(const DirectDrawSurface::Data & data)
-    {
-        auto rearrange(data);
-
-        for (auto first(rearrange.begin()), last(rearrange.end()); first != last; std::advance(first, 2))
-            rearrangeReferenceColors(*first);
-
-        return rearrange;
-    }
 
     void writeDirectDrawSurface(std::ostream & to, const DirectDrawSurface & dds)
     {
         write(to, dds.magic);
         write(to, dds.header);
-        write(to, rearrangeReferenceColors(dds.data), dds.header.pitch);
+        write(to, dds.data, dds.header.pitch);
     }
 }
 

@@ -23,15 +23,15 @@ namespace
             47585, 54321, 45317, 45333,
             50005, 50001, 54517, 54533 }};
 
-        const std::vector<uint32_t> compressed{{
-            54533U << 16 | 45333,
+        const DirectDrawSurface::Data compressed{{
+            { 54533U, 45333 },
             0b00101011 << 24 |
             0b01111011 << 16 |
             0b01111011 <<  8 |
             0b00101011 <<  0 }};
 
-        const std::vector<uint32_t> compressedAlpha{{
-            45317U << 16 | 54533,
+        const DirectDrawSurface::Data compressedAlpha{{
+            { 45317U, 54533 },
             0b01010111 << 24 |
             0b00001110 << 16 |
             0b00000110 <<  8 |
@@ -75,10 +75,9 @@ TEST_F(BlockCompressorTest, Compress)
     EXPECT_EQ(compressed, BlockCompressor::compress(original));
 }
 
-TEST_F(BlockCompressorTest, GivenRangeSizeNotMultipleOfTwo_WhenDecompressed_ThrowsBadSize)
+TEST_F(BlockCompressorTest, GivenRangeIsEmpty_WhenDecompressed_ThrowsBadSize)
 {
-    EXPECT_THROW(BlockCompressor::decompress(std::vector<uint32_t>()), BlockCompressor::BadSize);
-    EXPECT_THROW(BlockCompressor::decompress(std::vector<uint32_t>(1)), BlockCompressor::BadSize);
+    EXPECT_THROW(BlockCompressor::decompress({ }), BlockCompressor::BadSize);
 }
 
 TEST_F(BlockCompressorTest, Decompress)

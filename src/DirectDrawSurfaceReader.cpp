@@ -24,19 +24,8 @@ namespace
 
     void read(std::istream & from, DirectDrawSurface::Data & data, uint32_t size)
     {
-        data.resize(size/4);
+        data.resize(size/sizeof(DirectDrawSurface::Data::value_type));
         from.read(reinterpret_cast<char*>(data.data()), size);
-    }
-
-    void rearrangeReferenceColors(uint32_t & colors)
-    {
-        colors = (colors << 16)|(colors >> 16);
-    }
-
-    void rearrangeReferenceColors(DirectDrawSurface::Data & data)
-    {
-        for (auto first(data.begin()), last(data.end()); first != last; std::advance(first, 2))
-            rearrangeReferenceColors(*first);
     }
 
     DirectDrawSurface readDirectDrawSurface(std::istream & from)
@@ -49,7 +38,6 @@ namespace
 
         read(from, dds.header);
         read(from, dds.data, dds.header.pitch);
-        rearrangeReferenceColors(dds.data);
 
         return dds;
     }
@@ -60,7 +48,7 @@ DirectDrawSurfaceReader::BadFile::BadFile() :
 {}
 
 DirectDrawSurfaceReader::InvalidType::InvalidType() :
-    std::runtime_error( "invalid type" )
+    std::runtime_error("invalid type")
 {}
 
 DirectDrawSurface DirectDrawSurfaceReader::read(std::istream && from)
