@@ -29,7 +29,7 @@ void ImageConverter::convertData( DirectDrawSurface & dds, const Bitmap & bmp )
 {
     dds.data = BlockCompressor::compress(
         ColorPalette::rearrangeForDirectDrawSurface( bmp.height(), bmp.width(),
-        ColorDepth::trueToHigh( bmp.colors() )));
+        ColorDepth::trueToHigh( bmp.colors )));
 }
 
 void ImageConverter::createFileHeader( DirectDrawSurface & dds, const Bitmap & bmp )
@@ -66,9 +66,9 @@ Bitmap ImageConverter::convert( const DirectDrawSurface & dds )
 
 void ImageConverter::convertData( Bitmap & bmp, const DirectDrawSurface & dds )
 {
-    bmp.colors(ColorDepth::highToTrue(
+    bmp.colors = ColorDepth::highToTrue(
         ColorPalette::rearrangeForBitmap( dds.height(), dds.width(),
-        BlockCompressor::decompress( dds.data ))));
+        BlockCompressor::decompress( dds.data )));
 }
 
 void ImageConverter::createInfoHeader( Bitmap & bmp, const DirectDrawSurface & dds )

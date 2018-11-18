@@ -9,9 +9,8 @@
 #ifndef BITMAP_HPP_
 #define BITMAP_HPP_
 
-#include <cstdint>
-#include <sys/types.h>
 #include <vector>
+#include "TrueColor.hpp"
 
 namespace image
 {
@@ -22,9 +21,7 @@ namespace image
     class Bitmap
     {
     public:
-        using Colors = std::vector<uint32_t>;
-
-        using Data = std::vector<uint8_t>;
+        using Colors = std::vector<TrueColor>;
 
         /**
             Return true if bitmap is valid
@@ -42,15 +39,8 @@ namespace image
         int32_t width() const;
 
         /**
-            Convert raw pixel data to colors
+            Return the number of padding bytes in a row
         */
-        Colors colors() const;
-
-        /**
-            Convert colors to raw pixel data
-        */
-        void colors(const Colors & colors);
-
         uint8_t padding() const;
 
         struct FileHeader
@@ -76,7 +66,7 @@ namespace image
             uint32_t importantColors;
         } infoHeader;
 
-        Data data;
+        Colors colors;
     };
 
 }

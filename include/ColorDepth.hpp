@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <vector>
+#include "TrueColor.hpp"
 
 namespace image
 {
@@ -21,11 +22,7 @@ namespace image
     class ColorDepth
     {
     public:
-        using TrueColor = uint32_t;
-
         using HighColor = uint16_t;
-
-        using SampleColor = uint8_t;
 
         /**
             @brief Convert a 24bit color range into a 16bit color range

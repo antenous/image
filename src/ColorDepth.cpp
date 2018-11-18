@@ -13,42 +13,30 @@ using namespace image;
 
 namespace
 {
-    ColorDepth::SampleColor downscaleSample(ColorDepth::TrueColor color, uint8_t bits)
+    using SampleColor = uint8_t;
+
+    ColorDepth::HighColor trueToHigh(const TrueColor & trueColor)
     {
-        return (color & 0xff)>>(8 - bits);
+        return ((trueColor.red & 0xf8) << 8)|((trueColor.green & 0xfc) << 3)|((trueColor.blue & 0xf8) >> 3);
     }
 
-    ColorDepth::HighColor trueToHigh(ColorDepth::TrueColor trueColor)
+    SampleColor upscaleSample(ColorDepth::HighColor color, uint8_t bits)
     {
-        ColorDepth::HighColor highColor(0);
-
-        for (auto bitsToKeep : { 5, 6, 5 })
-        {
-            highColor <<= bitsToKeep;
-            highColor |= downscaleSample(trueColor, bitsToKeep);
-            trueColor >>= 8;
-        }
-
-        return highColor;
-    }
-
-    ColorDepth::SampleColor upscaleSample(ColorDepth::HighColor color, uint8_t bits)
-    {
-        const ColorDepth::SampleColor sample((color << (8 - bits)) & 0xff);
+        const SampleColor sample((color << (8 - bits)) & 0xff);
         return sample | (sample >> bits);
     }
 
-    ColorDepth::TrueColor highToTrue(ColorDepth::HighColor highColor)
+    TrueColor highToTrue(ColorDepth::HighColor highColor)
     {
-        ColorDepth::TrueColor trueColor(0);
+        TrueColor trueColor;
 
-        for (auto bitsToKeep : { 5, 6, 5 })
-        {
-            trueColor <<= 8;
-            trueColor |= upscaleSample(highColor, bitsToKeep);
-            highColor >>= bitsToKeep;
-        }
+        trueColor.blue = upscaleSample(highColor, 5);
+        highColor >>= 5;
 
+        trueColor.green = upscaleSample(highColor, 6);
+        highColor >>= 6;
+
+        trueColor.red = upscaleSample(highColor, 5);
         return trueColor;
     }
 }
@@ -58,7 +46,7 @@ std::vector<ColorDepth::HighColor> ColorDepth::trueToHigh(const std::vector<True
     std::vector<HighColor> out;
     out.reserve(in.size());
 
-    std::transform(in.begin(), in.end(), std::back_inserter(out),[](TrueColor color)
+    std::transform(in.begin(), in.end(), std::back_inserter(out),[](const TrueColor & color)
     {
         return ::trueToHigh(color);
     });
@@ -66,7 +54,7 @@ std::vector<ColorDepth::HighColor> ColorDepth::trueToHigh(const std::vector<True
     return out;
 }
 
-std::vector<ColorDepth::TrueColor> ColorDepth::highToTrue(const std::vector<HighColor> & in)
+std::vector<TrueColor> ColorDepth::highToTrue(const std::vector<HighColor> & in)
 {
     std::vector<TrueColor> out;
     out.reserve(in.size());

@@ -38,16 +38,23 @@ namespace
             infoHeader.importantColors));
     }
 
-    void write(std::ostream & to, const Bitmap::Data & data)
+    void addPadding(std::ostream & to, uint8_t padding)
     {
-        to.write(reinterpret_cast<const char*>(data.data()), data.size());
+        static const std::array<char, 3> bytes{};
+        to.write(bytes.data(), padding);
+    }
+
+    void write(std::ostream & to, const Bitmap::Colors & colors, int32_t height, int32_t width, uint8_t padding)
+    {
+        for (int32_t row(0), firstInRow(0); row < height; ++row, firstInRow += width, addPadding(to, padding))
+            to.write(reinterpret_cast<const char*>(&colors[firstInRow]), width*sizeof(Bitmap::Colors::value_type));
     }
 
     void writeBitmap(std::ostream & to, const Bitmap & bmp)
     {
         write(to, bmp.fileHeader);
         write(to, bmp.infoHeader);
-        write(to, bmp.data);
+        write(to, bmp.colors, bmp.height(), bmp.width(), bmp.padding());
     }
 }
 

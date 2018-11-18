@@ -11,10 +11,26 @@
 using namespace image;
 using namespace testing;
 
+namespace image
+{
+    void PrintTo(const TrueColor & trueColor, std::ostream * os)
+    {
+        *os << std::hex
+            << static_cast<int>(trueColor.blue) << ","
+            << static_cast<int>(trueColor.green) << ","
+            << static_cast<int>(trueColor.red);
+    }
+
+    bool operator==(const TrueColor & lhs, const TrueColor & rhs)
+    {
+        return PrintToString(lhs) == PrintToString(rhs);
+    }
+}
+
 TEST(ColorDepthTest, Convert24bitRangeTo16bitRange)
 {
-    const std::vector<ColorDepth::TrueColor> colors{ 0xcafe };
-    const std::vector<ColorDepth::HighColor> expected{ 0xfe40 };
+    const std::vector<TrueColor> colors{{ 'r', 'e', 'd' }};
+    const std::vector<ColorDepth::HighColor> expected{ 0x632e };
 
     EXPECT_EQ(expected, ColorDepth::trueToHigh(colors));
 }
@@ -22,7 +38,7 @@ TEST(ColorDepthTest, Convert24bitRangeTo16bitRange)
 TEST(ColorDepthTest, Convert16bitRangeTo24bitRange)
 {
     const std::vector<ColorDepth::HighColor> colors{ 0xcafe };
-    const std::vector<ColorDepth::TrueColor> expected{ 0xf75dce };
+    const std::vector<TrueColor> expected{{ 0xf7, 0x5d, 0xce }};
 
     EXPECT_EQ(expected, ColorDepth::highToTrue(colors));
 }

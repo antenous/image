@@ -38,10 +38,17 @@ namespace
             infoHeader.importantColors));
     }
 
-    void read(std::istream & from, Bitmap::Data & data, uint32_t size)
+    inline void skipPadding(std::istream & from, uint8_t padding)
     {
-        data.resize(size);
-        from.read(reinterpret_cast<char*>(data.data()), size);
+        from.seekg(padding, from.cur);
+    }
+
+    void read(std::istream & from, Bitmap::Colors & colors, int32_t height, int32_t width, uint8_t padding)
+    {
+        colors.resize(height*width);
+
+        for (int32_t row(0), firstInRow(0); row < height; ++row, firstInRow += width, skipPadding(from, padding))
+            from.read(reinterpret_cast<char*>(&colors[firstInRow]), width*sizeof(Bitmap::Colors::value_type));
     }
 
     Bitmap readBitmap(std::istream & from)
@@ -54,7 +61,7 @@ namespace
             throw BitmapReader::InvalidType();
 
         read(from, bmp.infoHeader);
-        read(from, bmp.data, bmp.infoHeader.imageSize);
+        read(from, bmp.colors, bmp.height(), bmp.width(), bmp.padding());
 
         return bmp;
     }

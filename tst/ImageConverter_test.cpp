@@ -80,9 +80,9 @@ namespace
         {
             for ( auto color : ColorDepth::highToTrue( uncompressed ))
             {
-                write( out, static_cast< uint8_t >(( color >> 16 ) & 0xff ));
-                write( out, static_cast< uint8_t >(( color >>  8 ) & 0xff ));
-                write( out, static_cast< uint8_t >( color & 0xff ));
+                write( out, color.blue );
+                write( out, color.green );
+                write( out, color.red );
             }
         }
 

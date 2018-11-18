@@ -15,6 +15,8 @@ using namespace testing;
 
 namespace
 {
+    using Data = std::vector<uint8_t>;
+
     auto toTuple(const Bitmap::FileHeader & fileHeader)
     {
         return std::make_tuple(
@@ -42,15 +44,32 @@ namespace
     }
 
     template<std::size_t... I>
-    auto toTuple(const Bitmap::Data & data, std::index_sequence<I...>)
+    auto toTuple(const Data & data, std::index_sequence<I...>)
     {
         return std::make_tuple(data.at(I)...);
     }
 
     template<std::size_t N>
-    auto toTuple(const Bitmap::Data & data)
+    auto toTuple(const Data & data)
     {
         return toTuple(data, std::make_index_sequence<N>());
+    }
+
+    inline void addPadding(Data & data, uint8_t padding)
+    {
+        data.insert(data.end(), padding, 0);
+    }
+
+    auto colorsToData(const Bitmap & bmp)
+    {
+        Data data;
+        data.reserve(bmp.infoHeader.imageSize);
+
+        for (auto it(bmp.colors.begin()); it != bmp.colors.end(); addPadding(data, bmp.padding()))
+            for (auto end(std::next(it, bmp.width())); it != end; ++it)
+                data.insert(data.end(), { it->blue, it->green, it->red });
+
+        return data;
     }
 
     auto toTuple(const Bitmap & bmp)
@@ -58,7 +77,7 @@ namespace
         return std::tuple_cat(
             toTuple(bmp.fileHeader),
             toTuple(bmp.infoHeader),
-            toTuple<16>(bmp.data));
+            toTuple<16>(colorsToData(bmp)));
     }
 
     class BitmapReaderTest : public Test
@@ -158,8 +177,8 @@ TEST_F(BitmapReaderTest, GivenFileWithInvalidType_WhenRead_ThrowsInvalidType)
     Bitmap invalid{
         {{ 'M', 'B' }, 70, 1, 54 },
         { 40, 2, 2, 1, 24, 0, 16, 0, 0, 0, 0 },
-        { 'b', 'l', 'u', 'e', 'g', 'r', '\0', '\0',
-          'e', 'e', 'n', 'r', 'e', 'd', '\0', '\0' }};
+        {{ 'b', 'l', 'u' }, { 'e', 'g', 'r' },
+         { 'e', 'e', 'n' }, { 'r', 'e', 'd' }}};
 
     EXPECT_THROW(BitmapReader::read(makeFile(invalid)), BitmapReader::InvalidType);
 }
@@ -169,8 +188,8 @@ TEST_F(BitmapReaderTest, GivenValidFile_WhenRead_CreatesBitmap)
     Bitmap bmp{
         {{ 'B', 'M' }, 70, 1, 54 },
         { 40, 2, 2, 1, 24, 0, 16, 0, 0, 0, 0 },
-        { 'b', 'l', 'u', 'e', 'g', 'r', '\0', '\0',
-          'e', 'e', 'n', 'r', 'e', 'd', '\0', '\0' }};
+        {{ 'b', 'l', 'u' }, { 'e', 'g', 'r' },
+         { 'e', 'e', 'n' }, { 'r', 'e', 'd' }}};
 
     EXPECT_EQ(bmp, BitmapReader::read(makeFile(bmp)));
 }
