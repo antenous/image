@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <array>
 #include <tuple>
+#include "ColorDepth.hpp"
+#include "ColorPalette.hpp"
 
 using namespace image;
 
@@ -122,11 +124,18 @@ namespace
     }
 }
 
-DirectDrawSurface::Data BlockCompressor::compress(const std::vector<uint16_t> & in)
+DirectDrawSurface::Data BlockCompressor::compress(
+    const Bitmap::Colors & in, int32_t height, int32_t width)
 {
     if (in.size() == 0 || in.size() % 16 != 0)
         throw BadSize();
 
+    return compress(ColorPalette::rearrangeForDirectDrawSurface(
+        height, width, ColorDepth::trueToHigh(in)));
+}
+
+DirectDrawSurface::Data BlockCompressor::compress(const std::vector<uint16_t> & in)
+{
     DirectDrawSurface::Data out;
     out.reserve(in.size()/16);
     ::compress(in.begin(), in.end(), std::back_inserter(out));
@@ -186,11 +195,18 @@ namespace
     }
 }
 
-std::vector<uint16_t> BlockCompressor::decompress(const DirectDrawSurface::Data & in)
+Bitmap::Colors BlockCompressor::decompress(
+    const DirectDrawSurface::Data & in, int32_t height, int32_t width)
 {
     if (in.empty())
         throw BadSize();
 
+    return ColorDepth::highToTrue(ColorPalette::rearrangeForBitmap(
+        height, width, decompress(in)));
+}
+
+std::vector<uint16_t> BlockCompressor::decompress(const DirectDrawSurface::Data & in)
+{
     std::vector<uint16_t> out;
     out.reserve(in.size()*16);
     ::decompress(in.begin(), in.end(), std::back_inserter(out));

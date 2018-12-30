@@ -11,22 +11,6 @@
 using namespace image;
 using namespace testing;
 
-namespace image
-{
-    void PrintTo(const TrueColor & trueColor, std::ostream * os)
-    {
-        *os << std::hex
-            << static_cast<int>(trueColor.blue) << ","
-            << static_cast<int>(trueColor.green) << ","
-            << static_cast<int>(trueColor.red);
-    }
-
-    bool operator==(const TrueColor & lhs, const TrueColor & rhs)
-    {
-        return PrintToString(lhs) == PrintToString(rhs);
-    }
-}
-
 TEST(ColorDepthTest, Convert24bitRangeTo16bitRange)
 {
     const std::vector<TrueColor> colors{{ 'r', 'e', 'd' }};

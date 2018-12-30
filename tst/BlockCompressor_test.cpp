@@ -17,11 +17,11 @@ namespace
     class BlockCompressorTest : public Test
     {
     protected:
-        const std::vector<uint16_t> original{{
-            50005, 54321, 54517, 54533,
-            47585, 50001, 45317, 45333,
-            47585, 54321, 45317, 45333,
-            50005, 50001, 54517, 54533 }};
+        const std::vector<TrueColor> original{{
+            {0xad, 0x69, 0xc6}, {0x8c, 0x86, 0xd6}, {0xad, 0x9e, 0xd6}, {0x29, 0xa2, 0xd6},
+            {0x08, 0x3c, 0xbd}, {0x8c, 0x69, 0xc6}, {0x29, 0x20, 0xb5}, {0xad, 0x20, 0xb5},
+            {0x08, 0x3c, 0xbd}, {0x8c, 0x86, 0xd6}, {0x29, 0x20, 0xb5}, {0xad, 0x20, 0xb5},
+            {0xad, 0x69, 0xc6}, {0x8c, 0x69, 0xc6}, {0xad, 0x9e, 0xd6}, {0x29, 0xa2, 0xd6} }};
 
         const DirectDrawSurface::Data compressed{{
             { 54533U, 45333 },
@@ -37,17 +37,17 @@ namespace
             0b00000110 <<  8 |
             0b01011111 <<  0 }};
 
-        const std::vector<uint16_t> uncompressed{{
-            47695, 50090, 50090, 54533,
-            47695, 50090, 47695, 45333,
-            47695, 50090, 47695, 45333,
-            47695, 50090, 50090, 54533 }};
+        const std::vector<TrueColor> uncompressed{{
+            {0x7b, 0x49, 0xbd}, {0x52, 0x75, 0xc6}, {0x52, 0x75, 0xc6}, {0x29, 0xa2, 0xd6},
+            {0x7b, 0x49, 0xbd}, {0x52, 0x75, 0xc6}, {0x7b, 0x49, 0xbd}, {0xad, 0x20, 0xb5},
+            {0x7b, 0x49, 0xbd}, {0x52, 0x75, 0xc6}, {0x7b, 0x49, 0xbd}, {0xad, 0x20, 0xb5},
+            {0x7b, 0x49, 0xbd}, {0x52, 0x75, 0xc6}, {0x52, 0x75, 0xc6}, {0x29, 0xa2, 0xd6} }};
 
-        const std::vector<uint16_t> uncompressedAlpha{{
-            65535, 54533, 54533, 54533,
-            49925, 65535, 45317, 45317,
-            49925, 54533, 45317, 45317,
-            65535, 65535, 54533, 54533 }};
+        const std::vector<TrueColor> uncompressedAlpha{{
+            {0xff, 0xff, 0xff}, {0x29, 0xa2, 0xd6}, {0x29, 0xa2, 0xd6}, {0x29, 0xa2, 0xd6},
+            {0x29, 0x61, 0xc6}, {0xff, 0xff, 0xff}, {0x29, 0x20, 0xb5}, {0x29, 0x20, 0xb5},
+            {0x29, 0x61, 0xc6}, {0x29, 0xa2, 0xd6}, {0x29, 0x20, 0xb5}, {0x29, 0x20, 0xb5},
+            {0xff, 0xff, 0xff}, {0xff, 0xff, 0xff}, {0x29, 0xa2, 0xd6}, {0x29, 0xa2, 0xd6} }};
     };
 }
 
@@ -66,26 +66,26 @@ TEST_F(BlockCompressorTest, CanThrowAndCatchBadSize)
 
 TEST_F(BlockCompressorTest, GivenRangeSizeNotMultipleOfSixteen_WhenCompressed_ThrowsBadSize)
 {
-    EXPECT_THROW(BlockCompressor::compress(std::vector<uint16_t>()), BlockCompressor::BadSize);
-    EXPECT_THROW(BlockCompressor::compress(std::vector<uint16_t>(1)), BlockCompressor::BadSize);
+    EXPECT_THROW(BlockCompressor::compress(std::vector<TrueColor>(), 0, 0), BlockCompressor::BadSize);
+    EXPECT_THROW(BlockCompressor::compress(std::vector<TrueColor>(1), 0, 1), BlockCompressor::BadSize);
 }
 
 TEST_F(BlockCompressorTest, Compress)
 {
-    EXPECT_EQ(compressed, BlockCompressor::compress(original));
+    EXPECT_EQ(compressed, BlockCompressor::compress(original, 4, 4));
 }
 
 TEST_F(BlockCompressorTest, GivenRangeIsEmpty_WhenDecompressed_ThrowsBadSize)
 {
-    EXPECT_THROW(BlockCompressor::decompress({ }), BlockCompressor::BadSize);
+    EXPECT_THROW(BlockCompressor::decompress({ }, 0, 0), BlockCompressor::BadSize);
 }
 
 TEST_F(BlockCompressorTest, Decompress)
 {
-    EXPECT_EQ(uncompressed, BlockCompressor::decompress(compressed));
+    EXPECT_EQ(uncompressed, BlockCompressor::decompress(compressed, 4, 4));
 }
 
 TEST_F(BlockCompressorTest, DecompressAlpha)
 {
-    EXPECT_EQ(uncompressedAlpha, BlockCompressor::decompress(compressedAlpha));
+    EXPECT_EQ(uncompressedAlpha, BlockCompressor::decompress(compressedAlpha, 4, 4));
 }

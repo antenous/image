@@ -8,7 +8,8 @@ add_executable(testrunner
     DirectDrawSurfaceReader_test.cpp
     DirectDrawSurface_test.cpp
     DirectDrawSurfaceWriter_test.cpp
-    ImageConverter_test.cpp)
+    ImageConverter_test.cpp
+    TrueColor_test.cpp)
 target_link_libraries(testrunner img gtest_main)
 
 add_test(TestRunner testrunner)
