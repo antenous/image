@@ -53,16 +53,6 @@ namespace image
             @throw BadSize if color range size is not a multiple of 16
         */
         static DirectDrawSurface::Data compress(const std::vector<HighColor> & in);
-
-        /**
-            @brief Decompress data in direct draw surface image
-
-            @param in Data to decompress
-            @return decompressed high (16bit) colors in direct draw surface ordering
-
-            @throw BadSize if data size is not a multiple of 2
-        */
-        static std::vector<HighColor> decompress(const DirectDrawSurface::Data & in);
     };
 
     class BlockCompressor::BadSize : public std::invalid_argument

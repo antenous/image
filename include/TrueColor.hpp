@@ -16,6 +16,9 @@
 namespace image
 {
 
+    /**
+        A 24bit 8:8:8 color
+    */
     struct TrueColor
     {
         using Sample = uint8_t;

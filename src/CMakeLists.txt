@@ -4,7 +4,6 @@ add_library(img STATIC
     BitmapWriter.cpp
     BlockCompressor.cpp
     ColorDepth.cpp
-    ColorPalette.cpp
     DirectDrawSurface.cpp
     DirectDrawSurfaceReader.cpp
     DirectDrawSurfaceWriter.cpp

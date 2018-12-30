@@ -11,18 +11,18 @@
 using namespace image;
 using namespace testing;
 
-TEST(ColorDepthTest, Convert24bitRangeTo16bitRange)
+TEST(ColorDepthTest, Convert24bitColorTo16bit)
 {
-    const std::vector<TrueColor> colors{{ 'r', 'e', 'd' }};
-    const std::vector<HighColor> expected{ 0x632e };
+    const TrueColor color{ 'r', 'e', 'd' };
+    const HighColor expected{ 0x632e };
 
-    EXPECT_EQ(expected, ColorDepth::trueToHigh(colors));
+    EXPECT_EQ(expected, ColorDepth::trueToHigh(color));
 }
 
-TEST(ColorDepthTest, Convert16bitRangeTo24bitRange)
+TEST(ColorDepthTest, Convert16bitColorTo24bit)
 {
-    const std::vector<HighColor> colors{ 0xcafe };
-    const std::vector<TrueColor> expected{{ 0xf7, 0x5d, 0xce }};
+    const HighColor color{ 0xcafe };
+    const TrueColor expected{ 0xf7, 0x5d, 0xce };
 
-    EXPECT_EQ(expected, ColorDepth::highToTrue(colors));
+    EXPECT_EQ(expected, ColorDepth::highToTrue(color));
 }

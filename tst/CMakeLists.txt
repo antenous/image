@@ -3,8 +3,8 @@ add_executable(testrunner
     Bitmap_test.cpp
     BitmapWriter_test.cpp
     BlockCompressor_test.cpp
+    BlockIterator_test.cpp
     ColorDepth_test.cpp
-    ColorPalette_test.cpp
     DirectDrawSurfaceReader_test.cpp
     DirectDrawSurface_test.cpp
     DirectDrawSurfaceWriter_test.cpp

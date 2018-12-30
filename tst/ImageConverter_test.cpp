@@ -78,12 +78,20 @@ namespace
 
         void addBitmapColorData( std::ostream & out ) const
         {
-            for ( auto color : ColorDepth::highToTrue( uncompressed ))
+            for ( auto color : highToTrue( uncompressed ))
             {
                 write( out, color.blue );
                 write( out, color.green );
                 write( out, color.red );
             }
+        }
+
+        std::vector<TrueColor> highToTrue(const std::vector<HighColor> & in) const
+        {
+            std::vector<TrueColor> out;
+            out.reserve(in.size());
+            std::transform(in.begin(), in.end(), std::back_inserter(out), ColorDepth::highToTrue);
+            return out;
         }
 
         DirectDrawSurface makeDirectDrawSurface() const

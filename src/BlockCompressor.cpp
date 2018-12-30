@@ -7,8 +7,8 @@
 
 #include "BlockCompressor.hpp"
 #include <algorithm>
+#include "BlockIterator.hpp"
 #include "ColorDepth.hpp"
-#include "ColorPalette.hpp"
 
 using namespace image;
 
@@ -95,6 +95,18 @@ namespace
 
         return result;
     }
+
+    auto downscaleAndReorder(const Bitmap::Colors & in, int32_t height, int32_t width)
+    {
+        std::vector<HighColor> out;
+        out.reserve(in.size());
+        std::transform(
+            BlockIterator<Bitmap::Colors::const_iterator>(in.begin(), height, width),
+            BlockIterator<Bitmap::Colors::const_iterator>(height, width),
+            std::back_inserter(out),
+            ColorDepth::trueToHigh);
+        return out;
+    }
 }
 
 DirectDrawSurface::Data BlockCompressor::compress(
@@ -103,8 +115,7 @@ DirectDrawSurface::Data BlockCompressor::compress(
     if (in.size() == 0 || in.size() % 16 != 0)
         throw BadSize();
 
-    return compress(ColorPalette::rearrangeForDirectDrawSurface(
-        height, width, ColorDepth::trueToHigh(in)));
+    return compress(downscaleAndReorder(in, height, width));
 }
 
 DirectDrawSurface::Data BlockCompressor::compress(const std::vector<HighColor> & in)
@@ -143,7 +154,7 @@ namespace
 
         for (int y(24); y >= 0; y -= 8)
             for (unsigned x(0); x < 8; x += 2)
-                *result++ = color[((texel.lookupTable >> y >> x) & 0b11)];
+                *result++ = ColorDepth::highToTrue(color[((texel.lookupTable >> y >> x) & 0b11)]);
 
         return result;
     }
@@ -164,15 +175,8 @@ Bitmap::Colors BlockCompressor::decompress(
     if (in.empty())
         throw BadSize();
 
-    return ColorDepth::highToTrue(ColorPalette::rearrangeForBitmap(
-        height, width, decompress(in)));
-}
-
-std::vector<HighColor> BlockCompressor::decompress(const DirectDrawSurface::Data & in)
-{
-    std::vector<HighColor> out;
-    out.reserve(in.size()*16);
-    ::decompress(in.begin(), in.end(), std::back_inserter(out));
+    Bitmap::Colors out(in.size()*16);
+    ::decompress(in.begin(), in.end(), deblocker(out, height, width));
 
     return out;
 }
