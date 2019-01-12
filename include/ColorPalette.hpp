@@ -11,6 +11,7 @@
 
 #include <stdexcept>
 #include <vector>
+#include "HighColor.hpp"
 
 namespace image
 {
@@ -29,7 +30,7 @@ namespace image
     public:
         class BadDimensions;
 
-        typedef std::vector< uint16_t > Colors;
+        typedef std::vector< HighColor > Colors;
 
         /**
             @brief Rearrange the color palette for bitmap

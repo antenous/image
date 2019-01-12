@@ -11,6 +11,7 @@
 
 #include <tuple>
 #include <vector>
+#include "HighColor.hpp"
 
 namespace image
 {
@@ -23,7 +24,7 @@ namespace image
     public:
         struct Texel
         {
-            using ReferenceColors = std::array<uint16_t, 2>;
+            using ReferenceColors = std::array<HighColor, 2>;
 
             using LookupTable = uint32_t;
 

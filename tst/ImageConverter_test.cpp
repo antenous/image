@@ -180,7 +180,7 @@ namespace
 
         std::vector< uint32_t > compressed{ referenceColors, lookup };
 
-        const std::vector< uint16_t > uncompressed{{
+        const std::vector< HighColor > uncompressed{{
             131, 170, 241, 313,
             313, 313, 170, 170,
             241, 313, 131, 241,

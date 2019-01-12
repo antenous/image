@@ -15,18 +15,18 @@ namespace
 {
     using SampleColor = uint8_t;
 
-    ColorDepth::HighColor trueToHigh(const TrueColor & trueColor)
+    HighColor trueToHigh(const TrueColor & trueColor)
     {
         return ((trueColor.red & 0xf8) << 8)|((trueColor.green & 0xfc) << 3)|((trueColor.blue & 0xf8) >> 3);
     }
 
-    SampleColor upscaleSample(ColorDepth::HighColor color, uint8_t bits)
+    SampleColor upscaleSample(HighColor color, uint8_t bits)
     {
         const SampleColor sample((color << (8 - bits)) & 0xff);
         return sample | (sample >> bits);
     }
 
-    TrueColor highToTrue(ColorDepth::HighColor highColor)
+    TrueColor highToTrue(HighColor highColor)
     {
         TrueColor trueColor;
 
@@ -41,7 +41,7 @@ namespace
     }
 }
 
-std::vector<ColorDepth::HighColor> ColorDepth::trueToHigh(const std::vector<TrueColor> & in)
+std::vector<HighColor> ColorDepth::trueToHigh(const std::vector<TrueColor> & in)
 {
     std::vector<HighColor> out;
     out.reserve(in.size());
