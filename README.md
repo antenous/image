@@ -12,29 +12,59 @@ directory named `image`. To build the project run the below commands.
 
 ```sh
 $ cd image
-$ mkdir build
-$ cd build
-$ cmake ../
-$ make
+$ cmake -H. -Bbuild/
+$ cmake --build build/
 ```
 
-This will create an executable named `image` in the `src` directory.
+This will create an executable named `image` in the `build/src` directory.
+
+### Building with Docker
+
+To separate the build process from the build system a [Docker](https://www.docker.com/)
+development image is provided. Run the below commands to build the image
+
+```sh
+$ cmake --build build/ --target docker-dev-image
+```
+
+or
+
+```sh
+$ docker build \
+    --build-arg USER=`id -un` \
+    --build-arg UID=`id -u` \
+    --build-arg GID=`id -g` \
+    -t image:dev .
+```
+
+Some IDEs (e.g. Eclipse) support building inside a Docker container.
+To build the project by hand using Docker run the below commands
+
+```sh
+$ docker run --rm -itd -v $PWD:$PWD -v ccache:/ccache --name image image:dev
+$ docker exec -it image cmake -H$PWD -B$PWD/build/
+$ docker exec -it image cmake --build $PWD/build/
+$ docker stop image
+```
+
+**NOTE!** The Docker commands above may require root permissions
+
 
 ## Installation
 
-By default, `make install` will install the executable in `/usr/local/bin/`.
+By default, `install` target will install the executable in `/usr/local/bin/`.
 To change the installation directory configure the project with `CMAKE_INSTALL_PREFIX`.
 
 ```sh
-$ cmake -DCMAKE_INSTALL_PREFIX=$PWD -DCMAKE_BUILD_TYPE=Release ../
-$ make install
+$ cmake -H. -Bbuild/ -DCMAKE_INSTALL_PREFIX=$PWD -DCMAKE_BUILD_TYPE=Release
+$ cmake --build build/ --target install
 ```
 
 The above command will install the executable in the `bin` directory.
 
-**NOTE!** `make install` may require root permissions and is only available with `Release` builds
+**NOTE!** `install` target may require root permissions and is only available with `Release` builds
 
-To uninstall run `make uninstall` or `xargs rm < install_manifest.txt`.
+To uninstall build with `uninstall` or run `xargs rm < build/install_manifest.txt`.
 
 ## Running
 
@@ -55,14 +85,14 @@ This project is written using Test Driven Development (TDD) practices.
 To run the unit tests build the project with `check`.
 
 ```sh
-$ make check
+$ cmake --build build/ --target check
 ```
 
 This will build and run the unit tests and provide a summary of the results.
-To get more detailed results run the `testrunner` in the `tst` directory.
+To get more detailed results run the `testrunner` in the `build/tst` directory.
 
 ```sh
-$ tst/testrunner
+$ ./build/tst/testrunner
 ```
 
 ### Submodules
@@ -89,17 +119,17 @@ To create a code coverage report, configure the project with
 `ENABLE_CODE_COVERAGE=ON` and then build with `check-code-coverage`.
 
 ```sh
-$ cmake -DENABLE_CODE_COVERAGE=ON ../
-$ make check-code-coverage
+$ cmake -H. -Bbuild/ -DENABLE_CODE_COVERAGE=ON
+$ cmake --build build/ --target check-code-coverage
 ```
 
-This will produce the code coverage report in `image-coverage/`
-folder. View `image-coverage/index.html` to see the results.
+This will produce the code coverage report in `build/image-coverage`
+folder. View `build/image-coverage/index.html` to see the results.
 
 To get a quick overview of the code coverage use `gcovr`.
 
 ```sh
-$ gcovr -r ../ -e 3rdparty
+$ gcovr -r . -e 3rdparty
 ```
 
 **NOTE!** Code coverage will enforce a `Debug` build
@@ -110,7 +140,7 @@ To create project documentation using `doxygen` build the project with
 `doxygen-doc`.
 
 ```sh
-$ make doxygen-doc
+$ cmake --build build/ --target doxygen-doc
 ```
 
-This will create the documentation in `doxygen-doc` folder.
+This will create the documentation in `build/doxygen-doc` folder.

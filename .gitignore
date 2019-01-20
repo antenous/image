@@ -19,5 +19,8 @@
 /image-coverage/
 /image-coverage.info
 
+# Install
+/bin/
+
 # Doxygen
 /doxygen-doc
