@@ -7,8 +7,6 @@
 
 #include "BlockCompressor.hpp"
 #include <algorithm>
-#include <array>
-#include <tuple>
 #include "ColorDepth.hpp"
 #include "ColorPalette.hpp"
 
@@ -21,44 +19,19 @@ BlockCompressor::BadSize::BadSize() :
 namespace
 {
     using Color = std::array<HighColor, 4>;
+    using IntermediateColors = std::pair<HighColor, HighColor>;
 
-    enum Mask: uint16_t
-    {
-        red   = 0xf800,
-        green = 0x7e0,
-        blue  = 0x1f
-    };
-
-    HighColor interpolate(Mask mask, HighColor c0, HighColor c1)
-    {
-        return (2*(c0 & mask) + (c1 & mask))/3 & mask;
-    }
-
-    HighColor interpolate(HighColor c0, HighColor c1)
-    {
-        return interpolate(red, c0, c1) | interpolate(green, c0, c1) | interpolate(blue, c0, c1);
-    }
-
-    std::pair<HighColor, HighColor> interpolate(const Color & color)
+    IntermediateColors interpolate(const Color & color)
     {
         return { interpolate(color[0], color[1]), interpolate(color[1], color[0]) };
     }
 
-    auto distance(HighColor c0, HighColor c1)
-    {
-        const auto r(((c0 & red) - (c1 & red)) >> 11);
-        const auto g(((c0 & green) - (c1 & green)) >> 5);
-        const auto b((c0 & blue) - (c1 & blue));
-        return r*r + g*g + b*b;
-    }
-
     template<typename InputIterator>
-    std::pair<HighColor, HighColor> referenceColors(InputIterator first, InputIterator last)
+    auto referenceColors(InputIterator first, InputIterator last)
     {
-        std::pair<HighColor, HighColor> colors;
-        int maxDist(-1);
+        DirectDrawSurface::Texel::ReferenceColors colors;
 
-        for (; first != last; ++first)
+        for (int maxDist(-1); first != last; ++first)
             for (auto second(std::next(first)); second != last; ++second)
                 if (auto dist(distance(*first, *second)); dist > maxDist)
                     std::tie(maxDist, colors.first, colors.second) = std::tie(dist, *first, *second);
@@ -66,10 +39,10 @@ namespace
         return colors;
     }
 
-    std::pair<HighColor, HighColor> reorder(std::pair<HighColor, HighColor> && colors)
+    auto removeAlpha(DirectDrawSurface::Texel::ReferenceColors && colors)
     {
         if (colors.second > colors.first)
-            return { colors.second, colors.first };
+            std::swap(colors.second, colors.first);
 
         return std::move(colors);
     }
@@ -78,7 +51,7 @@ namespace
     Color createColorTable(InputIterator first, InputIterator last)
     {
         Color color;
-        std::tie(color[0], color[1]) = reorder(referenceColors(first, last));
+        std::tie(color[0], color[1]) = removeAlpha(referenceColors(first, last));
         std::tie(color[2], color[3]) = interpolate(color);
         return color;
     }
@@ -147,28 +120,18 @@ namespace
 {
     bool hasAlpha(const Color & color)
     {
-        return color[0] <= color[1];
+        return color[1] > color[0];
     }
 
-    HighColor blend(Mask mask, HighColor a, HighColor b)
+    IntermediateColors blend(const Color & color)
     {
-        return ((a & mask) + (b & mask))/2 & mask;
-    }
-
-    HighColor blend(HighColor a, HighColor b)
-    {
-        return blend(red, a, b) | blend(green, a, b) | blend(blue, a, b);
-    }
-
-    std::pair<HighColor, HighColor> blend(const Color & color)
-    {
-        return { blend(color[0], color[1]), 0xffff };
+        return { blend(color[0], color[1]), HighColor() };
     }
 
     Color recreateColorTable(const DirectDrawSurface::Texel::ReferenceColors & referenceColors)
     {
         Color color;
-        std::tie(color[0], color[1]) = std::tie(referenceColors[0], referenceColors[1]);
+        std::tie(color[0], color[1]) = referenceColors;
         std::tie(color[2], color[3]) = hasAlpha(color) ? blend(color) : interpolate(color);
         return color;
     }

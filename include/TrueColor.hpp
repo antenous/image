@@ -18,14 +18,16 @@ namespace image
 
     struct TrueColor
     {
+        using Sample = uint8_t;
+
         bool operator==(const TrueColor & other) const
         {
             return std::tie(blue, green, red) == std::tie(other.blue, other.green, other.red);
         }
 
-        uint8_t blue;
-        uint8_t green;
-        uint8_t red;
+        Sample blue;
+        Sample green;
+        Sample red;
     };
 
     inline std::ostream & operator<<(std::ostream & os, const TrueColor & trueColor)

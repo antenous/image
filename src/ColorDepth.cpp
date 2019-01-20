@@ -7,37 +7,34 @@
 
 #include "ColorDepth.hpp"
 #include <algorithm>
-#include <initializer_list>
+#include <bitset>
 
 using namespace image;
 
 namespace
 {
-    using SampleColor = uint8_t;
-
-    HighColor trueToHigh(const TrueColor & trueColor)
+    inline auto trueToHigh(const TrueColor & trueColor) noexcept
     {
-        return ((trueColor.red & 0xf8) << 8)|((trueColor.green & 0xfc) << 3)|((trueColor.blue & 0xf8) >> 3);
+        return HighColor(((trueColor.red & 0xf8) << 8)|((trueColor.green & 0xfc) << 3)|((trueColor.blue & 0xf8) >> 3));
     }
 
-    SampleColor upscaleSample(HighColor color, uint8_t bits)
+    inline TrueColor::Sample upscaleSample(HighColor::Sample sample, uint8_t bits) noexcept
     {
-        const SampleColor sample((color << (8 - bits)) & 0xff);
+        sample <<= (8 - bits);
         return sample | (sample >> bits);
     }
 
-    TrueColor highToTrue(HighColor highColor)
+    inline HighColor::Sample upscaleSample(HighColor::Mask mask, const HighColor & color) noexcept
     {
-        TrueColor trueColor;
+        return upscaleSample(color[mask], std::bitset<16>(static_cast<std::underlying_type_t<HighColor::Mask>>(mask)).count());
+    }
 
-        trueColor.blue = upscaleSample(highColor, 5);
-        highColor >>= 5;
-
-        trueColor.green = upscaleSample(highColor, 6);
-        highColor >>= 6;
-
-        trueColor.red = upscaleSample(highColor, 5);
-        return trueColor;
+    inline auto highToTrue(const HighColor & highColor) noexcept
+    {
+        return TrueColor{
+            .blue  = upscaleSample(HighColor::Mask::Blue, highColor),
+            .green = upscaleSample(HighColor::Mask::Green, highColor),
+            .red   = upscaleSample(HighColor::Mask::Red, highColor) };
     }
 }
 
@@ -59,7 +56,7 @@ std::vector<TrueColor> ColorDepth::highToTrue(const std::vector<HighColor> & in)
     std::vector<TrueColor> out;
     out.reserve(in.size());
 
-    std::transform(in.begin(), in.end(), std::back_inserter(out),[](HighColor color)
+    std::transform(in.begin(), in.end(), std::back_inserter(out),[](const HighColor & color)
     {
         return ::highToTrue(color);
     });

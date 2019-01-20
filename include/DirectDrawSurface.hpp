@@ -24,7 +24,7 @@ namespace image
     public:
         struct Texel
         {
-            using ReferenceColors = std::array<HighColor, 2>;
+            using ReferenceColors = std::pair<HighColor, HighColor>;
 
             using LookupTable = uint32_t;
 

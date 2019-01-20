@@ -12,5 +12,5 @@ using namespace image;
 
 TEST(HighColorTest, Type)
 {
-    EXPECT_TRUE((std::is_same<uint16_t, HighColor>::value));
+    EXPECT_TRUE((std::is_same<uint16_t, HighColor::Color>::value));
 }

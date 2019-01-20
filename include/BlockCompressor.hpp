@@ -9,8 +9,6 @@
 #ifndef BLOCKCOMPRESSOR_HPP_
 #define BLOCKCOMPRESSOR_HPP_
 
-#include <stdexcept>
-#include <vector>
 #include "Bitmap.hpp"
 #include "DirectDrawSurface.hpp"
 

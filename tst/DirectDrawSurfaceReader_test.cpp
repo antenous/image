@@ -71,8 +71,8 @@ namespace
     auto toTuple(const DirectDrawSurface::Texel & texel)
     {
         return std::make_tuple(
-            texel.referenceColors[0],
-            texel.referenceColors[1],
+            texel.referenceColors.first,
+            texel.referenceColors.second,
             texel.lookupTable);
     }
 
