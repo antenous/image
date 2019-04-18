@@ -18,6 +18,8 @@ namespace image
 
     /**
         Class to hold all the data about a direct draw surface image
+
+        https://docs.microsoft.com/en-us/windows/desktop/direct3ddds/dds-header
     */
     class DirectDrawSurface
     {

@@ -8,6 +8,7 @@ add_executable(testrunner
     DirectDrawSurfaceReader_test.cpp
     DirectDrawSurface_test.cpp
     DirectDrawSurfaceWriter_test.cpp
+    DirectX_test.cpp
     HighColor_test.cpp
     ImageConverter_test.cpp
     TrueColor_test.cpp)

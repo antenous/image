@@ -6,6 +6,7 @@
  */
 
 #include "ImageConverter.hpp"
+#include "DirectX.hpp"
 #include "BlockCompressor.hpp"
 
 using namespace image;
@@ -31,14 +32,14 @@ void ImageConverter::createFileHeader( DirectDrawSurface & dds, const Bitmap & b
 {
     dds.magic = 0x20534444;
     dds.header.size = 124;
-    dds.header.flags = 0x1 | 0x2 | 0x4 | 0x1000;
+    dds.header.flags = DirectX::DDS_HEADER_FLAGS_TEXTURE;
     dds.header.height = bmp.height();
     dds.header.width = bmp.width();
     dds.header.pitch = dds.data.size() * sizeof(DirectDrawSurface::Data::value_type);
-    dds.header.caps = 0x1000;
+    dds.header.caps = DirectX::DDS_SURFACE_FLAGS_TEXTURE;
 
     dds.header.pixelFormat.size = 32;
-    dds.header.pixelFormat.flags = 0x4;
+    dds.header.pixelFormat.flags = DirectX::DDS_FOURCC;
     dds.header.pixelFormat.fourCC[0] = 'D';
     dds.header.pixelFormat.fourCC[1] = 'X';
     dds.header.pixelFormat.fourCC[2] = 'T';
