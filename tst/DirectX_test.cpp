@@ -33,6 +33,11 @@ namespace
     constexpr std::uint32_t DDPF_LUMINANCE{0x20000};
 }
 
+TEST(DirectXTest, Magic)
+{
+    static_assert(0x20534444 == DDS_MAGIC);
+}
+
 TEST(DirectXTest, HeaderFlags)
 {
     EXPECT_EQ(DDSD_PITCH, DDS_HEADER_FLAGS_PITCH);
@@ -52,4 +57,5 @@ TEST(DirectXTest, SurfaceFlags)
 TEST(DirectXTest, PixelFormatFlags)
 {
     EXPECT_EQ(DDPF_FOURCC, DDS_FOURCC);
+    static_assert(0x31545844 == DDS_DXT1);
 }

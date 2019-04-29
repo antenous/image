@@ -33,17 +33,15 @@ namespace
 
     auto toTuple(const DirectDrawSurface::Header::PixelFormat & pixelFormat)
     {
-        return std::tuple_cat(
-            std::make_tuple(
-                pixelFormat.size,
-                pixelFormat.flags),
-            toTuple<4>(pixelFormat.fourCC),
-            std::make_tuple(
-                pixelFormat.bits,
-                pixelFormat.redBitMask,
-                pixelFormat.greenBitMask,
-                pixelFormat.blueBitMask,
-                pixelFormat.alphaBitMask));
+        return std::make_tuple(
+            pixelFormat.size,
+            pixelFormat.flags,
+            pixelFormat.fourCC,
+            pixelFormat.bits,
+            pixelFormat.redBitMask,
+            pixelFormat.greenBitMask,
+            pixelFormat.blueBitMask,
+            pixelFormat.alphaBitMask);
     }
 
     auto toTuple(const DirectDrawSurface::Header & header)
@@ -116,7 +114,7 @@ namespace
         DirectDrawSurface dds{
               0x20534444,
             { 124, 0x1 | 0x2 | 0x4 | 0x1000, 4, 4, 8, 0, 0, { 0 },
-            { 32, 0x4, { 'D', 'X', 'T', '1' }, 0, 0, 0, 0, 0 },
+            { 32, 0x4, 0x31545844, 0, 0, 0, 0, 0 },
               0x1000, 0, 0, 0, 0 },
             {{{ 45316, 54533 }, 1460536927 }}};
     };

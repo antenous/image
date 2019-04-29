@@ -6,12 +6,13 @@
  */
 
 #include "DirectDrawSurface.hpp"
+#include "DirectX.hpp"
 
 using namespace image;
 
 DirectDrawSurface::operator bool() const
 {
-    return magic == 0x20534444;
+    return magic == DirectX::DDS_MAGIC;
 }
 
 uint32_t DirectDrawSurface::height() const

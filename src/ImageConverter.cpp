@@ -30,20 +30,17 @@ void ImageConverter::convertData( DirectDrawSurface & dds, const Bitmap & bmp )
 
 void ImageConverter::createFileHeader( DirectDrawSurface & dds, const Bitmap & bmp )
 {
-    dds.magic = 0x20534444;
-    dds.header.size = 124;
+    dds.magic = DirectX::DDS_MAGIC;
+    dds.header.size = sizeof(DirectDrawSurface::Header);
     dds.header.flags = DirectX::DDS_HEADER_FLAGS_TEXTURE;
     dds.header.height = bmp.height();
     dds.header.width = bmp.width();
     dds.header.pitch = dds.data.size() * sizeof(DirectDrawSurface::Data::value_type);
     dds.header.caps = DirectX::DDS_SURFACE_FLAGS_TEXTURE;
 
-    dds.header.pixelFormat.size = 32;
+    dds.header.pixelFormat.size = sizeof(DirectDrawSurface::Header::PixelFormat);
     dds.header.pixelFormat.flags = DirectX::DDS_FOURCC;
-    dds.header.pixelFormat.fourCC[0] = 'D';
-    dds.header.pixelFormat.fourCC[1] = 'X';
-    dds.header.pixelFormat.fourCC[2] = 'T';
-    dds.header.pixelFormat.fourCC[3] = '1';
+    dds.header.pixelFormat.fourCC = DirectX::DDS_DXT1;
 }
 
 Bitmap ImageConverter::convert( const DirectDrawSurface & dds )

@@ -20,6 +20,16 @@ namespace
     };
 }
 
+TEST_F(DirectDrawSurfaceTest, SizeOfHeader)
+{
+    EXPECT_EQ(124, sizeof(DirectDrawSurface::Header));
+}
+
+TEST_F(DirectDrawSurfaceTest, SizeOfPixelFormat)
+{
+    EXPECT_EQ(32, sizeof(DirectDrawSurface::Header::PixelFormat));
+}
+
 TEST_F(DirectDrawSurfaceTest, FalseWhenEmpty)
 {
     EXPECT_FALSE(dds);

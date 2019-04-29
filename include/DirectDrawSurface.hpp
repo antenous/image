@@ -76,7 +76,7 @@ namespace image
             {
                 uint32_t size;
                 uint32_t flags;
-                char fourCC[4];
+                uint32_t fourCC;
                 uint32_t bits;
                 uint32_t redBitMask;
                 uint32_t greenBitMask;
