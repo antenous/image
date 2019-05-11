@@ -49,7 +49,6 @@ $ docker stop image
 
 **NOTE!** The Docker commands above may require root permissions
 
-
 ## Installation
 
 By default, `install` target will install the executable in `/usr/local/bin/`.
@@ -81,8 +80,11 @@ In the above case the resulting file will be `out.dds`.
 
 ## Testing
 
-This project is written using Test Driven Development (TDD) practices.
-To run the unit tests build the project with `check`.
+This project is written using Test Driven Development (TDD) practices. The
+tests are written using [Google Test](https://github.com/google/googletest) C++
+test framework which is downloaded and built together with the tests. To run
+the unit tests build the project with
+`check`.
 
 ```sh
 $ cmake --build build/ --target check
@@ -94,24 +96,6 @@ To get more detailed results run the `testrunner` in the `build/tst` directory.
 ```sh
 $ ./build/tst/testrunner
 ```
-
-### Submodules
-
-This project includes a Google Test unit testing framework as a git
-submodule. The submodules are not cloned as part of the project by
-default, in order to run the unit tests the below commands need to be
-run once.
-
-```sh
-$ git submodule init
-$ git submodule update
-```
-
-This will initialize and update the submodules in the repository.
-Another way to achieve this is to pass `--recursive` option to `git`
-when cloning this project.
-
-Find more about git submodules from [here](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
 
 ### Code coverage
 
@@ -129,7 +113,7 @@ folder. View `build/image-coverage/index.html` to see the results.
 To get a quick overview of the code coverage use `gcovr`.
 
 ```sh
-$ gcovr -r . -e 3rdparty
+$ gcovr -r . -e .*googletest.*
 ```
 
 **NOTE!** Code coverage will enforce a `Debug` build

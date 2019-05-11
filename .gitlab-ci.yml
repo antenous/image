@@ -1,19 +1,17 @@
 image: ubuntu:latest
 
 before_script:
-  - apt-get update -qq && apt-get install -y -qq build-essential cmake git lcov gcovr
-  - git submodule sync --recursive
-  - git submodule update --init --recursive
+  - apt-get update && apt-get install -y --no-install-recommends build-essential ca-certificates cmake git lcov gcovr ninja-build
 
 build:
   stage: build
   script:
-    - cmake ./
-    - make
+    - cmake -H. -Bbuild/ -G Ninja
+    - cmake --build build/
 
 test:
   stage: test
   script:
-    - cmake -DENABLE_CODE_COVERAGE=ON ./
-    - make check
-    - gcovr -sr . -e '.*/main.cpp' -e '.*/\.' -e '3rdparty'
+    - cmake -H. -Bbuild/ -G Ninja -DENABLE_CODE_COVERAGE=ON
+    - cmake --build build/ --target check
+    - gcovr -sr build/ -e '.*/main.cpp' -e '.*googletest.*'

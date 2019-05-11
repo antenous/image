@@ -11,20 +11,20 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(ccache)
 include(coverage)
 include(docker)
+include(googletest)
 
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 add_subdirectory(src)
 
 enable_testing()
 add_subdirectory(tst EXCLUDE_FROM_ALL)
-add_subdirectory(3rdparty/googletest EXCLUDE_FROM_ALL)
 
 # https://gitlab.kitware.com/cmake/community/wikis/doc/tutorials/EmulateMakeCheck
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 add_dependencies(check image testrunner)
 
 add_code_coverage_target(check-code-coverage EXCLUDES
-    '${PROJECT_SOURCE_DIR}/3rdparty/*'
+    '${PROJECT_BINARY_DIR}/googletest*'
     '${PROJECT_SOURCE_DIR}/src/main.cpp')
 
 # uninstall target
