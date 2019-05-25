@@ -24,21 +24,7 @@ namespace image
     class DirectDrawSurface
     {
     public:
-        struct Texel
-        {
-            using ReferenceColors = std::pair<HighColor, HighColor>;
-
-            using LookupTable = uint32_t;
-
-            ReferenceColors referenceColors;
-
-            LookupTable lookupTable;
-
-            bool operator==(const Texel & other) const
-            {
-                return std::tie(referenceColors, lookupTable) == std::tie(other.referenceColors, other.lookupTable);
-            }
-        };
+        struct Texel;
 
         using Data = std::vector<Texel>;
 
@@ -92,6 +78,32 @@ namespace image
         } header;
 
         Data data;
+    };
+
+    struct DirectDrawSurface::Texel
+    {
+        using ReferenceColors = std::pair<HighColor, HighColor>;
+
+        using LookupTable = uint32_t;
+
+        ReferenceColors referenceColors;
+
+        LookupTable lookupTable;
+
+        bool operator==(const Texel & other) const
+        {
+            return std::tie(referenceColors, lookupTable) == std::tie(other.referenceColors, other.lookupTable);
+        }
+
+        constexpr static uint8_t pixels()
+        {
+            return 4*4;
+        }
+
+        constexpr static uint8_t size()
+        {
+            return sizeof(Texel);
+        }
     };
 
 }

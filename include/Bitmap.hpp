@@ -53,6 +53,11 @@ namespace image
 
         struct InfoHeader
         {
+            /**
+                Return the number of padding bytes in a row
+            */
+            uint8_t padding() const;
+
             uint32_t size;
             int32_t width;
             int32_t height;

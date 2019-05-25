@@ -38,7 +38,7 @@ namespace image
             @throw BadBitmap if the bmp is not a valid image
             @throw BlockCompressor::BadSize if the image has unsupported dimensions
         */
-        static DirectDrawSurface convert( const Bitmap & bmp );
+        static DirectDrawSurface convert(const Bitmap & bmp);
 
         /**
             Convert a direct draw surface into a bitmap
@@ -48,34 +48,19 @@ namespace image
             @throw BadDirectDrawSurface if the dds is not a valid image
             @throw BlockCompressor::BadSize if the image has unsupported dimensions
         */
-        static Bitmap convert( const DirectDrawSurface & dds );
-
-    private:
-        static void convertData( DirectDrawSurface & dds, const Bitmap & bmp );
-
-        static void createFileHeader( DirectDrawSurface & dds, const Bitmap & bmp );
-
-        static void convertData( Bitmap & bmp, const DirectDrawSurface & dds );
-
-        static void createInfoHeader( Bitmap & bmp, const DirectDrawSurface & dds );
-
-        static void createFileHeader( Bitmap & bmp );
+        static Bitmap convert(const DirectDrawSurface & dds);
     };
 
     class ImageConverter::BadBitmap : public std::runtime_error
     {
     public:
-        BadBitmap() :
-            std::runtime_error( "bad bitmap" )
-        {}
+        BadBitmap();
     };
 
     class ImageConverter::BadDirectDrawSurface : public std::runtime_error
     {
     public:
-        BadDirectDrawSurface() :
-            std::runtime_error( "bad direct draw surface" )
-        {}
+        BadDirectDrawSurface();
     };
 
 }

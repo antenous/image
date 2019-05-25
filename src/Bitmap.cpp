@@ -26,6 +26,11 @@ int32_t Bitmap::width() const
 
 uint8_t Bitmap::padding() const
 {
-    const auto bytesInRow((infoHeader.bits*infoHeader.width + 31)/32*4);
-    return bytesInRow - infoHeader.width*3;
+    return infoHeader.padding();
+}
+
+uint8_t Bitmap::InfoHeader::padding() const
+{
+    const auto bytesInRow((bits*width + 31)/32*4);
+    return bytesInRow - width*3;
 }

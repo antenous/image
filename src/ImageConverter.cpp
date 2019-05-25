@@ -11,71 +11,86 @@
 
 using namespace image;
 
-DirectDrawSurface ImageConverter::convert( const Bitmap & bmp )
+ImageConverter::BadBitmap::BadBitmap() :
+    std::runtime_error("bad bitmap")
+{}
+
+ImageConverter::BadDirectDrawSurface::BadDirectDrawSurface() :
+    std::runtime_error("bad direct draw surface")
+{}
+
+namespace
 {
-    if ( !bmp )
+    DirectDrawSurface::Header createFileHeader(const Bitmap & bmp)
+    {
+        DirectDrawSurface::Header header{};
+
+        header.size = sizeof(DirectDrawSurface::Header);
+        header.flags = DirectX::DDS_HEADER_FLAGS_TEXTURE;
+        header.height = bmp.height();
+        header.width = bmp.width();
+        header.pitch = header.height*header.width*
+            DirectDrawSurface::Texel::size()/DirectDrawSurface::Texel::pixels();
+        header.caps = DirectX::DDS_SURFACE_FLAGS_TEXTURE;
+        header.pixelFormat.size = sizeof(DirectDrawSurface::Header::PixelFormat);
+        header.pixelFormat.flags = DirectX::DDS_FOURCC;
+        header.pixelFormat.fourCC = DirectX::DDS_DXT1;
+
+        return header;
+    }
+}
+
+DirectDrawSurface ImageConverter::convert(const Bitmap & bmp)
+{
+    if (!bmp)
         throw BadBitmap();
 
     DirectDrawSurface dds{};
-    convertData( dds, bmp );
-    createFileHeader( dds, bmp );
+    dds.magic = DirectX::DDS_MAGIC;
+    dds.data = BlockCompressor::compress(bmp.colors, bmp.height(), bmp.width());
+    dds.header = createFileHeader(bmp);
 
     return dds;
 }
 
-void ImageConverter::convertData( DirectDrawSurface & dds, const Bitmap & bmp )
+namespace
 {
-    dds.data = BlockCompressor::compress(bmp.colors, bmp.height(), bmp.width());
+    Bitmap::InfoHeader createInfoHeader(const DirectDrawSurface & dds)
+    {
+        Bitmap::InfoHeader infoHeader{};
+
+        infoHeader.size = 40;
+        infoHeader.width = dds.width();
+        infoHeader.height = dds.height();
+        infoHeader.planes = 1;
+        infoHeader.bits = 24;
+        infoHeader.imageSize = (3*dds.width() + infoHeader.padding())*dds.height();
+
+        return infoHeader;
+    }
+
+    Bitmap::FileHeader createFileHeader(const Bitmap::InfoHeader & infoHeader)
+    {
+        Bitmap::FileHeader fileHeader{};
+
+        fileHeader.type[0] = 'B';
+        fileHeader.type[1] = 'M';
+        fileHeader.size = 14 + infoHeader.size + infoHeader.imageSize;
+        fileHeader.offset = 54;
+
+        return fileHeader;
+    }
 }
 
-void ImageConverter::createFileHeader( DirectDrawSurface & dds, const Bitmap & bmp )
+Bitmap ImageConverter::convert(const DirectDrawSurface & dds)
 {
-    dds.magic = DirectX::DDS_MAGIC;
-    dds.header.size = sizeof(DirectDrawSurface::Header);
-    dds.header.flags = DirectX::DDS_HEADER_FLAGS_TEXTURE;
-    dds.header.height = bmp.height();
-    dds.header.width = bmp.width();
-    dds.header.pitch = dds.data.size() * sizeof(DirectDrawSurface::Data::value_type);
-    dds.header.caps = DirectX::DDS_SURFACE_FLAGS_TEXTURE;
-
-    dds.header.pixelFormat.size = sizeof(DirectDrawSurface::Header::PixelFormat);
-    dds.header.pixelFormat.flags = DirectX::DDS_FOURCC;
-    dds.header.pixelFormat.fourCC = DirectX::DDS_DXT1;
-}
-
-Bitmap ImageConverter::convert( const DirectDrawSurface & dds )
-{
-    if ( !dds )
+    if (!dds)
         throw BadDirectDrawSurface();
 
     Bitmap bmp{};
-    createInfoHeader( bmp, dds );
-    createFileHeader( bmp );
-    convertData( bmp, dds );
+    bmp.infoHeader = createInfoHeader(dds);
+    bmp.fileHeader = createFileHeader(bmp.infoHeader);
+    bmp.colors = BlockCompressor::decompress(dds.data, dds.height(), dds.width());
 
     return bmp;
-}
-
-void ImageConverter::convertData( Bitmap & bmp, const DirectDrawSurface & dds )
-{
-    bmp.colors = BlockCompressor::decompress(dds.data, dds.height(), dds.width());
-}
-
-void ImageConverter::createInfoHeader( Bitmap & bmp, const DirectDrawSurface & dds )
-{
-    bmp.infoHeader.size = 40;
-    bmp.infoHeader.width = dds.width();
-    bmp.infoHeader.height = dds.height();
-    bmp.infoHeader.planes = 1;
-    bmp.infoHeader.bits = 24;
-    bmp.infoHeader.imageSize = (3*dds.width() + bmp.padding())*dds.height();
-}
-
-void ImageConverter::createFileHeader( Bitmap & bmp )
-{
-    bmp.fileHeader.type[0] = 'B';
-    bmp.fileHeader.type[1] = 'M';
-    bmp.fileHeader.size = 14;
-    bmp.fileHeader.offset = 54;
-    bmp.fileHeader.size += bmp.infoHeader.size + bmp.infoHeader.imageSize;
 }
