@@ -2,6 +2,7 @@ add_executable(testrunner
     BitmapReader_test.cpp
     Bitmap_test.cpp
     BitmapWriter_test.cpp
+    BlockCodec_test.cpp
     BlockCompressor_test.cpp
     BlockIterator_test.cpp
     ColorDepth_test.cpp
