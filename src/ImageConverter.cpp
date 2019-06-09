@@ -29,8 +29,7 @@ namespace
         header.flags = DirectX::DDS_HEADER_FLAGS_TEXTURE;
         header.height = bmp.height();
         header.width = bmp.width();
-        header.pitch = header.height*header.width*
-            DirectDrawSurface::Texel::size()/DirectDrawSurface::Texel::pixels();
+        header.pitch = header.height*header.width*Texel::size()/Texel::pixels();
         header.caps = DirectX::DDS_SURFACE_FLAGS_TEXTURE;
         header.pixelFormat.size = sizeof(DirectDrawSurface::Header::PixelFormat);
         header.pixelFormat.flags = DirectX::DDS_FOURCC;

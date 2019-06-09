@@ -18,57 +18,52 @@ BlockCompressor::BadSize::BadSize() :
 
 namespace
 {
-    using Color = std::array<HighColor, 4>;
-    using IntermediateColors = std::pair<HighColor, HighColor>;
+    using ColorTable = std::array<HighColor, 4>;
 
-    IntermediateColors interpolate(const Color & color)
+    ColorTable interpolate(const Texel::ReferenceColors & color)
     {
-        return { interpolate(color[0], color[1]), interpolate(color[1], color[0]) };
+        return { color[0], color[1], interpolate(color[0], color[1]), interpolate(color[1], color[0]) };
     }
 
     template<typename InputIterator>
     auto referenceColors(InputIterator first, InputIterator last)
     {
-        DirectDrawSurface::Texel::ReferenceColors colors;
+        Texel::ReferenceColors colors;
 
         for (int maxDist(-1); first != last; ++first)
             for (auto second(std::next(first)); second != last; ++second)
                 if (auto dist(distance(*first, *second)); dist > maxDist)
-                    std::tie(maxDist, colors.first, colors.second) = std::tie(dist, *first, *second);
+                    std::tie(maxDist, colors[0], colors[1]) = std::tie(dist, *first, *second);
 
         return colors;
     }
 
-    auto removeAlpha(DirectDrawSurface::Texel::ReferenceColors && colors)
+    bool hasAlpha(const Texel::ReferenceColors & color)
     {
-        if (colors.second > colors.first)
-            std::swap(colors.second, colors.first);
-
-        return std::move(colors);
+        return color[1] > color[0];
     }
 
-    template<typename InputIterator>
-    Color createColorTable(InputIterator first, InputIterator last)
+    auto removeAlpha(Texel::ReferenceColors && color)
     {
-        Color color;
-        std::tie(color[0], color[1]) = removeAlpha(referenceColors(first, last));
-        std::tie(color[2], color[3]) = interpolate(color);
-        return color;
+        if (hasAlpha(color))
+            std::swap(color[1], color[0]);
+
+        return std::move(color);
     }
 
-    DirectDrawSurface::Texel::ReferenceColors referenceColors(const Color & color)
+    auto createColorTable(const Texel::ReferenceColors & color)
     {
-        return { color[0], color[1] };
+        return interpolate(color);
     }
 
-    uint8_t findNearest(const Color & color, HighColor ref)
+    uint8_t findNearest(const ColorTable & color, HighColor ref)
     {
         const auto nearest([ref](auto x, auto y){ return distance(x, ref) < distance(y, ref); });
         return std::distance(color.begin(), std::min_element(color.begin(), color.end(), nearest));
     }
 
     template<typename InputIterator>
-    uint32_t createLookupTable(const Color & color, InputIterator first, InputIterator last)
+    uint32_t createLookupTable(const ColorTable & color, InputIterator first, InputIterator last)
     {
         uint32_t lookup(0);
 
@@ -82,8 +77,8 @@ namespace
     template<typename InputIterator, typename OutputIterator>
     OutputIterator compressBlock(InputIterator first, InputIterator last, OutputIterator result)
     {
-        const auto color(createColorTable(first, last));
-        result = { referenceColors(color), createLookupTable(color, first, last) };
+        const auto color(removeAlpha(referenceColors(first, last)));
+        result = { color, createLookupTable(createColorTable(color), first, last) };
         return ++result;
     }
 
@@ -129,26 +124,18 @@ DirectDrawSurface::Data BlockCompressor::compress(const std::vector<HighColor> &
 
 namespace
 {
-    bool hasAlpha(const Color & color)
+    ColorTable blend(const Texel::ReferenceColors & color)
     {
-        return color[1] > color[0];
+        return { color[0], color[1], blend(color[0], color[1]), HighColor() };
     }
 
-    IntermediateColors blend(const Color & color)
+    ColorTable recreateColorTable(const Texel::ReferenceColors & color)
     {
-        return { blend(color[0], color[1]), HighColor() };
-    }
-
-    Color recreateColorTable(const DirectDrawSurface::Texel::ReferenceColors & referenceColors)
-    {
-        Color color;
-        std::tie(color[0], color[1]) = referenceColors;
-        std::tie(color[2], color[3]) = hasAlpha(color) ? blend(color) : interpolate(color);
-        return color;
+        return hasAlpha(color) ? blend(color) : interpolate(color);
     }
 
     template<typename OutputIterator>
-    OutputIterator decompress(const DirectDrawSurface::Texel & texel, OutputIterator result)
+    OutputIterator decompress(const Texel & texel, OutputIterator result)
     {
         const auto color(recreateColorTable(texel.referenceColors));
 

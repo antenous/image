@@ -7,7 +7,8 @@ add_library(img STATIC
     DirectDrawSurface.cpp
     DirectDrawSurfaceReader.cpp
     DirectDrawSurfaceWriter.cpp
-    ImageConverter.cpp)
+    ImageConverter.cpp
+    Texel.cpp)
 target_include_directories(img PUBLIC ${INCLUDE_DIR})
 
 add_executable(image main.cpp)

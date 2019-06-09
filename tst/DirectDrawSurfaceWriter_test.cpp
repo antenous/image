@@ -65,11 +65,11 @@ namespace
                 header.reserved2));
     }
 
-    auto toTuple(const DirectDrawSurface::Texel & texel)
+    auto toTuple(const Texel & texel)
     {
         return std::make_tuple(
-            texel.referenceColors.first,
-            texel.referenceColors.second,
+            texel.referenceColors[0],
+            texel.referenceColors[1],
             texel.lookupTable);
     }
 

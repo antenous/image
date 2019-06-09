@@ -11,6 +11,7 @@ add_executable(testrunner
     DirectX_test.cpp
     HighColor_test.cpp
     ImageConverter_test.cpp
+    Texel_test.cpp
     TrueColor_test.cpp)
 target_link_libraries(testrunner img gtest_main)
 
