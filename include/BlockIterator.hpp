@@ -16,21 +16,21 @@ namespace image
 {
 
     /**
-        Iterator adaptor for block traversal
+        @brief  Iterator adaptor for block traversal
 
         Bitmap views the image as a continuous stream of colors starting from the
         bottom left corner of the image while the direct draw surface sees the image
         as a stream of 4x4 blocks of texels starting from the top right corner.
 
-               56 57 58 59 | 60 61 62 63 -> bmp
-               48 49 50 51 | 52 53 54 55
-               40 41 42 43 | 44 45 46 47
-        dds -> 32 33 34 35 | 36 37 38 39
-               ------------+------------
-               24 25 26 27 | 28 29 30 31 -> dds
-               16 17 18 19 | 20 21 22 23
-                8  9 10 11 | 12 13 14 15
-        bmp ->  0  1  2  3 |  4  5  6  7
+                   56 57 58 59 | 60 61 62 63 -> bmp
+                   48 49 50 51 | 52 53 54 55
+                   40 41 42 43 | 44 45 46 47
+            dds -> 32 33 34 35 | 36 37 38 39
+                   ------------+------------
+                   24 25 26 27 | 28 29 30 31 -> dds
+                   16 17 18 19 | 20 21 22 23
+                    8  9 10 11 | 12 13 14 15
+            bmp ->  0  1  2  3 |  4  5  6  7
 
         To work with the different color streams an iterator capable of traversing
         between the two is needed to avoid copying data from one format to the other.

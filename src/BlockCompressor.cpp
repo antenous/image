@@ -9,6 +9,7 @@
 #include <algorithm>
 #include "BlockIterator.hpp"
 #include "ColorDepth.hpp"
+#include "TransformIterator.hpp"
 
 using namespace image;
 
@@ -93,13 +94,17 @@ namespace
 
     auto downscaleAndReorder(const Bitmap::Colors & in, int32_t height, int32_t width)
     {
+        const auto downscaler([](const auto & it)
+        {
+            return TransformIterator(it, ColorDepth::trueToHigh);
+        });
+
         std::vector<HighColor> out;
         out.reserve(in.size());
-        std::transform(
+        std::copy(
             BlockIterator<Bitmap::Colors::const_iterator>(in.begin(), height, width),
             BlockIterator<Bitmap::Colors::const_iterator>(height, width),
-            std::back_inserter(out),
-            ColorDepth::trueToHigh);
+            downscaler(std::back_inserter(out)));
         return out;
     }
 }
@@ -141,7 +146,7 @@ namespace
 
         for (int y(24); y >= 0; y -= 8)
             for (unsigned x(0); x < 8; x += 2)
-                *result++ = ColorDepth::highToTrue(color[((texel.lookupTable >> y >> x) & 0b11)]);
+                *result++ = color[((texel.lookupTable >> y >> x) & 0b11)];
 
         return result;
     }
@@ -162,8 +167,12 @@ Bitmap::Colors BlockCompressor::decompress(
     if (in.empty())
         throw BadSize();
 
-    Bitmap::Colors out(in.size()*16);
-    ::decompress(in.begin(), in.end(), deblocker(out, height, width));
+    const auto upscaler([](const auto & it)
+    {
+        return TransformIterator(it, ColorDepth::highToTrue);
+    });
 
+    Bitmap::Colors out(in.size()*Texel::pixels());
+    ::decompress(in.begin(), in.end(), upscaler(deblocker(out, height, width)));
     return out;
 }
