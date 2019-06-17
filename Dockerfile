@@ -7,7 +7,7 @@ ARG BASE_IMG=ubuntu:latest
 FROM ${BASE_IMG} AS prepare
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    build-essential ccache cmake doxygen gcovr git graphviz lcov ninja-build && \
+    build-essential ca-certificates ccache cmake doxygen gcovr git graphviz lcov ninja-build && \
     rm -rf /var/lib/apt/lists/*
 
 
