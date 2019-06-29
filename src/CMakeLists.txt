@@ -1,10 +1,11 @@
 add_library(img STATIC
     Bitmap.cpp
+    BitmapCompressor.cpp
     BitmapReader.cpp
     BitmapWriter.cpp
-    BlockCompressor.cpp
     ColorDepth.cpp
     DirectDrawSurface.cpp
+    DirectDrawSurfaceDecompressor.cpp
     DirectDrawSurfaceReader.cpp
     DirectDrawSurfaceWriter.cpp
     ImageConverter.cpp

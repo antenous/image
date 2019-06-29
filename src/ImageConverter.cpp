@@ -6,8 +6,9 @@
  */
 
 #include "ImageConverter.hpp"
+#include "BitmapCompressor.hpp"
+#include "DirectDrawSurfaceDecompressor.hpp"
 #include "DirectX.hpp"
-#include "BlockCompressor.hpp"
 
 using namespace image;
 
@@ -46,7 +47,7 @@ DirectDrawSurface ImageConverter::convert(const Bitmap & bmp)
 
     DirectDrawSurface dds{};
     dds.magic = DirectX::DDS_MAGIC;
-    dds.data = BlockCompressor::compress(bmp.colors, bmp.height(), bmp.width());
+    dds.data = BitmapCompressor::compress(bmp.colors, bmp.height(), bmp.width());
     dds.header = createFileHeader(bmp);
 
     return dds;
@@ -89,7 +90,7 @@ Bitmap ImageConverter::convert(const DirectDrawSurface & dds)
     Bitmap bmp{};
     bmp.infoHeader = createInfoHeader(dds);
     bmp.fileHeader = createFileHeader(bmp.infoHeader);
-    bmp.colors = BlockCompressor::decompress(dds.data, dds.height(), dds.width());
+    bmp.colors = DirectDrawSurfaceDecompressor::decompress(dds.data, dds.height(), dds.width());
 
     return bmp;
 }
