@@ -7,6 +7,7 @@
 
 #include "DirectDrawSurfaceDecompressor.hpp"
 #include <gtest/gtest.h>
+#include "DirectX.hpp"
 
 using namespace image;
 using namespace testing;
@@ -17,13 +18,14 @@ namespace
     {
     protected:
         const DirectDrawSurface dds{
-             0x20534444,
-            {124, 0x1 | 0x2 | 0x4 | 0x1000, 8, 8, 32, 0, 1, {},
-            {32, 0x4, 0x31545844, 0, 0, 0, 0, 0}, 0x1000, 0, 0, 0, 0},
+             DirectX::DDS_MAGIC,
+            {sizeof(DirectDrawSurface::Header), DirectX::DDS_HEADER_FLAGS_TEXTURE, 8, 8, 32, 0, 1, {},
+            {sizeof(DirectDrawSurface::Header::PixelFormat), DirectX::DDS_FOURCC, DirectX::DDS_DXT1, 0, 0, 0, 0, 0},
+             DirectX::DDS_SURFACE_FLAGS_TEXTURE, 0, 0, 0, 0},
             {{{0xffff, 0x3427}, 0b01111110010000111100001101011111},
-            {{0xffff, 0x3427}, 0b11110101010000111100001110111101},
-            {{0xffff, 0x3427}, 0b10111101110001110000011100110110},
-            {{0xffff, 0x3427}, 0b01010111011100111111000010101100}}};
+             {{0xffff, 0x3427}, 0b11110101010000111100001110111101},
+             {{0xffff, 0x3427}, 0b10111101110001110000011100110110},
+             {{0xffff, 0x3427}, 0b01010111011100111111000010101100}}};
 
         const Bitmap bmp{
             {{'B', 'M'}, 246, 0, 54},

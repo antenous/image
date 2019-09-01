@@ -7,6 +7,7 @@
 
 #include "DirectDrawSurfaceWriter.hpp"
 #include <gtest/gtest.h>
+#include "DirectX.hpp"
 #include "Writer.hpp"
 
 using namespace image;
@@ -112,11 +113,11 @@ namespace
         }
 
         DirectDrawSurface dds{
-              0x20534444,
-            { 124, 0x1 | 0x2 | 0x4 | 0x1000, 4, 4, 8, 0, 0, { 0 },
-            { 32, 0x4, 0x31545844, 0, 0, 0, 0, 0 },
-              0x1000, 0, 0, 0, 0 },
-            {{{ 45316, 54533 }, 1460536927 }}};
+             DirectX::DDS_MAGIC,
+            {124, DirectX::DDS_HEADER_FLAGS_TEXTURE, 4, 4, 8, 0, 0, {},
+            {32, DirectX::DDS_FOURCC, DirectX::DDS_DXT1, 0, 0, 0, 0, 0},
+             DirectX::DDS_SURFACE_FLAGS_TEXTURE, 0, 0, 0, 0 },
+            {{{45316, 54533}, 1460536927}}};
     };
 }
 
