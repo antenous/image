@@ -20,8 +20,12 @@ enable_testing()
 add_subdirectory(tst EXCLUDE_FROM_ALL)
 
 # https://gitlab.kitware.com/cmake/community/wikis/doc/tutorials/EmulateMakeCheck
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
-add_dependencies(check image testrunner)
+if(NOT CMAKE_CROSSCOMPILING)
+
+    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
+    add_dependencies(check image testrunner)
+
+endif()
 
 add_code_coverage_target(check-code-coverage EXCLUDES
     '${PROJECT_BINARY_DIR}/googletest*'

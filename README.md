@@ -18,6 +18,17 @@ $ cmake --build build/
 
 This will create an executable named `image` in the `build/src` directory.
 
+### Cross building for Windows
+
+To build the project for Windows run the below commands.
+
+```sh
+$ cmake -H. -Bbuild/cross -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain-mingw-w64-x86_64.cmake
+$ cmake --build build/cross
+```
+
+This will create an executable named `image.exe` in the `build/cross/src` directory.
+
 ### Building with Docker
 
 To separate the build process from the build system a [Docker](https://www.docker.com/)
@@ -96,6 +107,8 @@ To get more detailed results run the `testrunner` in the `build/tst` directory.
 ```sh
 $ ./build/tst/testrunner
 ```
+
+**NOTE!** Unit tests are not available when cross building
 
 ### Code coverage
 
