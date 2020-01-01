@@ -35,12 +35,7 @@ Bitmap::Colors DirectDrawSurfaceDecompressor::decompress(
     if (in.empty())
         throw BadSize();
 
-    const auto upscaler([](const auto & it)
-    {
-        return TransformIterator(it, ColorDepth::highToTrue);
-    });
-
     Bitmap::Colors out(in.size()*Texel::pixels());
-    ::decompress(in.begin(), in.end(), upscaler(deblocker(out, height, width)));
+    ::decompress(in.begin(), in.end(), deblocker(out, height, width) | transformed(ColorDepth::highToTrue));
     return out;
 }

@@ -15,6 +15,7 @@ if(NOT CMAKE_CROSSCOMPILING)
         DirectX_test.cpp
         HighColor_test.cpp
         ImageConverter_test.cpp
+        Pipeable_test.cpp
         Texel_test.cpp
         TransformIterator_test.cpp
         TrueColor_test.cpp)

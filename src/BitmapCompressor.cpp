@@ -40,17 +40,12 @@ namespace
 
     auto downscaleAndReorder(const Bitmap::Colors & in, std::int32_t height, std::int32_t width)
     {
-        const auto downscaler([](const auto & it)
-        {
-            return TransformIterator(it, ColorDepth::trueToHigh);
-        });
-
         std::vector<HighColor> out;
         out.reserve(in.size());
         std::copy(
             BlockIterator<Bitmap::Colors::const_iterator>(in.begin(), height, width),
             BlockIterator<Bitmap::Colors::const_iterator>(height, width),
-            downscaler(std::back_inserter(out)));
+            std::back_inserter(out) | transformed(ColorDepth::trueToHigh));
         return out;
     }
 }

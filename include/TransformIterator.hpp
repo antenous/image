@@ -11,6 +11,7 @@
 
 #include <functional>
 #include <iterator>
+#include "Pipeable.hpp"
 
 namespace image
 {
@@ -36,7 +37,7 @@ namespace image
 
             std::copy(
                 std::begin(widgets), std::end(widgets),
-                TransformIterator(std::back_inserter(ids), &Widget::id));
+                std::back_inserter(ids) | transformed(&Widget::id));
         @endcode
     */
     template<typename Iterator, typename UnaryFunction>
@@ -83,6 +84,15 @@ namespace image
         Iterator iterator;
         UnaryFunction f;
     };
+
+    template<typename UnaryFunction>
+    auto transformed(UnaryFunction f)
+    {
+        return Pipeable{[f = std::move(f)](auto it)
+            {
+                return TransformIterator(it, std::move(f));
+            }};
+    }
 
 }
 

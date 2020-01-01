@@ -44,7 +44,7 @@ TEST_F(TransformIteratorTest, TransformWithFunctor)
     const auto square([](auto i){ return i*i; });
     std::copy(
         std::begin(range), std::end(range),
-        TransformIterator(std::back_inserter(result), square));
+        std::back_inserter(result) | transformed(square));
 
     EXPECT_EQ(Range({1, 4, 9}), result);
 }
@@ -56,7 +56,7 @@ TEST_F(TransformIteratorTest, TransformWithClassMember)
 
     std::copy(
         std::begin(widgets), std::end(widgets),
-        TransformIterator(std::back_inserter(result), &Widget::id));
+        std::back_inserter(result) | transformed(&Widget::id));
 
     EXPECT_EQ(Range({13, 42}), result);
 }
