@@ -1,17 +1,28 @@
 image: ubuntu:latest
 
 before_script:
-  - apt-get update && apt-get install -y --no-install-recommends build-essential ca-certificates cmake git lcov gcovr ninja-build
+  - apt-get update && apt-get install -y --no-install-recommends
+    build-essential ca-certificates cmake git lcov gcovr ninja-build
 
 build:
   stage: build
   script:
-    - cmake -H. -Bbuild/ -G Ninja
-    - cmake --build build/
+  - cmake -H. -Bbuild/ -G Ninja
+  - cmake --build build/
 
 test:
   stage: test
   script:
-    - cmake -H. -Bbuild/ -G Ninja -DENABLE_CODE_COVERAGE=ON
-    - cmake --build build/ --target check
-    - gcovr build/ -e '.*gtest.*' -e '.*/img.dir/.*hpp' -e '.*/main.cpp'
+  - cmake -H. -Bbuild/ -G Ninja
+  - cmake --build build --target check
+  - build/tst/testrunner --gtest_output="xml:report.xml"
+  artifacts:
+    reports:
+      junit: report.xml
+
+coverage:
+  stage: test
+  script:
+  - cmake -H. -Bbuild/ -G Ninja -DENABLE_CODE_COVERAGE=ON
+  - cmake --build build/ --target check
+  - gcovr build/ -e '.*gtest.*' -e '.*/img.dir/.*hpp' -e '.*/main.cpp'
