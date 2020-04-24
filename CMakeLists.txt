@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.11)
 cmake_policy(SET CMP0048 NEW) # https://cmake.org/cmake/help/v3.7/policy/CMP0048.html
 project(image VERSION 1.2.0)
 
