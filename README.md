@@ -42,14 +42,23 @@ or
 
 ```sh
 $ docker build \
-    --build-arg USER=`id -un` \
-    --build-arg UID=`id -u` \
-    --build-arg GID=`id -g` \
-    -t image:dev .
+  --build-arg USER=`id -un` \
+  --build-arg UID=`id -u` \
+  --build-arg GID=`id -g` \
+  -t image:dev .
 ```
 
-Some IDEs (e.g. Eclipse) support building inside a Docker container.
-To build the project by hand using Docker run the below commands
+Some IDEs (e.g. [Eclipse](https://www.eclipse.org/)) support building inside a
+Docker container. To start the development container run the below command.
+
+```sh
+$ docker run \
+  --rm -it -h image-docker \
+  -v $PWD:$PWD -v $HOME/.ccache/:$HOME/.ccache/ \
+  -w $PWD --name image-dev image:dev
+```
+
+Or to build the project within Docker from the outside run the below commands.
 
 ```sh
 $ docker run --rm -itd -v $PWD:$PWD -v ccache:/ccache --name image image:dev
