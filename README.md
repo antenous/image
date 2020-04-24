@@ -2,8 +2,8 @@
 
 A BMP to DDS converter (and the other way around)
 
-[![build status](https://gitlab.com/antenous/image/badges/master/build.svg)](https://gitlab.com/antenous/image/commits/master)
-[![coverage report](https://gitlab.com/antenous/image/badges/master/coverage.svg)](https://gitlab.com/antenous/image/commits/master)
+[![pipeline status](https://gitlab.com/antenous/image/badges/master/pipeline.svg)](https://gitlab.com/antenous/image/-/commits/master)
+[![coverage report](https://gitlab.com/antenous/image/badges/master/coverage.svg)](https://gitlab.com/antenous/image/-/commits/master)
 
 ## Building
 
