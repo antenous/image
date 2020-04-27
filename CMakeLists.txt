@@ -28,9 +28,9 @@ add_code_coverage_target(check-code-coverage EXCLUDES
 
 # documentation
 find_package(Doxygen)
-if (DOXYGEN_FOUND)
+if(DOXYGEN_FOUND)
     set(target "doxygen-doc")
-    set(DOXYGEN_EXCLUDE_PATTERNS "*/3rdparty/*")
+    set(DOXYGEN_EXCLUDE_PATTERNS "googletest*")
     set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${target}")
     set(DOXYGEN_GENERATE_HTML YES)
     
