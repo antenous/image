@@ -20,6 +20,7 @@ if(NOT CMAKE_CROSSCOMPILING)
         TransformIterator_test.cpp
         TrueColor_test.cpp)
     target_link_libraries(testrunner img gtest_main)
+    add_dependencies(check testrunner)
 
     add_test(TestRunner testrunner)
     add_coverage(testrunner)
