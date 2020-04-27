@@ -14,7 +14,7 @@ test:
   stage: test
   script:
   - cmake -H. -Bbuild/ -G Ninja
-  - cmake --build build --target check
+  - cmake --build build --target testrunner
   - build/tst/testrunner --gtest_output="xml:report.xml"
   artifacts:
     reports:
@@ -23,6 +23,5 @@ test:
 coverage:
   stage: test
   script:
-  - cmake -H. -Bbuild/ -G Ninja -DENABLE_CODE_COVERAGE=ON
-  - cmake --build build/ --target check
-  - gcovr build/ -e '.*gtest.*' -e '.*/img.dir/.*hpp' -e '.*/main.cpp'
+  - cmake -H. -Bbuild/ -G Ninja -DCODE_COVERAGE=On
+  - cmake --build build/ --target check-coverage

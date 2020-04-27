@@ -11,6 +11,7 @@ add_library(img STATIC
     ImageConverter.cpp
     Texel.cpp)
 target_include_directories(img PUBLIC ${INCLUDE_DIR})
+add_coverage(img)
 
 add_executable(image main.cpp)
 target_link_libraries(image img)

@@ -122,21 +122,17 @@ $ ./build/tst/testrunner
 ### Code coverage
 
 To create a code coverage report, configure the project with
-`ENABLE_CODE_COVERAGE=ON` and then build with `check-code-coverage`.
+`CODE_COVERAGE=On` and then build with `check-coverage`.
 
 ```sh
-$ cmake -H. -Bbuild/ -DENABLE_CODE_COVERAGE=ON
-$ cmake --build build/ --target check-code-coverage
+$ cmake -H. -Bbuild/ -DCODE_COVERAGE=On
+$ cmake --build build/ --target check-coverage
 ```
 
 This will produce the code coverage report in `build/image-coverage`
 folder. View `build/image-coverage/index.html` to see the results.
-
-To get a quick overview of the code coverage use `gcovr`.
-
-```sh
-$ gcovr -r . -e .*googletest.*
-```
+If `gcovr` is installed the command above will show a summary of the
+code coverage.
 
 **NOTE!** Code coverage will enforce a `Debug` build
 

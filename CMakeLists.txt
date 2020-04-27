@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.12)
 cmake_policy(SET CMP0048 NEW) # https://cmake.org/cmake/help/v3.7/policy/CMP0048.html
 project(image VERSION 1.2.0)
 
@@ -20,11 +20,7 @@ add_subdirectory(src)
 
 enable_testing()
 add_subdirectory(tst EXCLUDE_FROM_ALL)
-
-add_code_coverage_target(check-code-coverage EXCLUDES
-    '${PROJECT_BINARY_DIR}/googletest*'
-    '${PROJECT_SOURCE_DIR}/src/main.cpp')
-
+check_coverage(check-coverage EXCLUDES '*googletest*')
 
 # documentation
 find_package(Doxygen)
