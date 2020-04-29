@@ -35,3 +35,19 @@ if(DOXYGEN_FOUND)
     add_custom_command(TARGET ${target} POST_BUILD
         COMMENT "View ${DOXYGEN_OUTPUT_DIRECTORY}/html/index.html to see the documentation")
 endif()
+
+# packaging
+set(CPACK_PACKAGE_VENDOR "Antero Nousiainen")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A BMP to DDS converter (and the other way around)")
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+set(CPACK_SOURCE_GENERATOR "TGZ;ZIP")
+set(CPACK_SOURCE_IGNORE_FILES
+    /\.git.*
+    /build
+    /\.c?project
+    /\.settings/)
+include(CPack)

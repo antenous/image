@@ -79,11 +79,29 @@ $ cmake -H. -Bbuild/ -DCMAKE_INSTALL_PREFIX=$PWD -DCMAKE_BUILD_TYPE=Release
 $ cmake --build build/ --target install
 ```
 
-The above command will install the executable in the `bin` directory.
+The above command will install the executable in `bin` subdirectory under the
+current working directory.
 
 **NOTE!** `install` target may require root permissions and is only available with `Release` builds
 
 To uninstall build with `uninstall` or run `xargs rm < build/install_manifest.txt`.
+
+## Packaging
+
+CMake comes with CPack, a cross-platform software packaging tool, that makes it
+easy to create distributable packages. Run the below commands to create a binary
+package.
+
+```sh
+$ cmake -H. -Bbuild
+$ cmake --build build --target package
+```
+
+To build a source package run the below command.
+
+```sh
+$ cmake --build build --target package_source
+```
 
 ## Running
 

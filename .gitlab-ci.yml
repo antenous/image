@@ -25,3 +25,10 @@ coverage:
   script:
   - cmake -H. -Bbuild/ -G Ninja -DCODE_COVERAGE=On
   - cmake --build build/ --target check-coverage
+
+package:
+  stage: test
+  script:
+  - cmake -H. -Bbuild/ -G Ninja
+  - cmake --build build --target package
+  - cmake --build build --target package_source
