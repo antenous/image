@@ -17,9 +17,10 @@ if(NOT CMAKE_CROSSCOMPILING)
         ImageConverter_test.cpp
         Pipeable_test.cpp
         Texel_test.cpp
+        Time_test.cpp
         TransformIterator_test.cpp
         TrueColor_test.cpp)
-    target_link_libraries(testrunner img gtest_main)
+    target_link_libraries(testrunner img gmock_main)
     add_dependencies(check testrunner)
 
     add_test(TestRunner testrunner)
