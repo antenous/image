@@ -28,6 +28,8 @@ namespace image
             return std::tie(blue, green, red) == std::tie(other.blue, other.green, other.red);
         }
 
+        constexpr inline static std::uint16_t bits = 24;
+
         Sample blue;
         Sample green;
         Sample red;

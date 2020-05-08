@@ -53,44 +53,11 @@ DirectDrawSurface ImageConverter::convert(const Bitmap & bmp)
     return dds;
 }
 
-namespace
-{
-    Bitmap::InfoHeader createInfoHeader(const DirectDrawSurface & dds)
-    {
-        Bitmap::InfoHeader infoHeader{};
-
-        infoHeader.size = 40;
-        infoHeader.width = dds.width();
-        infoHeader.height = dds.height();
-        infoHeader.planes = 1;
-        infoHeader.bits = 24;
-        infoHeader.imageSize = (3*dds.width() + infoHeader.padding())*dds.height();
-
-        return infoHeader;
-    }
-
-    Bitmap::FileHeader createFileHeader(const Bitmap::InfoHeader & infoHeader)
-    {
-        Bitmap::FileHeader fileHeader{};
-
-        fileHeader.type[0] = 'B';
-        fileHeader.type[1] = 'M';
-        fileHeader.size = 14 + infoHeader.size + infoHeader.imageSize;
-        fileHeader.offset = 54;
-
-        return fileHeader;
-    }
-}
-
 Bitmap ImageConverter::convert(const DirectDrawSurface & dds)
 {
     if (!dds)
         throw BadDirectDrawSurface();
 
-    Bitmap bmp{};
-    bmp.infoHeader = createInfoHeader(dds);
-    bmp.fileHeader = createFileHeader(bmp.infoHeader);
-    bmp.colors = DirectDrawSurfaceDecompressor::decompress(dds.data, dds.height(), dds.width());
-
-    return bmp;
+    return Bitmap::make(dds.height(), dds.width(),
+        DirectDrawSurfaceDecompressor::decompress(dds.data, dds.height(), dds.width()));
 }

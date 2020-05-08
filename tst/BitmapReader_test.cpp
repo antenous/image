@@ -174,22 +174,20 @@ TEST_F(BitmapReaderTest, CanThrowAndCatchInvalidType)
 
 TEST_F(BitmapReaderTest, GivenFileWithInvalidType_WhenRead_ThrowsInvalidType)
 {
-    Bitmap invalid{
-        {{ 'M', 'B' }, 70, 1, 54 },
-        { 40, 2, 2, 1, 24, 0, 16, 0, 0, 0, 0 },
+    auto invalid(Bitmap::make(2, 2,
         {{ 'b', 'l', 'u' }, { 'e', 'g', 'r' },
-         { 'e', 'e', 'n' }, { 'r', 'e', 'd' }}};
+         { 'e', 'e', 'n' }, { 'r', 'e', 'd' }}));
+    invalid.fileHeader.type[0] = 'M';
+    invalid.fileHeader.type[1] = 'B';
 
     EXPECT_THROW(BitmapReader::read(makeFile(invalid)), BitmapReader::InvalidType);
 }
 
 TEST_F(BitmapReaderTest, GivenValidFile_WhenRead_CreatesBitmap)
 {
-    Bitmap bmp{
-        {{ 'B', 'M' }, 70, 1, 54 },
-        { 40, 2, 2, 1, 24, 0, 16, 0, 0, 0, 0 },
+    const auto valid(Bitmap::make(2, 2,
         {{ 'b', 'l', 'u' }, { 'e', 'g', 'r' },
-         { 'e', 'e', 'n' }, { 'r', 'e', 'd' }}};
+         { 'e', 'e', 'n' }, { 'r', 'e', 'd' }}));
 
-    EXPECT_EQ(bmp, BitmapReader::read(makeFile(bmp)));
+    EXPECT_EQ(valid, BitmapReader::read(makeFile(valid)));
 }

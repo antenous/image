@@ -144,13 +144,11 @@ TEST_F(BitmapWriterTest, GivenInvalidBitmap_WhenWriting_ThrowsInvalidType)
 
 TEST_F(BitmapWriterTest, GivenValidBitmap_WhenWritten_WritesFile)
 {
-    Bitmap bmp{
-        {{ 'B', 'M' }, 70, 1, 54 },
-        { 40, 2, 2, 1, 24, 0, 16, 0, 0, 0, 0 },
+    const auto valid(Bitmap::make(2, 2,
         {{ 0x00, 0x00, 0xff }, { 0xff, 0xff, 0xff },
-         { 0xff, 0x00, 0x00 }, { 0x00, 0xff, 0x00 }}};
+         { 0xff, 0x00, 0x00 }, { 0x00, 0xff, 0x00 }}));
 
     std::stringstream file;
-    BitmapWriter::write(std::move(file), bmp);
-    EXPECT_TRUE(Equal(makeFile(bmp), file));
+    BitmapWriter::write(std::move(file), valid);
+    EXPECT_TRUE(Equal(makeFile(valid), file));
 }

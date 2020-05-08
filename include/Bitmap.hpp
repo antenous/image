@@ -29,6 +29,11 @@ namespace image
         explicit operator bool() const;
 
         /**
+            Create a new bitmap
+        */
+        static Bitmap make(std::int32_t height, std::int32_t width, const Colors & colors);
+
+        /**
             Return height of the image
         */
         int32_t height() const;

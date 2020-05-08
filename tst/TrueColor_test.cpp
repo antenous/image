@@ -11,9 +11,17 @@
 
 using namespace image;
 
-TEST(TrueColorTest, Print)
+namespace
 {
-    std::ostringstream oss;
-    oss << TrueColor{1, 2, 3};
-    EXPECT_EQ("{0x1, 0x2, 0x3}", oss.str());
+    TEST(TrueColorTets, Bits)
+    {
+        EXPECT_EQ(24, TrueColor::bits);
+    }
+
+    TEST(TrueColorTest, Print)
+    {
+        std::ostringstream oss;
+        oss << TrueColor{1, 2, 3};
+        EXPECT_EQ("{0x1, 0x2, 0x3}", oss.str());
+    }
 }
