@@ -19,8 +19,6 @@ namespace
     auto toTuple(const Bitmap::FileHeader & fileHeader)
     {
         return std::make_tuple(
-            fileHeader.type[0],
-            fileHeader.type[1],
             fileHeader.size,
             fileHeader.reserved,
             fileHeader.offset);
@@ -74,6 +72,7 @@ namespace
     auto toTuple(const Bitmap & bmp)
     {
         return std::tuple_cat(
+            std::make_tuple(bmp.magic),
             toTuple(bmp.fileHeader),
             toTuple(bmp.infoHeader),
             toTuple<16>(colorsToData(bmp)));

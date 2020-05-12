@@ -21,17 +21,19 @@ namespace DirectX
 
     namespace detail
     {
-        constexpr auto makeMagic(std::array<std::uint8_t, 4> ch)
+        template<typename Magic>
+        constexpr auto makeMagic(std::array<std::uint8_t, sizeof(Magic)> ch)
         {
-            return
-                (static_cast<std::uint32_t>(ch[0]) <<  0)|
-                (static_cast<std::uint32_t>(ch[1]) <<  8)|
-                (static_cast<std::uint32_t>(ch[2]) << 16)|
-                (static_cast<std::uint32_t>(ch[3]) << 24);
+            Magic magic = 0;
+
+            for (auto first = std::rbegin(ch), last = std::rend(ch); first != last; ++first)
+                magic = (magic << 8) | *first;
+
+            return magic;
         }
     }
 
-    constexpr std::uint32_t DDS_MAGIC{detail::makeMagic({'D', 'D', 'S', ' '})};
+    constexpr std::uint32_t DDS_MAGIC{detail::makeMagic<std::uint32_t>({'D', 'D', 'S', ' '})};
 
     constexpr std::uint32_t DDS_HEADER_FLAGS_PITCH{     0x8};
     constexpr std::uint32_t DDS_HEADER_FLAGS_TEXTURE{   0x1007};
@@ -44,7 +46,7 @@ namespace DirectX
     constexpr std::uint32_t DDS_SURFACE_FLAGS_MIPMAP{ 0x400008};
 
     constexpr std::uint32_t DDS_FOURCC{0x4};
-    constexpr std::uint32_t DDS_DXT1{detail::makeMagic({'D', 'X', 'T', '1'})};
+    constexpr std::uint32_t DDS_DXT1{detail::makeMagic<std::uint32_t>({'D', 'X', 'T', '1'})};
 
 }
 

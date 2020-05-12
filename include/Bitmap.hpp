@@ -23,6 +23,8 @@ namespace image
     public:
         using Colors = std::vector<TrueColor>;
 
+        using Magic = std::uint16_t;
+
         /**
             Return true if bitmap is valid
         */
@@ -48,13 +50,14 @@ namespace image
         */
         uint8_t padding() const;
 
+        Magic magic = 0;
+
         struct FileHeader
         {
-            char type[2];
             uint32_t size;
             uint32_t reserved;
             uint32_t offset;
-        } fileHeader{{ 0, 0 }, 0, 0, 0 };
+        } fileHeader{};
 
         struct InfoHeader
         {
@@ -74,7 +77,7 @@ namespace image
             uint32_t verticalResolution;
             uint32_t colors;
             uint32_t importantColors;
-        } infoHeader;
+        } infoHeader{};
 
         Colors colors;
     };

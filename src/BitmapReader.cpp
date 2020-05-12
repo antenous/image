@@ -12,32 +12,6 @@ using namespace image;
 
 namespace
 {
-    void read(std::istream & from, Bitmap::FileHeader & fileHeader)
-    {
-        Reader::read(from, std::tie(
-            fileHeader.type[0],
-            fileHeader.type[1],
-            fileHeader.size,
-            fileHeader.reserved,
-            fileHeader.offset));
-    }
-
-    void read(std::istream & from, Bitmap::InfoHeader & infoHeader)
-    {
-        Reader::read(from, std::tie(
-            infoHeader.size,
-            infoHeader.width,
-            infoHeader.height,
-            infoHeader.planes,
-            infoHeader.bits,
-            infoHeader.compression,
-            infoHeader.imageSize,
-            infoHeader.horizontalResolution,
-            infoHeader.verticalResolution,
-            infoHeader.colors,
-            infoHeader.importantColors));
-    }
-
     inline void skipPadding(std::istream & from, uint8_t padding)
     {
         from.seekg(padding, from.cur);
@@ -54,13 +28,13 @@ namespace
     Bitmap readBitmap(std::istream & from)
     {
         Bitmap bmp;
-
-        read(from, bmp.fileHeader);
+        Reader::read(from, bmp.magic);
 
         if (!bmp)
             throw BitmapReader::InvalidType();
 
-        read(from, bmp.infoHeader);
+        Reader::read(from, bmp.fileHeader);
+        Reader::read(from, bmp.infoHeader);
         read(from, bmp.colors, bmp.height(), bmp.width(), bmp.padding());
 
         return bmp;

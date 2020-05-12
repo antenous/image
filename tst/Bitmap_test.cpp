@@ -26,8 +26,7 @@ namespace
 
     TEST_F(BitmapTest, Make)
     {
-        EXPECT_EQ('B', bmp.fileHeader.type[0]);
-        EXPECT_EQ('M', bmp.fileHeader.type[1]);
+        EXPECT_EQ(0x4d42, bmp.magic);
         EXPECT_EQ(70, bmp.fileHeader.size);
         EXPECT_EQ(54, bmp.fileHeader.offset);
 

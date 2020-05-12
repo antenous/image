@@ -7,6 +7,7 @@
 
 #include "BitmapReader.hpp"
 #include <gtest/gtest.h>
+#include "DirectX.hpp"
 #include "TuplePrinter.hpp"
 #include "Writer.hpp"
 
@@ -20,8 +21,6 @@ namespace
     auto toTuple(const Bitmap::FileHeader & fileHeader)
     {
         return std::make_tuple(
-            fileHeader.type[0],
-            fileHeader.type[1],
             fileHeader.size,
             fileHeader.reserved,
             fileHeader.offset);
@@ -75,6 +74,7 @@ namespace
     auto toTuple(const Bitmap & bmp)
     {
         return std::tuple_cat(
+            std::make_tuple(bmp.magic),
             toTuple(bmp.fileHeader),
             toTuple(bmp.infoHeader),
             toTuple<16>(colorsToData(bmp)));
@@ -177,8 +177,7 @@ TEST_F(BitmapReaderTest, GivenFileWithInvalidType_WhenRead_ThrowsInvalidType)
     auto invalid(Bitmap::make(2, 2,
         {{ 'b', 'l', 'u' }, { 'e', 'g', 'r' },
          { 'e', 'e', 'n' }, { 'r', 'e', 'd' }}));
-    invalid.fileHeader.type[0] = 'M';
-    invalid.fileHeader.type[1] = 'B';
+    invalid.magic = DirectX::detail::makeMagic<Bitmap::Magic>({'M','B'});
 
     EXPECT_THROW(BitmapReader::read(makeFile(invalid)), BitmapReader::InvalidType);
 }

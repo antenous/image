@@ -12,32 +12,6 @@ using namespace image;
 
 namespace
 {
-    void write(std::ostream & to, const Bitmap::FileHeader & fileHeader)
-    {
-        Writer::write(to, std::tie(
-            fileHeader.type[0],
-            fileHeader.type[1],
-            fileHeader.size,
-            fileHeader.reserved,
-            fileHeader.offset));
-    }
-
-    void write(std::ostream & to, const Bitmap::InfoHeader & infoHeader)
-    {
-        Writer::write(to, std::tie(
-            infoHeader.size,
-            infoHeader.width,
-            infoHeader.height,
-            infoHeader.planes,
-            infoHeader.bits,
-            infoHeader.compression,
-            infoHeader.imageSize,
-            infoHeader.horizontalResolution,
-            infoHeader.verticalResolution,
-            infoHeader.colors,
-            infoHeader.importantColors));
-    }
-
     void addPadding(std::ostream & to, uint8_t padding)
     {
         static const std::array<char, 3> bytes{};
@@ -52,8 +26,9 @@ namespace
 
     void writeBitmap(std::ostream & to, const Bitmap & bmp)
     {
-        write(to, bmp.fileHeader);
-        write(to, bmp.infoHeader);
+        Writer::write(to, bmp.magic);
+        Writer::write(to, bmp.fileHeader);
+        Writer::write(to, bmp.infoHeader);
         write(to, bmp.colors, bmp.height(), bmp.width(), bmp.padding());
     }
 }

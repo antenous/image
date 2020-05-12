@@ -6,6 +6,7 @@
  */
 
 #include "Bitmap.hpp"
+#include "DirectX.hpp"
 
 using namespace image;
 
@@ -37,19 +38,21 @@ namespace
 
     Bitmap::FileHeader makeFileHeader(const Bitmap::InfoHeader & infoHeader)
     {
-        return {{ 'B', 'M' }, 14 + infoHeader.size + infoHeader.imageSize, 0, 14 + infoHeader.size };
+        const std::uint32_t offset = sizeof(Bitmap::Magic) + sizeof(Bitmap::FileHeader) + infoHeader.size;
+        return { offset + infoHeader.imageSize, 0, offset };
     }
 }
 
 Bitmap::operator bool() const
 {
-    return fileHeader.type[0] == 'B' && fileHeader.type[1] == 'M';
+    return magic == DirectX::detail::makeMagic<Magic>({'B', 'M'});
 }
 
 Bitmap Bitmap::make(std::int32_t height, std::int32_t width, const Colors & colors)
 {
     Bitmap bmp;
 
+    bmp.magic = DirectX::detail::makeMagic<Magic>({'B', 'M'});
     bmp.infoHeader = makeInfoHeader(height, width, Colors::value_type::bits);
     bmp.fileHeader = makeFileHeader(bmp.infoHeader);
     bmp.colors = colors;
