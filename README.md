@@ -67,6 +67,14 @@ $ docker exec -it image cmake --build $PWD/build/
 $ docker stop image
 ```
 
+To use [Clang](https://clang.llvm.org/) instead of the default system compiler
+set the `CXX` environment variable to point at the compiler before configuring
+the project.
+
+```sh
+$ CXX=/usr/lib/ccache/clang++ cmake -H. -Bbuild/clang
+```
+
 **NOTE!** The Docker commands above may require root permissions
 
 ## Installation

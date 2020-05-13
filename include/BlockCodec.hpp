@@ -34,18 +34,18 @@ namespace image
         template<typename InputIterator>
         static auto referenceColors(InputIterator first, InputIterator last);
 
-        static decltype(auto) removeAlpha(Texel::ReferenceColors && color);
+        static auto removeAlpha(Texel::ReferenceColors && color) -> Texel::ReferenceColors &&;
 
         static bool hasAlpha(const Texel::ReferenceColors & color);
 
-        static auto interpolate(const Texel::ReferenceColors & color);
+        static auto interpolate(const Texel::ReferenceColors & color) -> ColorTable;
 
         template<typename InputIterator>
         static auto createLookupTable(const ColorTable & color, InputIterator first, InputIterator last);
 
         static std::uint8_t findNearest(const ColorTable & color, HighColor ref);
 
-        static auto recreateColorTable(const Texel::ReferenceColors & color);
+        static auto recreateColorTable(const Texel::ReferenceColors & color) -> ColorTable;
 
         static auto blend(const Texel::ReferenceColors & color) -> ColorTable;
     };
@@ -70,7 +70,7 @@ namespace image
         return color;
     }
 
-    inline decltype(auto) BlockCodec::removeAlpha(Texel::ReferenceColors && color)
+    inline auto BlockCodec::removeAlpha(Texel::ReferenceColors && color) -> Texel::ReferenceColors &&
     {
         if (hasAlpha(color))
             std::swap(color[1], color[0]);
@@ -83,11 +83,11 @@ namespace image
         return color[1] > color[0];
     }
 
-    inline auto BlockCodec::interpolate(const Texel::ReferenceColors & color)
+    inline auto BlockCodec::interpolate(const Texel::ReferenceColors & color) -> ColorTable
     {
-        return ColorTable{
+        return {
             color[0], color[1],
-            image::interpolate(color[0], color[1]), image::interpolate(color[1], color[0])};
+            image::interpolate(color[0], color[1]), image::interpolate(color[1], color[0]) };
     }
 
     template<typename InputIterator>
@@ -120,7 +120,7 @@ namespace image
         return result;
     }
 
-    inline auto BlockCodec::recreateColorTable(const Texel::ReferenceColors & color)
+    inline auto BlockCodec::recreateColorTable(const Texel::ReferenceColors & color) -> ColorTable
     {
         return hasAlpha(color) ? blend(color) : interpolate(color);
     }

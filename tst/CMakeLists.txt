@@ -20,6 +20,7 @@ if(NOT CMAKE_CROSSCOMPILING)
         Time_test.cpp
         TransformIterator_test.cpp
         TrueColor_test.cpp)
+    target_compile_options(testrunner PRIVATE -Wno-unused-const-variable)
     target_link_libraries(testrunner img gmock_main)
     add_dependencies(check testrunner)
 

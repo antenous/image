@@ -26,12 +26,7 @@ namespace image
         template<typename Tuple, std::size_t... I>
         static void read(std::istream & from, const Tuple & t, std::index_sequence<I...>)
         {
-            // Brace-enclosed initializers
-            // http://en.cppreference.com/w/cpp/language/parameter_pack
-            // "since initializer lists guarantee sequencing, this can be used
-            // to call a function on each element of a pack, in order:"
-            using foreach = int[];
-            foreach{ (read(from, std::get<I>(t)), 0)... };
+            (read(from, std::get<I>(t)), ...);
         }
 
         template<typename T>
