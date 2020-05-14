@@ -7,7 +7,6 @@
 
 #include "BitmapCompressor.hpp"
 #include <gtest/gtest.h>
-#include "DirectX.hpp"
 
 using namespace image;
 using namespace testing;
@@ -35,15 +34,11 @@ namespace
              {0x43, 0xbb, 0x33}, {0x43, 0xbb, 0x33}, {0x3c, 0x85, 0x32}, {0x3c, 0x85, 0x32},
              {0x3c, 0x85, 0x32}, {0x43, 0xbb, 0x33}, {0x43, 0xbb, 0x33}, {0x89, 0xd1, 0x80}})};
 
-        const DirectDrawSurface dds{
-             DirectX::DDS_MAGIC,
-            {124, DirectX::DDS_HEADER_FLAGS_TEXTURE, 8, 8, 32, 0, 1, {},
-            {32, DirectX::DDS_FOURCC, DirectX::DDS_DXT1, 0, 0, 0, 0, 0},
-             DirectX::DDS_SURFACE_FLAGS_TEXTURE, 0, 0, 0, 0},
+        const DirectDrawSurface dds{DirectDrawSurface::make(8, 8,
             {{{0xffff, 0x3427}, 0b01111110010000111100001101011111},
              {{0xffff, 0x3427}, 0b11110101010000111100001110111101},
              {{0xffff, 0x3427}, 0b10111101110001110000011100110110},
-             {{0xffff, 0x3427}, 0b01010111011100111111000010101100}}};
+             {{0xffff, 0x3427}, 0b01010111011100111111000010101100}})};
     };
 }
 

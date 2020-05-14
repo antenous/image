@@ -7,7 +7,6 @@
 
 #include "DirectDrawSurfaceWriter.hpp"
 #include <gtest/gtest.h>
-#include "DirectX.hpp"
 #include "Writer.hpp"
 
 using namespace image;
@@ -112,12 +111,7 @@ namespace
                     AssertionSuccess() : AssertionFailure();
         }
 
-        DirectDrawSurface dds{
-             DirectX::DDS_MAGIC,
-            {124, DirectX::DDS_HEADER_FLAGS_TEXTURE, 4, 4, 8, 0, 0, {},
-            {32, DirectX::DDS_FOURCC, DirectX::DDS_DXT1, 0, 0, 0, 0, 0},
-             DirectX::DDS_SURFACE_FLAGS_TEXTURE, 0, 0, 0, 0 },
-            {{{45316, 54533}, 1460536927}}};
+        DirectDrawSurface dds{ DirectDrawSurface::make(4, 4, {{{ 45316, 54533 }, 1460536927 }}) };
     };
 }
 

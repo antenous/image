@@ -10,6 +10,7 @@
 #define DIRECTDRAWSURFACE_HPP_
 
 #include <vector>
+#include "DirectX.hpp"
 #include "HighColor.hpp"
 #include "Texel.hpp"
 
@@ -33,6 +34,8 @@ namespace image
         */
         explicit operator bool() const;
 
+        static DirectDrawSurface make(std::uint32_t height, std::uint32_t width, const Data & data);
+
         /**
             Return height of the image
         */
@@ -43,7 +46,7 @@ namespace image
         */
         uint32_t width() const;
 
-        Magic magic{ 0 };
+        Magic magic = 0;
 
         struct Header
         {

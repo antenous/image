@@ -9,7 +9,6 @@
 #include <gtest/gtest.h>
 #include "BitmapWriter.hpp"
 #include "DirectDrawSurfaceWriter.hpp"
-#include "DirectX.hpp"
 
 using namespace image;
 using namespace testing;
@@ -39,12 +38,7 @@ namespace
              { 0x8c, 0x1c, 0x00 }, { 0xce, 0x24, 0x00 }, { 0x18, 0x10, 0x00 }, { 0x8c, 0x1c, 0x00 },
              { 0x8c, 0x1c, 0x00 }, { 0x18, 0x10, 0x00 }, { 0xce, 0x24, 0x00 }, { 0x52, 0x14, 0x00 }})};
 
-        DirectDrawSurface dds{
-             DirectX::DDS_MAGIC,
-            {124, DirectX::DDS_HEADER_FLAGS_TEXTURE, 4, 4, 8, 0, 0, {},
-            {32, DirectX::DDS_FOURCC, DirectX::DDS_DXT1, 0, 0, 0, 0, 0},
-             DirectX::DDS_SURFACE_FLAGS_TEXTURE, 0, 0, 0, 0},
-            {{{ 313, 131 }, 770740934 }}};
+        const DirectDrawSurface dds{DirectDrawSurface::make(4, 4, {{{ 313, 131 }, 770740934 }})};
     };
 }
 

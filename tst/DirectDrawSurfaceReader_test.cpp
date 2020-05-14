@@ -7,7 +7,6 @@
 
 #include "DirectDrawSurfaceReader.hpp"
 #include <gtest/gtest.h>
-#include "DirectX.hpp"
 #include "TuplePrinter.hpp"
 #include "Writer.hpp"
 
@@ -110,16 +109,12 @@ namespace
             return file;
         }
 
-        DirectDrawSurface dds{
-             DirectX::DDS_MAGIC,
-            {124, DirectX::DDS_HEADER_FLAGS_TEXTURE, 4, 4, 8, 0, 0, {},
-            {32, DirectX::DDS_FOURCC, DirectX::DDS_DXT1, 0, 0, 0, 0, 0},
-             DirectX::DDS_SURFACE_FLAGS_TEXTURE, 0, 0, 0, 0},
+        DirectDrawSurface dds{DirectDrawSurface::make(4, 4,
             {{{0xffffU, 0x1fU},
                0b00000000U << 24 |
                0b00000000U << 16 |
                0b00000101U << 8  |
-               0b00000101U}}};
+               0b00000101U}})};
     };
 }
 
