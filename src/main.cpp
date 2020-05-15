@@ -9,11 +9,12 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include "BitmapCompressor.hpp"
 #include "BitmapReader.hpp"
 #include "BitmapWriter.hpp"
+#include "DirectDrawSurfaceDecompressor.hpp"
 #include "DirectDrawSurfaceReader.hpp"
 #include "DirectDrawSurfaceWriter.hpp"
-#include "ImageConverter.hpp"
 #include "Time.hpp"
 
 using namespace image;
@@ -50,16 +51,16 @@ namespace
 
     auto convert(const Bitmap & bmp)
     {
-        const auto [result, elapsed] = time(static_cast<DirectDrawSurface(*)(const Bitmap &)>(ImageConverter::convert), bmp);
+        const auto [result, elapsed] = time(&BitmapCompressor::compress, bmp.colors, bmp.height(), bmp.width());
         std::cout << format("compress", elapsed) << "\n";
-        return result;
+        return DirectDrawSurface::make(bmp.height(), bmp.width(), result);
     }
 
     auto convert(const DirectDrawSurface & dds)
     {
-        const auto [result, elapsed] = time(static_cast<Bitmap(*)(const DirectDrawSurface &)>(ImageConverter::convert), dds);
+        const auto [result, elapsed] = time(&DirectDrawSurfaceDecompressor::decompress, dds.data, dds.height(), dds.width());
         std::cout << format("decompress", elapsed) << "\n";
-        return result;
+        return Bitmap::make(dds.height(), dds.width(), result);
     }
 
     template<typename Writer, typename T>

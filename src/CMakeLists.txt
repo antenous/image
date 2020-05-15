@@ -8,7 +8,6 @@ add_library(img STATIC
     DirectDrawSurfaceDecompressor.cpp
     DirectDrawSurfaceReader.cpp
     DirectDrawSurfaceWriter.cpp
-    ImageConverter.cpp
     Texel.cpp)
 target_include_directories(img PUBLIC ${INCLUDE_DIR})
 add_coverage(img)

@@ -14,7 +14,6 @@ if(NOT CMAKE_CROSSCOMPILING)
         DirectDrawSurfaceWriter_test.cpp
         DirectX_test.cpp
         HighColor_test.cpp
-        ImageConverter_test.cpp
         Pipeable_test.cpp
         Texel_test.cpp
         Time_test.cpp
