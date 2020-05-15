@@ -41,9 +41,9 @@ namespace
     }
 
     template<typename Reader>
-    auto read(std::istream && file)
+    auto read(std::istream & file)
     {
-        const auto [result, elapsed] = time(Reader::read, std::move(file));
+        const auto [result, elapsed] = time(Reader::read, file);
         std::cout << format("read", elapsed) << "\n";
         return result;
     }
@@ -63,18 +63,25 @@ namespace
     }
 
     template<typename Writer, typename T>
-    void write(std::ostream && file, T && t)
+    void write(const char * out, T && t)
     {
-        const auto elapsed = time(Writer::write, std::move(file), std::forward<T>(t));
+        std::ofstream file(out, std::ios::binary);
+        const auto elapsed = time(Writer::write, file, std::forward<T>(t));
         std::cout << format("write", elapsed) << "\n";
     }
 
     template<typename Reader, typename Writer>
-    void convert(const char * in, const char * out)
+    void convert(std::istream & in, const char * out)
     {
-        write<Writer>(std::ofstream(out, std::ios::binary),
+        write<Writer>(out,
             convert(
-                read<Reader>(std::ifstream(in, std::ios::binary))));
+                read<Reader>(in)));
+    }
+
+    void rewind(std::istream & file)
+    {
+        file.clear();
+        file.seekg(0, file.beg);
     }
 }
 
@@ -85,13 +92,16 @@ int main(int argc, char * argv[])
 
     try
     {
+        std::ifstream file(argv[1], std::ios::binary);
+
         try
         {
-            convert<BitmapReader, DirectDrawSurfaceWriter>(argv[1], "out.dds");
+            convert<BitmapReader, DirectDrawSurfaceWriter>(file, "out.dds");
         }
         catch (const BitmapReader::InvalidType &)
         {
-            convert<DirectDrawSurfaceReader, BitmapWriter>(argv[1], "out.bmp");
+            rewind(file);
+            convert<DirectDrawSurfaceReader, BitmapWriter>(file, "out.bmp");
         }
     }
     catch (const std::runtime_error & e)

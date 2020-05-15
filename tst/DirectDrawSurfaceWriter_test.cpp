@@ -89,11 +89,9 @@ namespace
     class DirectDrawSurfaceWriterTest : public Test
     {
     protected:
-        std::ostringstream makeBadFile() const
+        void SetUp() override
         {
-            std::ostringstream file;
-            file.setstate(std::ios::badbit);
-            return file;
+            badFile.setstate(std::ios::badbit);
         }
 
         std::stringstream makeFile(const DirectDrawSurface & dds) const
@@ -111,7 +109,10 @@ namespace
                     AssertionSuccess() : AssertionFailure();
         }
 
-        DirectDrawSurface dds{ DirectDrawSurface::make(4, 4, {{{ 45316, 54533 }, 1460536927 }}) };
+        std::ostringstream badFile;
+        std::stringstream file;
+
+        const DirectDrawSurface dds{ DirectDrawSurface::make(4, 4, {{{ 45316, 54533 }, 1460536927 }}) };
     };
 }
 
@@ -130,7 +131,7 @@ TEST_F(DirectDrawSurfaceWriterTest, CanThrowAndCatchBadFile)
 
 TEST_F(DirectDrawSurfaceWriterTest, GivenBadFile_WhenWritten_ThrowsBadFile)
 {
-    EXPECT_THROW(DirectDrawSurfaceWriter::write(makeBadFile(), dds), DirectDrawSurfaceWriter::BadFile);
+    EXPECT_THROW(DirectDrawSurfaceWriter::write(badFile, dds), DirectDrawSurfaceWriter::BadFile);
 }
 
 TEST_F(DirectDrawSurfaceWriterTest, CanThrowAndCatchInvalidType)
@@ -148,12 +149,11 @@ TEST_F(DirectDrawSurfaceWriterTest, CanThrowAndCatchInvalidType)
 
 TEST_F(DirectDrawSurfaceWriterTest, GivenInvalidDirectDrawSurface_WhenWritten_ThrowsInvalidType)
 {
-    EXPECT_THROW(DirectDrawSurfaceWriter::write(std::ostringstream(), DirectDrawSurface()), DirectDrawSurfaceWriter::InvalidType);
+    EXPECT_THROW(DirectDrawSurfaceWriter::write(file, DirectDrawSurface{ }), DirectDrawSurfaceWriter::InvalidType);
 }
 
 TEST_F(DirectDrawSurfaceWriterTest, GivenValidDirectDrawSurface_WhenWritten_WritesFile)
 {
-    std::stringstream file;
-    DirectDrawSurfaceWriter::write(std::move(file), dds);
+    DirectDrawSurfaceWriter::write(file, dds);
     EXPECT_TRUE(Equal(makeFile(dds), file));
 }

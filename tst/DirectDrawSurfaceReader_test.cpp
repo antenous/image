@@ -90,16 +90,9 @@ namespace
     class DirectDrawSurfaceReaderTest : public Test
     {
     protected:
-        std::istringstream makeBadFile() const
+        void SetUp() override
         {
-            std::istringstream file;
-            file.setstate(std::ios::badbit);
-            return file;
-        }
-
-        std::istringstream makeEmptyFile() const
-        {
-            return std::istringstream();
+            badFile.setstate(std::ios::badbit);
         }
 
         std::stringstream makeFile(const DirectDrawSurface & dds) const
@@ -108,6 +101,9 @@ namespace
             Writer::write(file, toTuple(dds));
             return file;
         }
+
+        std::istringstream badFile;
+        std::istringstream emptyFile;
 
         DirectDrawSurface dds{DirectDrawSurface::make(4, 4,
             {{{0xffffU, 0x1fU},
@@ -151,12 +147,12 @@ TEST_F(DirectDrawSurfaceReaderTest, CanThrowAndCatchBadFile)
 
 TEST_F(DirectDrawSurfaceReaderTest, GivenBadFile_WhenRead_ThrowsBadFile)
 {
-    EXPECT_THROW(DirectDrawSurfaceReader::read(makeBadFile()), DirectDrawSurfaceReader::BadFile);
+    EXPECT_THROW(DirectDrawSurfaceReader::read(badFile), DirectDrawSurfaceReader::BadFile);
 }
 
 TEST_F(DirectDrawSurfaceReaderTest, GivenEmptyFile_WhenRead_ThrowsBadFile)
 {
-    EXPECT_THROW(DirectDrawSurfaceReader::read(makeEmptyFile()), DirectDrawSurfaceReader::BadFile);
+    EXPECT_THROW(DirectDrawSurfaceReader::read(emptyFile), DirectDrawSurfaceReader::BadFile);
 }
 
 TEST_F(DirectDrawSurfaceReaderTest, CanThrowAndCatchInvalidType)
@@ -175,11 +171,13 @@ TEST_F(DirectDrawSurfaceReaderTest, CanThrowAndCatchInvalidType)
 TEST_F(DirectDrawSurfaceReaderTest, GivenFileWithInvalidMagic_WhenRead_ThrowsInvalidType)
 {
     dds.magic = 313;
+    auto fileWithInvalidMagic(makeFile(dds));
 
-    EXPECT_THROW(DirectDrawSurfaceReader::read(makeFile(dds)), DirectDrawSurfaceReader::InvalidType);
+    EXPECT_THROW(DirectDrawSurfaceReader::read(fileWithInvalidMagic), DirectDrawSurfaceReader::InvalidType);
 }
 
 TEST_F(DirectDrawSurfaceReaderTest, GivenValidFile_WhenRead_CreatesDirectDrawSurface)
 {
-    EXPECT_EQ(dds, DirectDrawSurfaceReader::read(makeFile(dds)));
+    auto validFile(makeFile(dds));
+    EXPECT_EQ(dds, DirectDrawSurfaceReader::read(validFile));
 }

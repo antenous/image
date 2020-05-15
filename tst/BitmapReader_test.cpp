@@ -83,16 +83,9 @@ namespace
     class BitmapReaderTest : public Test
     {
     protected:
-        std::istringstream makeBadFile() const
+        void SetUp() override
         {
-            std::istringstream file;
-            file.setstate(std::ios::badbit);
-            return file;
-        }
-
-        std::istringstream makeEmptyFile() const
-        {
-            return std::istringstream();
+            badFile.setstate(std::ios::badbit);
         }
 
         std::stringstream makeFile(const Bitmap & bmp) const
@@ -101,6 +94,13 @@ namespace
             Writer::write(file, toTuple(bmp));
             return file;
         }
+
+        std::istringstream badFile;
+        std::istringstream emptyFile;
+
+        Bitmap bmp{ Bitmap::make(2, 2,
+            {{ 'b', 'l', 'u' }, { 'e', 'g', 'r' },
+             { 'e', 'e', 'n' }, { 'r', 'e', 'd' }}) };
     };
 }
 
@@ -151,12 +151,12 @@ TEST_F(BitmapReaderTest, CanThrowAndCatchBadFile)
 
 TEST_F(BitmapReaderTest, GivenBadFile_WhenRead_ThrowsBadFile)
 {
-    EXPECT_THROW(BitmapReader::read(makeBadFile()), BitmapReader::BadFile);
+    EXPECT_THROW(BitmapReader::read(badFile), BitmapReader::BadFile);
 }
 
 TEST_F(BitmapReaderTest, GivenEmptyFile_WhenRead_ThrowsBadFile)
 {
-    EXPECT_THROW(BitmapReader::read(makeEmptyFile()), BitmapReader::BadFile);
+    EXPECT_THROW(BitmapReader::read(emptyFile), BitmapReader::BadFile);
 }
 
 TEST_F(BitmapReaderTest, CanThrowAndCatchInvalidType)
@@ -174,19 +174,13 @@ TEST_F(BitmapReaderTest, CanThrowAndCatchInvalidType)
 
 TEST_F(BitmapReaderTest, GivenFileWithInvalidType_WhenRead_ThrowsInvalidType)
 {
-    auto invalid(Bitmap::make(2, 2,
-        {{ 'b', 'l', 'u' }, { 'e', 'g', 'r' },
-         { 'e', 'e', 'n' }, { 'r', 'e', 'd' }}));
-    invalid.magic = DirectX::detail::makeMagic<Bitmap::Magic>({'M','B'});
-
-    EXPECT_THROW(BitmapReader::read(makeFile(invalid)), BitmapReader::InvalidType);
+    bmp.magic = DirectX::detail::makeMagic<Bitmap::Magic>({'M','B'});
+    auto fileWithInvalidType(makeFile(bmp));
+    EXPECT_THROW(BitmapReader::read(fileWithInvalidType), BitmapReader::InvalidType);
 }
 
 TEST_F(BitmapReaderTest, GivenValidFile_WhenRead_CreatesBitmap)
 {
-    const auto valid(Bitmap::make(2, 2,
-        {{ 'b', 'l', 'u' }, { 'e', 'g', 'r' },
-         { 'e', 'e', 'n' }, { 'r', 'e', 'd' }}));
-
-    EXPECT_EQ(valid, BitmapReader::read(makeFile(valid)));
+    auto validFile(makeFile(bmp));
+    EXPECT_EQ(bmp, BitmapReader::read(validFile));
 }

@@ -29,7 +29,7 @@ namespace image
             @throw BadFile if unable to write to the stream
             @throw InvalidType if the image is not a valid direct draw surface image
         */
-        static void write(std::ostream && to, const DirectDrawSurface & dds);
+        static void write(std::ostream & to, const DirectDrawSurface & dds);
     };
 
     class DirectDrawSurfaceWriter::BadFile : public std::invalid_argument

@@ -28,7 +28,7 @@ namespace image
             @throw BadFile if unable to read from the stream
             @throw InvalidType if the stream does not contain a direct draw surface image
         */
-        static DirectDrawSurface read(std::istream && from);
+        static DirectDrawSurface read(std::istream & from);
     };
 
     class DirectDrawSurfaceReader::BadFile : public std::invalid_argument

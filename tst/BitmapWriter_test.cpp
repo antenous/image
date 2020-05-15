@@ -81,11 +81,9 @@ namespace
     class BitmapWriterTest : public Test
     {
     protected:
-        std::ostringstream makeBadFile() const
+        void SetUp() override
         {
-            std::ostringstream file;
-            file.setstate(std::ios::badbit);
-            return file;
+            badFile.setstate(std::ios::badbit);
         }
 
         std::stringstream makeFile(const Bitmap & bmp) const
@@ -102,6 +100,13 @@ namespace
                 std::istreambuf_iterator<char>(right)) ?
                     AssertionSuccess() : AssertionFailure();
         }
+
+        std::ostringstream badFile;
+        std::stringstream file;
+
+        const Bitmap bmp{ Bitmap::make(2, 2,
+            {{ 0x00, 0x00, 0xff }, { 0xff, 0xff, 0xff },
+             { 0xff, 0x00, 0x00 }, { 0x00, 0xff, 0x00 }}) };
     };
 }
 
@@ -118,9 +123,9 @@ TEST_F(BitmapWriterTest, CanThrowAndCatchBadFile)
     }
 }
 
-TEST_F(BitmapWriterTest, GivenBadFile_WhenWriting_ThrowsBadFile)
+TEST_F(BitmapWriterTest, GivenBadFile_WhenWritten_ThrowsBadFile)
 {
-    EXPECT_THROW(BitmapWriter::write(makeBadFile(), Bitmap()), BitmapWriter::BadFile);
+    EXPECT_THROW(BitmapWriter::write(badFile, bmp), BitmapWriter::BadFile);
 }
 
 TEST_F(BitmapWriterTest, CanThrowAndCatchInvalidType)
@@ -136,18 +141,13 @@ TEST_F(BitmapWriterTest, CanThrowAndCatchInvalidType)
     }
 }
 
-TEST_F(BitmapWriterTest, GivenInvalidBitmap_WhenWriting_ThrowsInvalidType)
+TEST_F(BitmapWriterTest, GivenInvalidBitmap_WhenWritten_ThrowsInvalidType)
 {
-    EXPECT_THROW(BitmapWriter::write(std::ostringstream(), Bitmap()), BitmapWriter::InvalidType);
+    EXPECT_THROW(BitmapWriter::write(file, Bitmap{ }), BitmapWriter::InvalidType);
 }
 
 TEST_F(BitmapWriterTest, GivenValidBitmap_WhenWritten_WritesFile)
 {
-    const auto valid(Bitmap::make(2, 2,
-        {{ 0x00, 0x00, 0xff }, { 0xff, 0xff, 0xff },
-         { 0xff, 0x00, 0x00 }, { 0x00, 0xff, 0x00 }}));
-
-    std::stringstream file;
-    BitmapWriter::write(std::move(file), valid);
-    EXPECT_TRUE(Equal(makeFile(valid), file));
+    BitmapWriter::write(file, bmp);
+    EXPECT_TRUE(Equal(makeFile(bmp), file));
 }

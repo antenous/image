@@ -41,7 +41,7 @@ BitmapWriter::InvalidType::InvalidType() :
     std::invalid_argument("invalid type")
 {}
 
-void BitmapWriter::write(std::ostream && to, const Bitmap & bmp)
+void BitmapWriter::write(std::ostream & to, const Bitmap & bmp)
 {
     if (!to)
         throw BadFile();

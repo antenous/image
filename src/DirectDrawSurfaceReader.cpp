@@ -51,7 +51,7 @@ DirectDrawSurfaceReader::InvalidType::InvalidType() :
     std::runtime_error("invalid type")
 {}
 
-DirectDrawSurface DirectDrawSurfaceReader::read(std::istream && from)
+DirectDrawSurface DirectDrawSurfaceReader::read(std::istream & from)
 {
     if (!from)
         throw BadFile();

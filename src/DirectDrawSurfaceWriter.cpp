@@ -44,7 +44,7 @@ DirectDrawSurfaceWriter::InvalidType::InvalidType() :
     std::invalid_argument("invalid type")
 {}
 
-void DirectDrawSurfaceWriter::write(std::ostream && to, const DirectDrawSurface & dds)
+void DirectDrawSurfaceWriter::write(std::ostream & to, const DirectDrawSurface & dds)
 {
     if (!to)
         throw BadFile();

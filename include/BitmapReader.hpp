@@ -27,7 +27,7 @@ namespace image
             @throw BadFile if unable to read from the stream
             @throw InvalidType if the stream does not contain a bitmap image
         */
-        static Bitmap read(std::istream && from);
+        static Bitmap read(std::istream & from);
     };
 
     class BitmapReader::BadFile : public std::invalid_argument

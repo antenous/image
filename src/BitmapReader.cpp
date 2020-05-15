@@ -49,7 +49,7 @@ BitmapReader::InvalidType::InvalidType() :
     std::runtime_error("invalid type")
 {}
 
-Bitmap BitmapReader::read(std::istream && from)
+Bitmap BitmapReader::read(std::istream & from)
 {
     if (!from)
         throw BitmapReader::BadFile();

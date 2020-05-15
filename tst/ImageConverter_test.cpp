@@ -21,14 +21,14 @@ namespace
         std::string toString(const Bitmap & bmp) const
         {
             std::stringstream file;
-            BitmapWriter::write(std::move(file), bmp);
+            BitmapWriter::write(file, bmp);
             return file.str();
         }
 
         std::string toString(const DirectDrawSurface & dds) const
         {
             std::stringstream file;
-            DirectDrawSurfaceWriter::write(std::move(file), dds);
+            DirectDrawSurfaceWriter::write(file, dds);
             return file.str();
         }
 

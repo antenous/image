@@ -27,7 +27,7 @@ namespace image
             @throw BadFile if unable to write to the stream
             @throw InvalidType if the image is not a valid bitmap image
         */
-        static void write(std::ostream && to, const Bitmap & bmp);
+        static void write(std::ostream & to, const Bitmap & bmp);
     };
 
     class BitmapWriter::BadFile : public std::invalid_argument
