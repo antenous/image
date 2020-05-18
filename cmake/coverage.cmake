@@ -25,6 +25,9 @@
 #   $ cmake -H. -Bbuild -DCODE_COVERAGE=On
 #   $ cmake --build build/ --target check-coverage
 #
+# NOTE: Code coverage may fail if a source file is removed. In this case revert
+#       back to a phase that had the missing file, run `clean` target to remove
+#       the coverage files and return back to build the coverage.
 # NOTE! Enabling code coverage enforces a Debug build type
 
 option(CODE_COVERAGE "Enable code coverage" OFF)
@@ -72,6 +75,18 @@ function(add_coverage target)
         target_compile_options(${target} PRIVATE -O0 --coverage)
         target_link_options(${target} PUBLIC --coverage)
 
+        # Set gcc coverage files to be removed with `clean` target
+        get_target_property(src ${target} SOURCES)
+        get_target_property(dir ${target} BINARY_DIR)
+
+        foreach(source ${src})
+            foreach(ext "gcda" "gcno")
+                list(APPEND coverage_files "${dir}/CMakeFiles/${target}.dir/${source}.${ext}")
+            endforeach()
+        endforeach()
+
+        set_directory_properties(PROPERTIES ADDITIONAL_CLEAN_FILES "${coverage_files}")
+
     endif()
 endfunction()
 
@@ -110,8 +125,12 @@ function(check_coverage target)
             # Generate HTML reports.
             COMMAND ${GENHTML} --title ${PROJECT_NAME} --output-directory=${report} ${report}.info.cleaned --quiet
 
-            # Cleanup
-            COMMAND ${CMAKE_COMMAND} -E remove ${report}.base ${report}.total ${report}.info.cleaned
+            BYPRODUCTS
+                ${report}
+                ${report}.base
+                ${report}.info
+                ${report}.total
+                ${report}.info.cleaned
         )
 
         add_dependencies(${target} ${Coverage_DEPENDENCIES})
