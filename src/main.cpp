@@ -8,10 +8,9 @@
 #include <fstream>
 #include <iostream>
 #include <fmt/format.h>
-#include "BitmapCompressor.hpp"
 #include "BitmapReader.hpp"
 #include "BitmapWriter.hpp"
-#include "DirectDrawSurfaceDecompressor.hpp"
+#include "DirectDrawSurfaceCodec.hpp"
 #include "DirectDrawSurfaceReader.hpp"
 #include "DirectDrawSurfaceWriter.hpp"
 #include "Time.hpp"
@@ -45,14 +44,14 @@ namespace
 
     auto convert(const Bitmap & bmp)
     {
-        const auto [result, elapsed] = time(&BitmapCompressor::compress, bmp.data, bmp.height(), bmp.width());
+        const auto [result, elapsed] = time(&DirectDrawSurfaceCodec::compress, bmp.height(), bmp.width(), bmp.data);
         std::cout << format("compress", elapsed) << "\n";
         return DirectDrawSurface::make(bmp.height(), bmp.width(), result);
     }
 
     auto convert(const DirectDrawSurface & dds)
     {
-        const auto [result, elapsed] = time(&DirectDrawSurfaceDecompressor::decompress, dds.data, dds.height(), dds.width());
+        const auto [result, elapsed] = time(&DirectDrawSurfaceCodec::decompress, dds.height(), dds.width(), dds.data);
         std::cout << format("decompress", elapsed) << "\n";
         return Bitmap::make(dds.height(), dds.width(), result);
     }

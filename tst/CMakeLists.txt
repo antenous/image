@@ -2,14 +2,13 @@ if(NOT CMAKE_CROSSCOMPILING)
 
     add_executable(testrunner
         Bitmap_test.cpp
-        BitmapCompressor_test.cpp
         BitmapReader_test.cpp
         BitmapWriter_test.cpp
         BlockCodec_test.cpp
         BlockIterator_test.cpp
         ColorDepth_test.cpp
         DirectDrawSurface_test.cpp
-        DirectDrawSurfaceDecompressor_test.cpp
+        DirectDrawSurfaceCodec_test.cpp
         DirectDrawSurfaceReader_test.cpp
         DirectDrawSurfaceWriter_test.cpp
         DirectX_test.cpp
