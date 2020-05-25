@@ -18,7 +18,7 @@ namespace image
     struct Writer
     {
         template<typename... Args>
-        static void write(std::ostream & to, std::tuple<Args...> && tuple)
+        static void write(std::ostream & to, const std::tuple<Args...> & tuple)
         {
             write(to, tuple, std::index_sequence_for<Args...>{});
         }
@@ -30,7 +30,7 @@ namespace image
         }
 
         template<typename T>
-        static void write(std::ostream & stream, T && t)
+        static void write(std::ostream & stream, const T & t)
         {
             stream.write(reinterpret_cast<const char*>(&t), sizeof(t));
         }

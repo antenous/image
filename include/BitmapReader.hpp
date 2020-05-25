@@ -8,7 +8,7 @@
 #ifndef BITMAPREADER_HPP_
 #define BITMAPREADER_HPP_
 
-#include <stdexcept>
+#include <istream>
 #include "Bitmap.hpp"
 
 namespace image

@@ -6,12 +6,17 @@
  */
 
 #include "BitmapReader.hpp"
-#include "Reader.hpp"
 
 using namespace image;
 
 namespace
 {
+    template<typename T>
+    void read(std::istream & stream, T & t, std::streamsize count = sizeof(T))
+    {
+        stream.read(reinterpret_cast<char*>(&t), count);
+    }
+
     inline void skipPadding(std::istream & from, uint8_t padding)
     {
         from.seekg(padding, from.cur);
@@ -22,19 +27,19 @@ namespace
         colors.resize(height*width);
 
         for (int32_t row(0), firstInRow(0); row < height; ++row, firstInRow += width, skipPadding(from, padding))
-            from.read(reinterpret_cast<char*>(&colors[firstInRow]), width*sizeof(Bitmap::Colors::value_type));
+            read(from, colors[firstInRow], width*sizeof(Bitmap::Colors::value_type));
     }
 
     Bitmap readBitmap(std::istream & from)
     {
         Bitmap bmp;
-        Reader::read(from, bmp.magic);
+        read(from, bmp.magic);
 
         if (!bmp)
             throw BitmapReader::InvalidType();
 
-        Reader::read(from, bmp.fileHeader);
-        Reader::read(from, bmp.infoHeader);
+        read(from, bmp.fileHeader);
+        read(from, bmp.infoHeader);
         read(from, bmp.colors, bmp.height(), bmp.width(), bmp.padding());
 
         return bmp;

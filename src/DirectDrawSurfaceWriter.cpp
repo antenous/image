@@ -6,27 +6,21 @@
  */
 
 #include "DirectDrawSurfaceWriter.hpp"
-#include "Writer.hpp"
 
 using namespace image;
 
 namespace
 {
-    void write(std::ostream & to, DirectDrawSurface::Magic magic)
+    template<typename T>
+    void write(std::ostream & stream, const T & t, std::streamsize count = sizeof(T))
     {
-        Writer::write(to, magic);
-    }
-
-    void write(std::ostream & to, const DirectDrawSurface::Header & header)
-    {
-        Writer::write(to, header);
+        stream.write(reinterpret_cast<const char*>(&t), count);
     }
 
     void write(std::ostream & to, const DirectDrawSurface::Data & data, uint32_t size)
     {
-        to.write(reinterpret_cast<const char*>(data.data()), size);
+        write(to, *data.data(), size);
     }
-
 
     void writeDirectDrawSurface(std::ostream & to, const DirectDrawSurface & dds)
     {

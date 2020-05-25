@@ -6,26 +6,21 @@
  */
 
 #include "DirectDrawSurfaceReader.hpp"
-#include "Reader.hpp"
 
 using namespace image;
 
 namespace
 {
-    void read(std::istream & from, DirectDrawSurface::Magic & magic)
+    template<typename T>
+    void read(std::istream & stream, T & t, std::streamsize count = sizeof(T))
     {
-        Reader::read(from, magic);
-    }
-
-    void read(std::istream & from, DirectDrawSurface::Header & header)
-    {
-        Reader::read(from, header);
+        stream.read(reinterpret_cast<char*>(&t), count);
     }
 
     void read(std::istream & from, DirectDrawSurface::Data & data, uint32_t size)
     {
         data.resize(size/sizeof(DirectDrawSurface::Data::value_type));
-        from.read(reinterpret_cast<char*>(data.data()), size);
+        read(from, *data.data(), size);
     }
 
     DirectDrawSurface readDirectDrawSurface(std::istream & from)

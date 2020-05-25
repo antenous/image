@@ -9,7 +9,7 @@
 #ifndef DIRECTDRAWSURFACEREADER_HPP_
 #define DIRECTDRAWSURFACEREADER_HPP_
 
-#include <stdexcept>
+#include <istream>
 #include "DirectDrawSurface.hpp"
 
 namespace image
