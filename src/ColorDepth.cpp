@@ -6,33 +6,48 @@
  */
 
 #include "ColorDepth.hpp"
-#include <bitset>
 
 using namespace image;
 
 namespace
 {
-    inline TrueColor::Sample upscaleSample(HighColor::Sample sample, uint8_t bits) noexcept
+    constexpr std::size_t bitsInSample = 8;
+
+    constexpr std::size_t bitCount(std::uint16_t i) noexcept
     {
-        sample <<= (8 - bits);
-        return sample | (sample >> bits);
+        return (i == 0) ? 0 : 1 + bitCount(i & (i - 1));
     }
 
-    inline HighColor::Sample upscaleSample(HighColor::Mask mask, const HighColor & color) noexcept
+    constexpr auto bitCount(HighColor::Mask mask) noexcept
     {
-        return upscaleSample(color[mask], std::bitset<16>(static_cast<std::underlying_type_t<HighColor::Mask>>(mask)).count());
+        return bitCount(detail::toUnderlying(mask));
+    }
+
+    inline HighColor::Color downscale(TrueColor::Sample sample, HighColor::Mask mask) noexcept
+    {
+        sample >>= (bitsInSample - bitCount(mask));
+        return static_cast<HighColor::Color>(sample) << detail::indexOfLsb(mask);
+    }
+
+    inline TrueColor::Sample upscale(HighColor::Color sample, std::size_t bits) noexcept
+    {
+        sample <<= (bitsInSample - bits);
+        return sample | (sample >> bits);
     }
 }
 
 HighColor ColorDepth::trueToHigh(const TrueColor & trueColor) noexcept
 {
-    return HighColor(((trueColor.red & 0xf8) << 8)|((trueColor.green & 0xfc) << 3)|((trueColor.blue & 0xf8) >> 3));
+    return HighColor(
+        downscale(trueColor.red,   HighColor::Mask::Red)  |
+        downscale(trueColor.green, HighColor::Mask::Green)|
+        downscale(trueColor.blue,  HighColor::Mask::Blue));
 }
 
 TrueColor ColorDepth::highToTrue(const HighColor & highColor) noexcept
 {
     return {
-        .blue  = upscaleSample(HighColor::Mask::Blue, highColor),
-        .green = upscaleSample(HighColor::Mask::Green, highColor),
-        .red   = upscaleSample(HighColor::Mask::Red, highColor) };
+        .blue  = upscale(highColor[HighColor::Mask::Blue],  bitCount(HighColor::Mask::Blue)),
+        .green = upscale(highColor[HighColor::Mask::Green], bitCount(HighColor::Mask::Green)),
+        .red   = upscale(highColor[HighColor::Mask::Red],   bitCount(HighColor::Mask::Red)) };
 }

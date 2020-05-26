@@ -28,8 +28,6 @@ namespace image
 
         using Color = uint16_t;
 
-        using Sample = uint8_t;
-
         HighColor() = default;
 
         HighColor(Color color) noexcept;
@@ -38,7 +36,7 @@ namespace image
 
         bool operator>(const HighColor & rhs) const noexcept;
 
-        Sample operator[](Mask mask) const noexcept;
+        Color operator[](Mask mask) const noexcept;
 
     private:
         friend auto interpolate(const HighColor & lhs, const HighColor & rhs) noexcept;
@@ -110,7 +108,7 @@ namespace image
         return color > rhs.color;
     }
 
-    inline HighColor::Sample HighColor::operator[](Mask mask) const noexcept
+    inline HighColor::Color HighColor::operator[](Mask mask) const noexcept
     {
         return detail::sample(mask, color) >> detail::indexOfLsb(mask);
     }
