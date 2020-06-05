@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.14)
 cmake_policy(SET CMP0048 NEW) # https://cmake.org/cmake/help/v3.7/policy/CMP0048.html
 project(image VERSION 1.2.0)
 
@@ -12,6 +12,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(ccache)
 include(coverage)
 include(docker)
+include(fmt)
 include(googletest)
 include(makecheck)
 include(uninstall)
@@ -21,13 +22,13 @@ add_subdirectory(src)
 
 enable_testing()
 add_subdirectory(tst EXCLUDE_FROM_ALL)
-check_coverage(check-coverage EXCLUDES '*googletest*')
+check_coverage(check-coverage EXCLUDES '*fmt*' '*googletest*')
 
 # documentation
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
     set(target "doxygen-doc")
-    set(DOXYGEN_EXCLUDE_PATTERNS "googletest*")
+    set(DOXYGEN_EXCLUDE_PATTERNS "fmt*" "googletest*")
     set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${target}")
     set(DOXYGEN_GENERATE_HTML YES)
     

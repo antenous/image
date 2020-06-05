@@ -10,6 +10,7 @@ add_library(img STATIC
     DirectDrawSurfaceWriter.cpp
     Texel.cpp)
 target_include_directories(img PUBLIC ${INCLUDE_DIR})
+target_link_libraries(img PUBLIC fmt)
 add_coverage(img)
 
 add_executable(image main.cpp)

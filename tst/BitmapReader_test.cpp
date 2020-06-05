@@ -6,9 +6,9 @@
  */
 
 #include "BitmapReader.hpp"
+#include <fmt/ranges.h>
 #include <gtest/gtest.h>
 #include "DirectX.hpp"
-#include "TuplePrinter.hpp"
 #include "Writer.hpp"
 
 using namespace image;
@@ -106,28 +106,10 @@ namespace
 
 namespace image
 {
-// TODO: With C++17 we could do this (http://en.cppreference.com/w/cpp/language/fold):
-//    template<class Tuple, std::size_t... I>
-//    void printTuple(std::ostream * os, const Tuple & t, std::index_sequence<I...>)
-//    {
-//        ((*os << (I == 0? "" : ", ") << std::get<I>(t)), ...);
-//    }
-//
-//    template<typename... Args>
-//    void PrintTo(std::tuple<Args...> && t, std::ostream * os)
-//    {
-//        printTuple(os, t, std::index_sequence_for<Args...>{});
-//    }
-
-    template<typename... Args>
-    void PrintTo(std::tuple<Args...> && t, std::ostream * os)
-    {
-        TuplePrinter<decltype(t), sizeof...(Args)>::print(t, os);
-    }
-
     void PrintTo(const Bitmap & bmp, std::ostream * os)
     {
-        PrintTo(toTuple(bmp), os);
+        *os << fmt::format("{}, {}, {}, {}", bmp.magic, toTuple(bmp.fileHeader),
+            toTuple(bmp.infoHeader), bmp.colors);
     }
 
     bool operator==(const Bitmap & lhs, const Bitmap & rhs)

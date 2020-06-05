@@ -10,8 +10,8 @@
 #define TRUECOLOR_HPP_
 
 #include <cstdint>
-#include <ostream>
 #include <tuple>
+#include <fmt/format.h>
 
 namespace image
 {
@@ -35,14 +35,30 @@ namespace image
         Sample red;
     };
 
-    inline std::ostream & operator<<(std::ostream & os, const TrueColor & trueColor)
+}
+
+namespace fmt
+{
+
+    /**
+        @brief  <a href="https://fmt.dev/latest/api.html#formatting-user-defined-types">
+                Formatter</a> for image::TrueColor
+    */
+    template<>
+    struct formatter<image::TrueColor>
     {
-        os << std::hex << "{"
-            << "0x" << static_cast<int>(trueColor.blue) << ", "
-            << "0x" << static_cast<int>(trueColor.green) << ", "
-            << "0x" << static_cast<int>(trueColor.red) << "}";
-        return os;
-    }
+        constexpr auto parse(format_parse_context & ctx)
+        {
+            return ctx.begin();
+        }
+
+        template<typename FormatContext>
+        auto format(const image::TrueColor & color, FormatContext & ctx)
+        {
+            return format_to(ctx.out(), "{{{:#04x}, {:#04x}, {:#04x}}}",
+                color.blue, color.green, color.red);
+        }
+    };
 
 }
 

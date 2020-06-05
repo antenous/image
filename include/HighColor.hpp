@@ -10,8 +10,8 @@
 #define HIGHCOLOR_HPP_
 
 #include <cstdint>
-#include <ostream>
 #include <type_traits>
+#include <fmt/format.h>
 
 namespace image
 {
@@ -42,7 +42,7 @@ namespace image
         friend auto interpolate(const HighColor & lhs, const HighColor & rhs) noexcept;
         friend auto blend(const HighColor & lhs, const HighColor & rhs) noexcept;
         friend auto distance(const HighColor & lhs, const HighColor & rhs) noexcept;
-        friend std::ostream & operator<<(std::ostream & os, const HighColor & highColor);
+        friend struct fmt::formatter<HighColor>;
 
         Color color{ 0 };
     };
@@ -161,11 +161,24 @@ namespace image
             detail::distance(HighColor::Mask::Blue, lhs.color, rhs.color);
     }
 
-    inline std::ostream & operator<<(std::ostream & os, const HighColor & highColor)
+}
+
+namespace fmt
+{
+
+    /**
+        @brief  <a href="https://fmt.dev/latest/api.html#formatting-user-defined-types">
+                Formatter</a> for image::HighColor
+    */
+    template<>
+    struct formatter<image::HighColor> : formatter<unsigned short>
     {
-        os << highColor.color;
-        return os;
-    }
+        template<typename FormatContext>
+        auto format(const image::HighColor & color, FormatContext & ctx)
+        {
+            return formatter<unsigned short>::format(color.color, ctx);
+        }
+    };
 
 }
 

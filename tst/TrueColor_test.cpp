@@ -7,7 +7,6 @@
 
 #include "TrueColor.hpp"
 #include <gtest/gtest.h>
-#include <sstream>
 
 using namespace image;
 
@@ -18,10 +17,8 @@ namespace
         EXPECT_EQ(24, TrueColor::bits);
     }
 
-    TEST(TrueColorTest, Print)
+    TEST(TrueColorTest, Format)
     {
-        std::ostringstream oss;
-        oss << TrueColor{1, 2, 3};
-        EXPECT_EQ("{0x1, 0x2, 0x3}", oss.str());
+        EXPECT_EQ("{0x01, 0x02, 0x03}", fmt::format("{}", TrueColor{1, 2, 3}));
     }
 }

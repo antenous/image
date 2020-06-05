@@ -6,9 +6,8 @@
  */
 
 #include <fstream>
-#include <iomanip>
 #include <iostream>
-#include <sstream>
+#include <fmt/format.h>
 #include "BitmapCompressor.hpp"
 #include "BitmapReader.hpp"
 #include "BitmapWriter.hpp"
@@ -32,13 +31,8 @@ namespace
     template<typename Rep, typename Period>
     auto format(std::string_view operation, const std::chrono::duration<Rep, Period> & elapsed)
     {
-        std::ostringstream formatter;
-        formatter
-            << std::left << std::setw(11)
-            << operation
-            << std::right << std::setw(6) << std::fixed << std::setprecision(3)
-            << std::chrono::duration<float, std::milli>(elapsed).count() << "ms";
-        return formatter.str();
+        return fmt::format("{:<11} {:>6.3f}ms", operation,
+            std::chrono::duration<float, std::milli>(elapsed).count());
     }
 
     template<typename Reader>

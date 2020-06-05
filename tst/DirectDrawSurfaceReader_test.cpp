@@ -7,7 +7,6 @@
 
 #include "DirectDrawSurfaceReader.hpp"
 #include <gtest/gtest.h>
-#include "TuplePrinter.hpp"
 #include "Writer.hpp"
 
 using namespace image;
@@ -116,15 +115,9 @@ namespace
 
 namespace image
 {
-    template<typename... Args>
-    void PrintTo(std::tuple<Args...> && t, std::ostream * os)
-    {
-        TuplePrinter<decltype(t), sizeof...(Args)>::print(t, os);
-    }
-
     void PrintTo(const DirectDrawSurface & dds, std::ostream * os)
     {
-        PrintTo(toTuple(dds), os);
+        *os << fmt::format("{}, {}, {}", dds.magic, toTuple(dds.header), dds.data);
     }
 
     bool operator==(const DirectDrawSurface & lhs, const DirectDrawSurface & rhs)

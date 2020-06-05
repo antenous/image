@@ -10,7 +10,15 @@
 
 using namespace image;
 
-TEST(HighColorTest, Type)
+namespace
 {
-    EXPECT_TRUE((std::is_same<uint16_t, HighColor::Color>::value));
+    TEST(HighColorTest, Type)
+    {
+        EXPECT_TRUE((std::is_same<uint16_t, HighColor::Color>::value));
+    }
+
+    TEST(HighColorTest, Format)
+    {
+        EXPECT_EQ("c0de", fmt::format("{:x}", HighColor{49374}));
+    }
 }
