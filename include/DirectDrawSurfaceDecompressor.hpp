@@ -30,9 +30,9 @@ namespace image
             @param in           Data to decompress
             @param height       Image height
             @param width        Image width
-            @return decompressed colors for bitmap image
+            @return decompressed data for bitmap image
         */
-        static Bitmap::Colors decompress(
+        static Bitmap::Data decompress(
             const DirectDrawSurface::Data & in, std::int32_t height, std::int32_t width);
     };
 

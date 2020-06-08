@@ -23,18 +23,18 @@ namespace
         to.write(bytes.data(), padding);
     }
 
-    void write(std::ostream & to, const Bitmap::Colors & colors, int32_t height, int32_t width, uint8_t padding)
+    void write(std::ostream & to, const Bitmap::Data & data, int32_t height, int32_t width, uint8_t padding)
     {
         for (int32_t row(0), firstInRow(0); row < height; ++row, firstInRow += width, addPadding(to, padding))
-            write(to, colors[firstInRow], width*sizeof(Bitmap::Colors::value_type));
+            write(to, data[firstInRow], width*sizeof(Bitmap::Data::value_type));
     }
 
     void writeBitmap(std::ostream & to, const Bitmap & bmp)
     {
         write(to, bmp.magic);
-        write(to, bmp.fileHeader);
-        write(to, bmp.infoHeader);
-        write(to, bmp.colors, bmp.height(), bmp.width(), bmp.padding());
+        write(to, bmp.header.file);
+        write(to, bmp.header.info);
+        write(to, bmp.data, bmp.height(), bmp.width(), bmp.padding());
     }
 }
 

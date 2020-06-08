@@ -22,12 +22,12 @@ namespace
         from.seekg(padding, from.cur);
     }
 
-    void read(std::istream & from, Bitmap::Colors & colors, int32_t height, int32_t width, uint8_t padding)
+    void read(std::istream & from, Bitmap::Data & data, int32_t height, int32_t width, uint8_t padding)
     {
-        colors.resize(height*width);
+        data.resize(height*width);
 
         for (int32_t row(0), firstInRow(0); row < height; ++row, firstInRow += width, skipPadding(from, padding))
-            read(from, colors[firstInRow], width*sizeof(Bitmap::Colors::value_type));
+            read(from, data[firstInRow], width*sizeof(Bitmap::Data::value_type));
     }
 
     Bitmap readBitmap(std::istream & from)
@@ -38,9 +38,9 @@ namespace
         if (!bmp)
             throw BitmapReader::InvalidType();
 
-        read(from, bmp.fileHeader);
-        read(from, bmp.infoHeader);
-        read(from, bmp.colors, bmp.height(), bmp.width(), bmp.padding());
+        read(from, bmp.header.file);
+        read(from, bmp.header.info);
+        read(from, bmp.data, bmp.height(), bmp.width(), bmp.padding());
 
         return bmp;
     }

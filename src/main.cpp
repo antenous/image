@@ -45,7 +45,7 @@ namespace
 
     auto convert(const Bitmap & bmp)
     {
-        const auto [result, elapsed] = time(&BitmapCompressor::compress, bmp.colors, bmp.height(), bmp.width());
+        const auto [result, elapsed] = time(&BitmapCompressor::compress, bmp.data, bmp.height(), bmp.width());
         std::cout << format("compress", elapsed) << "\n";
         return DirectDrawSurface::make(bmp.height(), bmp.width(), result);
     }

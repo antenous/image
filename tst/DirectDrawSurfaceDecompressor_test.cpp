@@ -62,5 +62,5 @@ TEST_F(DirectDrawSurfaceDecompressorTest, ThrowsBadSizeWhenNoColorData)
 
 TEST_F(DirectDrawSurfaceDecompressorTest, Decompress)
 {
-    EXPECT_EQ(bmp.colors, DirectDrawSurfaceDecompressor::decompress(dds.data, dds.height(), dds.width()));
+    EXPECT_EQ(bmp.data, DirectDrawSurfaceDecompressor::decompress(dds.data, dds.height(), dds.width()));
 }

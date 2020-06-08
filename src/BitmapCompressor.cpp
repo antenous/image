@@ -38,20 +38,20 @@ namespace
         return out;
     }
 
-    auto downscaleAndReorder(const Bitmap::Colors & in, std::int32_t height, std::int32_t width)
+    auto downscaleAndReorder(const Bitmap::Data & in, std::int32_t height, std::int32_t width)
     {
         std::vector<HighColor> out;
         out.reserve(in.size());
         std::copy(
-            BlockIterator<Bitmap::Colors::const_iterator>(in.begin(), height, width),
-            BlockIterator<Bitmap::Colors::const_iterator>(height, width),
+            BlockIterator<Bitmap::Data::const_iterator>(in.begin(), height, width),
+            BlockIterator<Bitmap::Data::const_iterator>(height, width),
             std::back_inserter(out) | transformed(ColorDepth::trueToHigh));
         return out;
     }
 }
 
 DirectDrawSurface::Data BitmapCompressor::compress(
-    const Bitmap::Colors & in, std::int32_t height, std::int32_t width)
+    const Bitmap::Data & in, std::int32_t height, std::int32_t width)
 {
     if (in.empty() || in.size() % 16 != 0)
         throw BadSize();

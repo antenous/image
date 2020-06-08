@@ -57,15 +57,15 @@ TEST_F(BitmapCompressorTest, CanThrowAndCatchBadSize)
 
 TEST_F(BitmapCompressorTest, ThrowsBadSizeWhenNoColorData)
 {
-    EXPECT_THROW(BitmapCompressor::compress(Bitmap::Colors(), 0, 0), BitmapCompressor::BadSize);
+    EXPECT_THROW(BitmapCompressor::compress(Bitmap::Data(), 0, 0), BitmapCompressor::BadSize);
 }
 
 TEST_F(BitmapCompressorTest, ThrowsBadSizeWhenNoFullBlocksInColorData)
 {
-    EXPECT_THROW(BitmapCompressor::compress(Bitmap::Colors(1), 0, 1), BitmapCompressor::BadSize);
+    EXPECT_THROW(BitmapCompressor::compress(Bitmap::Data(1), 0, 1), BitmapCompressor::BadSize);
 }
 
 TEST_F(BitmapCompressorTest, Compress)
 {
-    EXPECT_EQ(dds.data, BitmapCompressor::compress(bmp.colors, bmp.height(), bmp.width()));
+    EXPECT_EQ(dds.data, BitmapCompressor::compress(bmp.data, bmp.height(), bmp.width()));
 }

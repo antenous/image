@@ -29,13 +29,13 @@ DirectDrawSurfaceDecompressor::BadSize::BadSize() :
     std::invalid_argument("bad size")
 {}
 
-Bitmap::Colors DirectDrawSurfaceDecompressor::decompress(
+Bitmap::Data DirectDrawSurfaceDecompressor::decompress(
     const DirectDrawSurface::Data & in, std::int32_t height, std::int32_t width)
 {
     if (in.empty())
         throw BadSize();
 
-    Bitmap::Colors out(in.size()*Texel::pixels());
+    Bitmap::Data out(in.size()*Texel::pixels());
     ::decompress(in.begin(), in.end(), deblocker(out, height, width) | transformed(ColorDepth::highToTrue));
     return out;
 }

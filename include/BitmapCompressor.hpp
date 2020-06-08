@@ -25,15 +25,15 @@ namespace image
         class BadSize;
 
         /**
-            @brief Compress colors in bitmap image
+            @brief Compress data in bitmap image
 
-            @param in           Colors to compress
+            @param in           Data to compress
             @param height       Image height
             @param width        Image width
             @return compressed data for direct draw surface
         */
         static DirectDrawSurface::Data compress(
-            const Bitmap::Colors & in, std::int32_t height, std::int32_t width);
+            const Bitmap::Data & in, std::int32_t height, std::int32_t width);
     };
 
     class BitmapCompressor::BadSize : public std::invalid_argument

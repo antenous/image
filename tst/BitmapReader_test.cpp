@@ -18,7 +18,7 @@ namespace
 {
     using Data = std::vector<uint8_t>;
 
-    auto toTuple(const Bitmap::FileHeader & fileHeader)
+    auto toTuple(const Bitmap::Header::File & fileHeader)
     {
         return std::make_tuple(
             fileHeader.size,
@@ -26,7 +26,7 @@ namespace
             fileHeader.offset);
     }
 
-    auto toTuple(const Bitmap::InfoHeader & infoHeader)
+    auto toTuple(const Bitmap::Header::Info & infoHeader)
     {
         return std::make_tuple(
             infoHeader.size,
@@ -62,9 +62,9 @@ namespace
     auto colorsToData(const Bitmap & bmp)
     {
         Data data;
-        data.reserve(bmp.infoHeader.imageSize);
+        data.reserve(bmp.header.info.imageSize);
 
-        for (auto it(bmp.colors.begin()); it != bmp.colors.end(); addPadding(data, bmp.padding()))
+        for (auto it(bmp.data.begin()); it != bmp.data.end(); addPadding(data, bmp.padding()))
             for (auto end(std::next(it, bmp.width())); it != end; ++it)
                 data.insert(data.end(), { it->blue, it->green, it->red });
 
@@ -75,8 +75,8 @@ namespace
     {
         return std::tuple_cat(
             std::make_tuple(bmp.magic),
-            toTuple(bmp.fileHeader),
-            toTuple(bmp.infoHeader),
+            toTuple(bmp.header.file),
+            toTuple(bmp.header.info),
             toTuple<16>(colorsToData(bmp)));
     }
 
@@ -108,8 +108,8 @@ namespace image
 {
     void PrintTo(const Bitmap & bmp, std::ostream * os)
     {
-        *os << fmt::format("{}, {}, {}, {}", bmp.magic, toTuple(bmp.fileHeader),
-            toTuple(bmp.infoHeader), bmp.colors);
+        *os << fmt::format("{}, {}, {}, {}", bmp.magic, toTuple(bmp.header.file),
+            toTuple(bmp.header.info), bmp.data);
     }
 
     bool operator==(const Bitmap & lhs, const Bitmap & rhs)

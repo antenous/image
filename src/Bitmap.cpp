@@ -29,16 +29,16 @@ namespace
         return bytesInRow(width, bits)*height;
     }
 
-    Bitmap::InfoHeader makeInfoHeader(std::int32_t height, std::int32_t width, std::uint16_t bits)
+    Bitmap::Header::Info makeInfoHeader(std::int32_t height, std::int32_t width, std::uint16_t bits)
     {
         return {
-            sizeof(Bitmap::InfoHeader), width, height, 1, bits, 0,
+            sizeof(Bitmap::Header::Info), width, height, 1, bits, 0,
             imageSize(height, width, bits), 72_dpi, 72_dpi, 0, 0 };
     }
 
-    Bitmap::FileHeader makeFileHeader(const Bitmap::InfoHeader & infoHeader)
+    Bitmap::Header::File makeFileHeader(const Bitmap::Header::Info & infoHeader)
     {
-        const std::uint32_t offset = sizeof(Bitmap::Magic) + sizeof(Bitmap::FileHeader) + infoHeader.size;
+        const std::uint32_t offset = sizeof(Bitmap::Magic) + sizeof(Bitmap::Header::File) + infoHeader.size;
         return { offset + infoHeader.imageSize, 0, offset };
     }
 }
@@ -48,34 +48,34 @@ Bitmap::operator bool() const
     return magic == DirectX::detail::makeMagic<Magic>({'B', 'M'});
 }
 
-Bitmap Bitmap::make(std::int32_t height, std::int32_t width, const Colors & colors)
+Bitmap Bitmap::make(std::int32_t height, std::int32_t width, const Data & data)
 {
     Bitmap bmp;
 
     bmp.magic = DirectX::detail::makeMagic<Magic>({'B', 'M'});
-    bmp.infoHeader = makeInfoHeader(height, width, Colors::value_type::bits);
-    bmp.fileHeader = makeFileHeader(bmp.infoHeader);
-    bmp.colors = colors;
+    bmp.header.info = makeInfoHeader(height, width, Data::value_type::bits);
+    bmp.header.file = makeFileHeader(bmp.header.info);
+    bmp.data = data;
 
     return bmp;
 }
 
 int32_t Bitmap::height() const
 {
-    return infoHeader.height;
+    return header.info.height;
 }
 
 int32_t Bitmap::width() const
 {
-    return infoHeader.width;
+    return header.info.width;
 }
 
 uint8_t Bitmap::padding() const
 {
-    return infoHeader.padding();
+    return header.info.padding();
 }
 
-uint8_t Bitmap::InfoHeader::padding() const
+uint8_t Bitmap::Header::Info::padding() const
 {
     return bytesInRow(width, bits) - width*3;
 }

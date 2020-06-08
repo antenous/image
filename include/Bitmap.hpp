@@ -21,7 +21,7 @@ namespace image
     class Bitmap
     {
     public:
-        using Colors = std::vector<TrueColor>;
+        using Data = std::vector<TrueColor>;
 
         using Magic = std::uint16_t;
 
@@ -33,7 +33,7 @@ namespace image
         /**
             Create a new bitmap
         */
-        static Bitmap make(std::int32_t height, std::int32_t width, const Colors & colors);
+        static Bitmap make(std::int32_t height, std::int32_t width, const Data & data);
 
         /**
             Return height of the image
@@ -52,34 +52,37 @@ namespace image
 
         Magic magic = 0;
 
-        struct FileHeader
+        struct Header
         {
-            uint32_t size;
-            uint32_t reserved;
-            uint32_t offset;
-        } fileHeader{};
+            struct File
+            {
+                uint32_t size;
+                uint32_t reserved;
+                uint32_t offset;
+            } file;
 
-        struct InfoHeader
-        {
-            /**
-                Return the number of padding bytes in a row
-            */
-            uint8_t padding() const;
+            struct Info
+            {
+                /**
+                    Return the number of padding bytes in a row
+                 */
+                uint8_t padding() const;
 
-            uint32_t size;
-            int32_t width;
-            int32_t height;
-            uint16_t planes;
-            uint16_t bits;
-            uint32_t compression;
-            uint32_t imageSize;
-            uint32_t horizontalResolution;
-            uint32_t verticalResolution;
-            uint32_t colors;
-            uint32_t importantColors;
-        } infoHeader{};
+                uint32_t size;
+                int32_t width;
+                int32_t height;
+                uint16_t planes;
+                uint16_t bits;
+                uint32_t compression;
+                uint32_t imageSize;
+                uint32_t horizontalResolution;
+                uint32_t verticalResolution;
+                uint32_t colors;
+                uint32_t importantColors;
+            } info;
+        } header{};
 
-        Colors colors;
+        Data data;
     };
 
 }
