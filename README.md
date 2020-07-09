@@ -18,16 +18,29 @@ $ cmake --build build/
 
 This will create an executable named `image` in the `build/src` directory.
 
+**NOTE!** The default build type of a cloned project is `Debug`
+
+### Building with Clang
+
+To use [Clang](https://clang.llvm.org/) instead of the default system compiler
+set the `CXX` environment variable to point at the compiler before configuring
+the project.
+
+```sh
+$ CXX=/usr/lib/ccache/clang++ cmake -H. -Bbuild/clang
+$ cmake --build build/clang/
+```
+
 ### Cross building for Windows
 
 To build the project for Windows run the below commands.
 
 ```sh
-$ cmake -H. -Bbuild/cross -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain-mingw-w64-x86_64.cmake
-$ cmake --build build/cross
+$ cmake -H. -Bbuild/mingw -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain-mingw-w64-x86_64.cmake
+$ cmake --build build/mingw
 ```
 
-This will create an executable named `image.exe` in the `build/cross/src` directory.
+This will create an executable named `image.exe` in the `build/mingw/src` directory.
 
 ### Building with Docker
 
@@ -61,18 +74,10 @@ $ docker run \
 Or to build the project within Docker from the outside run the below commands.
 
 ```sh
-$ docker run --rm -itd -v $PWD:$PWD -v ccache:/ccache --name image image:dev
+$ docker run --rm -itd -v $PWD:$PWD -v $HOME/.ccache/:$HOME/.ccache/ --name image image:dev
 $ docker exec -it image cmake -H$PWD -B$PWD/build/
 $ docker exec -it image cmake --build $PWD/build/
 $ docker stop image
-```
-
-To use [Clang](https://clang.llvm.org/) instead of the default system compiler
-set the `CXX` environment variable to point at the compiler before configuring
-the project.
-
-```sh
-$ CXX=/usr/lib/ccache/clang++ cmake -H. -Bbuild/clang
 ```
 
 **NOTE!** The Docker commands above may require root permissions
@@ -83,12 +88,11 @@ By default, `install` target will install the executable in `/usr/local/bin/`.
 To change the installation directory configure the project with `CMAKE_INSTALL_PREFIX`.
 
 ```sh
-$ cmake -H. -Bbuild/ -DCMAKE_INSTALL_PREFIX=$PWD -DCMAKE_BUILD_TYPE=Release
+$ cmake -DCMAKE_INSTALL_PREFIX=build/ -DCMAKE_BUILD_TYPE=Release build/
 $ cmake --build build/ --target install
 ```
 
-The above command will install the executable in `bin` subdirectory under the
-current working directory.
+The above command will install the executable in `build/bin` subdirectory.
 
 **NOTE!** `install` target may require root permissions and is only available with `Release` builds
 
@@ -101,7 +105,6 @@ easy to create distributable packages. Run the below commands to create a binary
 package.
 
 ```sh
-$ cmake -H. -Bbuild
 $ cmake --build build --target package
 ```
 
@@ -119,7 +122,7 @@ problems the converted file will be stored as `out.<bmp|dds>` in the current
 working dir.
 
 ```sh
-$ bin/image foobar.bmp
+$ ./build/bin/image foobar.bmp
 ```
 
 In the above case the resulting file will be `out.dds`.
@@ -151,7 +154,7 @@ To create a code coverage report, configure the project with
 `CODE_COVERAGE=On` and then build with `check-coverage`.
 
 ```sh
-$ cmake -H. -Bbuild/ -DCODE_COVERAGE=On
+$ cmake -DCODE_COVERAGE=On build/
 $ cmake --build build/ --target check-coverage
 ```
 
