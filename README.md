@@ -42,6 +42,20 @@ $ cmake --build build/mingw
 
 This will create an executable named `image.exe` in the `build/mingw/src` directory.
 
+### Cross building for Arm
+
+To build the project for an Arm based device (e.g. [Raspberry PI](https://www.raspberrypi.org/))
+run the below commands.
+
+```sh
+$ cmake -H. -Bbuild/aarch64 -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain-aarch64-linux-gnu.cmake
+$ cmake --build build/aarch64
+```
+
+This will create an executable named `image` in the `build/aarch64/src` directory.
+
+**NOTE!** Currently only 64bit (aarch64) toolchain is provided
+
 ### Building with Docker
 
 To separate the build process from the build system a [Docker](https://www.docker.com/)
