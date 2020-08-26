@@ -58,6 +58,7 @@ $ docker build \
   --build-arg USER=`id -un` \
   --build-arg UID=`id -u` \
   --build-arg GID=`id -g` \
+  --build-arg TZ=`cat /etc/timezone` \
   -t image:dev .
 ```
 
