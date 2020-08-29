@@ -20,6 +20,10 @@ This will create an executable named `image` in the `build/src` directory.
 
 **NOTE!** The default build type of a cloned project is `Debug`
 
+Both `GNU` and `Clang` support colored diagnostics but depending on the build
+environment the colored output may not be enabled by default. To force colored
+diagnostics configure the project with `COLOR_DIAGNOSTICS=On`.
+
 ### Building with Clang
 
 To use [Clang](https://clang.llvm.org/) instead of the default system compiler

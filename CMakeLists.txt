@@ -10,6 +10,7 @@ add_compile_options(-Wall -Werror -Wextra)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(ccache)
+include(colordiagnostics)
 include(coverage)
 include(defaultbuildtype)
 include(docker)
