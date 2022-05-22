@@ -35,6 +35,27 @@ $ CXX=/usr/lib/ccache/clang++ cmake -H. -Bbuild/clang
 $ cmake --build build/clang/
 ```
 
+### Building with MSVC and Ninja on Windows
+
+Install [Ninja](https://ninja-build.org/) and [ccache](https://ccache.dev/) in
+`/usr/bin/` (or `C:/Program Files/Git/usr/bin`). Prepare the build environment
+by running the `vcvarsall.bat` script.
+
+**NOTE!** In [Git BASH](https://gitforwindows.org/), the environment variables
+set by the batch script are not propagated to the running shell. To work around
+this, run the command below.
+
+```sh
+$ eval "$(MSYS_NO_PATHCONV=1 cmd "/C "C:/Program Files \(x86\)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvarsall.bat" x86 > nul && bash -c 'export -p'")"
+```
+
+To build the project run the below commands.
+
+```sh
+$ cmake -S . -B build/msvc -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain-msvc.cmake
+$ cmake --build build/msvc
+```
+
 ### Cross building for Windows
 
 To build the project for Windows run the below commands.
