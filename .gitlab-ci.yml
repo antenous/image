@@ -1,19 +1,20 @@
-image: ubuntu:latest
+image: ubuntu:20.04
 
 before_script:
-  - apt-get update && apt-get install -y --no-install-recommends
+  - apt-get update -qq &&
+    DEBIAN_FRONTEND="noninteractive" apt-get install -y --no-install-recommends -qq
     build-essential ca-certificates clang cmake git lcov gcovr ninja-build
 
 build:
   stage: build
   script:
-  - cmake -H. -Bbuild/ -G Ninja
+  - cmake -S . -B build/ -G Ninja -DCMAKE_BUILD_TYPE=Release
   - cmake --build build/
 
 test:
   stage: test
   script:
-  - cmake -H. -Bbuild/ -G Ninja
+  - cmake -S . -B build/ -G Ninja
   - cmake --build build --target testrunner
   - build/tst/testrunner --gtest_output="xml:report.xml"
   artifacts:
@@ -23,19 +24,20 @@ test:
 clang:
   stage: test
   script:
-  - CXX=/usr/bin/clang++ cmake -H. -Bbuild/ -G Ninja
+  - CXX=/usr/bin/clang++ cmake -S . -B build/ -G Ninja
   - cmake --build build/
   - cmake --build build/ --target check
 
 coverage:
   stage: test
   script:
-  - cmake -H. -Bbuild/ -G Ninja -DCODE_COVERAGE=On
+  - cmake -S . -B build/ -G Ninja -DCODE_COVERAGE=On
   - cmake --build build/ --target check-coverage
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
 
 package:
   stage: test
   script:
-  - cmake -H. -Bbuild/ -G Ninja
+  - cmake -S . -B build/ -G Ninja -DCMAKE_BUILD_TYPE=Release
   - cmake --build build --target package
   - cmake --build build --target package_source
