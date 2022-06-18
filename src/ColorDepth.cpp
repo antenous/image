@@ -32,7 +32,7 @@ namespace
     inline TrueColor::Sample upscale(HighColor::Color sample, std::size_t bits) noexcept
     {
         sample <<= (bitsInSample - bits);
-        return sample | (sample >> bits);
+        return static_cast<TrueColor::Sample>(sample | (sample >> bits));
     }
 }
 
@@ -47,7 +47,7 @@ HighColor ColorDepth::trueToHigh(const TrueColor & trueColor) noexcept
 TrueColor ColorDepth::highToTrue(const HighColor & highColor) noexcept
 {
     return {
-        .blue  = upscale(highColor[HighColor::Mask::Blue],  bitCount(HighColor::Mask::Blue)),
-        .green = upscale(highColor[HighColor::Mask::Green], bitCount(HighColor::Mask::Green)),
-        .red   = upscale(highColor[HighColor::Mask::Red],   bitCount(HighColor::Mask::Red)) };
+        upscale(highColor[HighColor::Mask::Blue],  bitCount(HighColor::Mask::Blue)),
+        upscale(highColor[HighColor::Mask::Green], bitCount(HighColor::Mask::Green)),
+        upscale(highColor[HighColor::Mask::Red],   bitCount(HighColor::Mask::Red)) };
 }

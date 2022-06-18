@@ -6,6 +6,7 @@
  */
 
 #include "BitmapWriter.hpp"
+#include <array>
 
 using namespace image;
 

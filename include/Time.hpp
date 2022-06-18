@@ -44,8 +44,8 @@ namespace image
             @return     Result of callable paired with elapsed time
         */
         template<typename F, typename... Args>
-        std::enable_if_t<!std::is_void_v<std::result_of_t<F(Args &&...)>>,
-            std::pair<std::result_of_t<F(Args &&...)>, duration>>
+        std::enable_if_t<!std::is_void_v<std::invoke_result_t<F, Args &&...>>,
+            std::pair<std::invoke_result_t<F, Args &&...>, duration>>
         operator()(F && f, Args &&... args) const
         {
             const auto start = Clock::now();
@@ -59,7 +59,7 @@ namespace image
             @return     Elapsed time
         */
         template<typename F, typename... Args>
-        std::enable_if_t<std::is_void_v<std::result_of_t<F(Args &&...)>>, duration>
+        std::enable_if_t<std::is_void_v<std::invoke_result_t<F, Args &&...>>, duration>
         operator()(F && f, Args &&... args) const
         {
             const auto start = Clock::now();

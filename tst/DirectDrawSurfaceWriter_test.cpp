@@ -86,19 +86,19 @@ namespace
             toTuple(dds.data));
     }
 
+    std::stringstream makeFile(const DirectDrawSurface & dds)
+    {
+        std::stringstream file;
+        Writer::write(file, toTuple(dds));
+        return file;
+    }
+
     class DirectDrawSurfaceWriterTest : public Test
     {
     protected:
         void SetUp() override
         {
             badFile.setstate(std::ios::badbit);
-        }
-
-        std::stringstream makeFile(const DirectDrawSurface & dds) const
-        {
-            std::stringstream file;
-            Writer::write(file, toTuple(dds));
-            return file;
         }
 
         AssertionResult Equal(std::istream && left, std::istream & right)

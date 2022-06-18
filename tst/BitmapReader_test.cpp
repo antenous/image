@@ -80,19 +80,19 @@ namespace
             toTuple<16>(colorsToData(bmp)));
     }
 
+    std::stringstream makeFile(const Bitmap & bmp)
+    {
+        std::stringstream file;
+        Writer::write(file, toTuple(bmp));
+        return file;
+    }
+
     class BitmapReaderTest : public Test
     {
     protected:
         void SetUp() override
         {
             badFile.setstate(std::ios::badbit);
-        }
-
-        std::stringstream makeFile(const Bitmap & bmp) const
-        {
-            std::stringstream file;
-            Writer::write(file, toTuple(bmp));
-            return file;
         }
 
         std::istringstream badFile;

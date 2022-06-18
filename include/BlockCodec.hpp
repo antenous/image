@@ -105,7 +105,7 @@ namespace image
     inline uint8_t BlockCodec::findNearest(const ColorTable & color, HighColor ref)
     {
         const auto nearest([ref](auto x, auto y){ return distance(x, ref) < distance(y, ref); });
-        return std::distance(color.begin(), std::min_element(color.begin(), color.end(), nearest));
+        return static_cast<uint8_t>(std::distance(color.begin(), std::min_element(color.begin(), color.end(), nearest)));
     }
 
     template<typename OutputIterator>

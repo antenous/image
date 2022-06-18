@@ -103,16 +103,17 @@ namespace image
                 retireAfter(retireAfter)
             {}
 
-            Iterator & operator=(const Iterator & it) noexcept
+            Iterator & operator=(const Iterator & other) noexcept
             {
                 steps = 0;
-                return this->it = it;
+                return it = other;
             }
 
             Iterator & operator++() noexcept
             {
-                ++steps;
-                return it = std::next(it, step);
+                if (++steps < retireAfter)
+                    return it = std::next(it, step);
+                return it;
             }
 
             explicit operator bool() const noexcept

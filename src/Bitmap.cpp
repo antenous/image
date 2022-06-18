@@ -16,7 +16,7 @@ namespace
 
     constexpr std::uint32_t operator"" _dpi(unsigned long long int n)
     {
-        return n*inchesInMeter;
+        return static_cast<std::uint32_t>(n*inchesInMeter);
     }
 
     std::uint32_t bytesInRow(std::int32_t width, std::uint16_t bits)
@@ -77,5 +77,5 @@ uint8_t Bitmap::padding() const
 
 uint8_t Bitmap::Header::Info::padding() const
 {
-    return bytesInRow(width, bits) - width*3;
+    return static_cast<uint8_t>(bytesInRow(width, bits) - width*3);
 }

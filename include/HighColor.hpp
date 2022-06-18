@@ -79,12 +79,12 @@ namespace image
 
         inline auto interpolate(HighColor::Mask mask, HighColor::Color lhs, HighColor::Color rhs) noexcept
         {
-            return sample(mask, (2*sample(mask, lhs) + sample(mask, rhs))/3);
+            return sample(mask, static_cast<HighColor::Color>((2*sample(mask, lhs) + sample(mask, rhs))/3));
         }
 
         inline auto blend(HighColor::Mask mask, HighColor::Color lhs, HighColor::Color rhs) noexcept
         {
-            return sample(mask, (sample(mask, lhs) + sample(mask, rhs))/2);
+            return sample(mask, static_cast<HighColor::Color>((sample(mask, lhs) + sample(mask, rhs))/2));
         }
 
         inline auto distance(HighColor::Mask mask, HighColor::Color lhs, HighColor::Color rhs) noexcept
@@ -110,7 +110,7 @@ namespace image
 
     inline HighColor::Color HighColor::operator[](Mask mask) const noexcept
     {
-        return detail::sample(mask, color) >> detail::indexOfLsb(mask);
+        return static_cast<HighColor::Color>(detail::sample(mask, color) >> detail::indexOfLsb(mask));
     }
 
     /**
@@ -124,10 +124,10 @@ namespace image
     */
     inline auto interpolate(const HighColor & lhs, const HighColor & rhs) noexcept
     {
-        return HighColor(
+        return HighColor{static_cast<HighColor::Color>(
             detail::interpolate(HighColor::Mask::Red, lhs.color, rhs.color) |
             detail::interpolate(HighColor::Mask::Green, lhs.color, rhs.color) |
-            detail::interpolate(HighColor::Mask::Blue, lhs.color, rhs.color));
+            detail::interpolate(HighColor::Mask::Blue, lhs.color, rhs.color))};
     }
 
     /**
@@ -141,10 +141,10 @@ namespace image
     */
     inline auto blend(const HighColor & lhs, const HighColor & rhs) noexcept
     {
-        return HighColor(
+        return HighColor{static_cast<HighColor::Color>(
             detail::blend(HighColor::Mask::Red, lhs.color, rhs.color) |
             detail::blend(HighColor::Mask::Green, lhs.color, rhs.color) |
-            detail::blend(HighColor::Mask::Blue, lhs.color, rhs.color));
+            detail::blend(HighColor::Mask::Blue, lhs.color, rhs.color))};
     }
 
     /**

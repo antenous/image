@@ -44,7 +44,11 @@ TEST_F(TransformIteratorTest, TransformWithFunctor)
     const auto square([](auto i){ return i*i; });
     std::copy(
         std::begin(range), std::end(range),
+#ifndef _MSC_VER
         std::back_inserter(result) | transformed(square));
+#else
+        std::back_inserter(result) | transformed<std::function<int(int)>>(square));
+#endif
 
     EXPECT_EQ(Range({1, 4, 9}), result);
 }
